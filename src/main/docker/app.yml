@@ -9,7 +9,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:mysql://ormvah-mysql:3306/ormvah?useUnicode=true&characterEncoding=utf8&useSSL=false
       - JHIPSTER_SLEEP=30 # gives time for other services to boot before the application
     ports:
-      - 8080:8080
+      - 8100:8100
   ormvah-mysql:
     extends:
       file: mysql.yml

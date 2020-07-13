@@ -14,6 +14,24 @@
     <property name="uuidType" value="varchar(36)" dbms="h2, mysql, mariadb"/>
 
     <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200713001202_added_entity_Courrier.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200713001203_added_entity_NatureCourrier.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200713001204_added_entity_Voie.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200713001205_added_entity_Expeditor.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200713001206_added_entity_ExpeditorType.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200713001207_added_entity_Subdivision.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200713001208_added_entity_LeService.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200713001209_added_entity_Employee.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200713001210_added_entity_Task.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200713001211_added_entity_Evaluation.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200713001212_added_entity_CourrierObject.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200713001213_added_entity_ModelLettreReponse.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200713001214_added_entity_CategorieModelLettreReponse.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200713001215_added_entity_Bordereau.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
+    <include file="config/liquibase/changelog/20200713001202_added_entity_constraints_Courrier.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200713001209_added_entity_constraints_Employee.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200713001210_added_entity_constraints_Task.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20200713001213_added_entity_constraints_ModelLettreReponse.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
 </databaseChangeLog>

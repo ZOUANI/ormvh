@@ -1,0 +1,10 @@
+{
+  "ormvahApp": {
+    "Sexe": {
+      "null": "",
+      "Homme": "Homme",
+      "Femme": "Femme",
+      "Unknown": "Unknown"
+    }
+  }
+}

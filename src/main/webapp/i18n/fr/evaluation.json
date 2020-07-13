@@ -1,0 +1,26 @@
+{
+  "ormvahApp": {
+    "evaluation": {
+      "home": {
+        "title": "Evaluations",
+        "createLabel": "Créer un nouveau Evaluation",
+        "createOrEditLabel": "Créer ou éditer un Evaluation",
+        "notFound": "Aucun Evaluation trouvé"
+      },
+      "created": "Un nouveau Evaluation a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Evaluation avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Evaluation avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Evaluation {{ id }} ?"
+      },
+      "detail": {
+        "title": "Evaluation"
+      },
+      "title": "Title",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "createdBy": "Created By",
+      "updatedBy": "Updated By"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "ormvahApp": {
+    "leService": {
+      "home": {
+        "title": "Le Services",
+        "createLabel": "Create a new Le Service",
+        "createOrEditLabel": "Create or edit a Le Service",
+        "notFound": "No Le Service found"
+      },
+      "created": "A new Le Service is created with identifier {{ param }}",
+      "updated": "A Le Service is updated with identifier {{ param }}",
+      "deleted": "A Le Service is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Le Service {{ id }}?"
+      },
+      "detail": {
+        "title": "Le Service"
+      },
+      "title": "Title",
+      "description": "Description",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "createdBy": "Created By",
+      "updatedBy": "Updated By",
+      "courrier": "Courrier"
+    }
+  }
+}

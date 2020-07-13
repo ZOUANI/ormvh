@@ -1,0 +1,27 @@
+{
+  "ormvahApp": {
+    "courrierObject": {
+      "home": {
+        "title": "Courrier Objects",
+        "createLabel": "Create a new Courrier Object",
+        "createOrEditLabel": "Create or edit a Courrier Object",
+        "notFound": "No Courrier Object found"
+      },
+      "created": "A new Courrier Object is created with identifier {{ param }}",
+      "updated": "A Courrier Object is updated with identifier {{ param }}",
+      "deleted": "A Courrier Object is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Courrier Object {{ id }}?"
+      },
+      "detail": {
+        "title": "Courrier Object"
+      },
+      "title": "Title",
+      "category": "Category",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "createdBy": "Created By",
+      "updatedBy": "Updated By"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "ormvahApp": {
+    "voie": {
+      "home": {
+        "title": "Voies",
+        "createLabel": "Créer un nouveau Voie",
+        "createOrEditLabel": "Créer ou éditer un Voie",
+        "notFound": "Aucun Voie trouvé"
+      },
+      "created": "Un nouveau Voie a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Voie avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Voie avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Voie {{ id }} ?"
+      },
+      "detail": {
+        "title": "Voie"
+      },
+      "libelle": "Libelle",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "createdBy": "Created By",
+      "updatedBy": "Updated By"
+    }
+  }
+}

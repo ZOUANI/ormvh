@@ -1,0 +1,25 @@
+{
+  "ormvahApp": {
+    "modelLettreReponse": {
+      "home": {
+        "title": "ModelLettreReponses",
+        "createLabel": "Créer un nouveau Model Lettre Reponse",
+        "createOrEditLabel": "Créer ou éditer un Model Lettre Reponse",
+        "notFound": "Aucun Model Lettre Reponse trouvé"
+      },
+      "created": "Un nouveau Model Lettre Reponse a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Model Lettre Reponse avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Model Lettre Reponse avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Model Lettre Reponse {{ id }} ?"
+      },
+      "detail": {
+        "title": "Model Lettre Reponse"
+      },
+      "libelle": "Libelle",
+      "code": "Code",
+      "chemin": "Chemin",
+      "categorieModelLettreReponse": "Categorie Model Lettre Reponse"
+    }
+  }
+}

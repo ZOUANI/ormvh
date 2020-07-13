@@ -1,0 +1,39 @@
+{
+  "ormvahApp": {
+    "task": {
+      "home": {
+        "title": "Tasks",
+        "createLabel": "Créer un nouveau Task",
+        "createOrEditLabel": "Créer ou éditer un Task",
+        "notFound": "Aucun Task trouvé"
+      },
+      "created": "Un nouveau Task a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Task avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Task avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Task {{ id }} ?"
+      },
+      "detail": {
+        "title": "Task"
+      },
+      "title": "Title",
+      "description": "Description",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "assignedAt": "Assigned At",
+      "processedAt": "Processed At",
+      "observation": "Observation",
+      "status": "Status",
+      "createdBy": "Created By",
+      "updatedBy": "Updated By",
+      "delai": "Delai",
+      "relance": "Relance",
+      "accuse": "Accuse",
+      "reponse": "Reponse",
+      "dateAccuse": "Date Accuse",
+      "dateReponse": "Date Reponse",
+      "assigne": "Assigne",
+      "courrier": "Courrier"
+    }
+  }
+}

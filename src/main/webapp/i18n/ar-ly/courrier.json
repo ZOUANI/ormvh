@@ -1,0 +1,68 @@
+{
+  "ormvahApp": {
+    "courrier": {
+      "home": {
+        "title": "Courriers",
+        "createLabel": "Create a new Courrier",
+        "createOrEditLabel": "Create or edit a Courrier",
+        "notFound": "No Courrier found"
+      },
+      "created": "A new Courrier is created with identifier {{ param }}",
+      "updated": "A Courrier is updated with identifier {{ param }}",
+      "deleted": "A Courrier is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Courrier {{ id }}?"
+      },
+      "detail": {
+        "title": "Courrier"
+      },
+      "idCourrier": "Id Courrier",
+      "subject": "Subject",
+      "description": "Description",
+      "typeCourrier": "Type Courrier",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "createdBy": "Created By",
+      "updatedBy": "Updated By",
+      "delai": "Delai",
+      "relance": "Relance",
+      "accuse": "Accuse",
+      "reponse": "Reponse",
+      "dateAccuse": "Date Accuse",
+      "dateReponse": "Date Reponse",
+      "status": "Status",
+      "data": "Data",
+      "receivedAt": "Received At",
+      "instruction": "Instruction",
+      "expediteurDesc": "Expediteur Desc",
+      "sentAt": "Sent At",
+      "destinataireDesc": "Destinataire Desc",
+      "destinataireVille": "Destinataire Ville",
+      "voie": "Voie",
+      "natureCourrier": "Nature Courrier",
+      "linkedTo": "Linked To",
+      "task": "Task",
+      "expeditor": "Expeditor",
+      "destinator": "Destinator",
+      "coordinator": "Coordinator",
+      "emetteur": "Emetteur",
+      "evaluation": "Evaluation",
+      "courrierObject": "Courrier Object",
+      "expeditorType": "Expeditor Type",
+      "subdivision": "Subdivision",
+      "services": "Services",
+      "bordereau": "Bordereau",
+      "help": {
+        "idCourrier": "Identifiant du courrier",
+        "subject": "Objet",
+        "typeCourrier": "Arrivée / Sortie",
+        "status": "status",
+        "receivedAt": "Date d&#39;arrivée",
+        "expediteurDesc": "Expediteur description",
+        "sentAt": "Date d&#39;envoie",
+        "destinataireDesc": "destinataire description",
+        "destinataireVille": "destinataire ville"
+      }
+    }
+  }
+}

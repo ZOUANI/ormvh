@@ -1,0 +1,22 @@
+{
+  "ormvahApp": {
+    "categorieModelLettreReponse": {
+      "home": {
+        "title": "Categorie Model Lettre Reponses",
+        "createLabel": "Create a new Categorie Model Lettre Reponse",
+        "createOrEditLabel": "Create or edit a Categorie Model Lettre Reponse",
+        "notFound": "No Categorie Model Lettre Reponse found"
+      },
+      "created": "A new Categorie Model Lettre Reponse is created with identifier {{ param }}",
+      "updated": "A Categorie Model Lettre Reponse is updated with identifier {{ param }}",
+      "deleted": "A Categorie Model Lettre Reponse is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Categorie Model Lettre Reponse {{ id }}?"
+      },
+      "detail": {
+        "title": "Categorie Model Lettre Reponse"
+      },
+      "libelle": "Libelle"
+    }
+  }
+}

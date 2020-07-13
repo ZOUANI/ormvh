@@ -1,0 +1,10 @@
+{
+  "ormvahApp": {
+    "Status": {
+      "null": "",
+      "Ouvert": "Ouvert",
+      "Encours": "Encours",
+      "Traite": "Traite"
+    }
+  }
+}

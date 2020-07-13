@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd">
+    <!--
+        Added the constraints for entity Courrier.
+    -->
+    <changeSet id="20200713001202-2" author="jhipster">
+        
+        <addForeignKeyConstraint baseColumnNames="voie_id"
+                                 baseTableName="courrier"
+                                 constraintName="fk_courrier_voie_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="voie"/>
+
+        <addForeignKeyConstraint baseColumnNames="nature_courrier_id"
+                                 baseTableName="courrier"
+                                 constraintName="fk_courrier_nature_courrier_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="nature_courrier"/>
+
+        <addForeignKeyConstraint baseColumnNames="linked_to_id"
+                                 baseTableName="courrier"
+                                 constraintName="fk_courrier_linked_to_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="courrier"/>
+
+        <addForeignKeyConstraint baseColumnNames="expeditor_id"
+                                 baseTableName="courrier"
+                                 constraintName="fk_courrier_expeditor_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="expeditor"/>
+
+        <addForeignKeyConstraint baseColumnNames="destinator_id"
+                                 baseTableName="courrier"
+                                 constraintName="fk_courrier_destinator_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="expeditor"/>
+
+        <addForeignKeyConstraint baseColumnNames="coordinator_id"
+                                 baseTableName="courrier"
+                                 constraintName="fk_courrier_coordinator_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="le_service"/>
+
+        <addForeignKeyConstraint baseColumnNames="emetteur_id"
+                                 baseTableName="courrier"
+                                 constraintName="fk_courrier_emetteur_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="le_service"/>
+
+        <addForeignKeyConstraint baseColumnNames="evaluation_id"
+                                 baseTableName="courrier"
+                                 constraintName="fk_courrier_evaluation_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="evaluation"/>
+
+        <addForeignKeyConstraint baseColumnNames="courrier_object_id"
+                                 baseTableName="courrier"
+                                 constraintName="fk_courrier_courrier_object_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="courrier_object"/>
+
+        <addForeignKeyConstraint baseColumnNames="expeditor_type_id"
+                                 baseTableName="courrier"
+                                 constraintName="fk_courrier_expeditor_type_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="expeditor_type"/>
+
+        <addForeignKeyConstraint baseColumnNames="subdivision_id"
+                                 baseTableName="courrier"
+                                 constraintName="fk_courrier_subdivision_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="subdivision"/>
+
+        <addForeignKeyConstraint baseColumnNames="courrier_id"
+                                 baseTableName="courrier_services"
+                                 constraintName="fk_courrier_services_courrier_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="courrier"/>
+
+        <addForeignKeyConstraint baseColumnNames="services_id"
+                                 baseTableName="courrier_services"
+                                 constraintName="fk_courrier_services_services_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="le_service"/>
+        
+        <addForeignKeyConstraint baseColumnNames="bordereau_id"
+                                 baseTableName="courrier"
+                                 constraintName="fk_courrier_bordereau_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="bordereau"/>
+
+    </changeSet>
+</databaseChangeLog>

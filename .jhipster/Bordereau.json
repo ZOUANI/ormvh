@@ -1,0 +1,41 @@
+{
+    "name": "Bordereau",
+    "fields": [
+        {
+            "fieldName": "libelle",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "description",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "nombrePieceJointe",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "dateBordereaux",
+            "fieldType": "LocalDate"
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "one-to-many",
+            "otherEntityName": "courrier",
+            "otherEntityRelationshipName": "bordereau",
+            "relationshipName": "courrier"
+        }
+    ],
+    "changelogDate": "20200713001215",
+    "entityTableName": "bordereau",
+    "dto": "no",
+    "pagination": "no",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": false,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}

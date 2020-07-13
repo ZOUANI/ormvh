@@ -1,0 +1,26 @@
+{
+  "ormvahApp": {
+    "expeditorType": {
+      "home": {
+        "title": "Expeditor Types",
+        "createLabel": "Create a new Expeditor Type",
+        "createOrEditLabel": "Create or edit a Expeditor Type",
+        "notFound": "No Expeditor Type found"
+      },
+      "created": "A new Expeditor Type is created with identifier {{ param }}",
+      "updated": "A Expeditor Type is updated with identifier {{ param }}",
+      "deleted": "A Expeditor Type is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Expeditor Type {{ id }}?"
+      },
+      "detail": {
+        "title": "Expeditor Type"
+      },
+      "title": "Title",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "createdBy": "Created By",
+      "updatedBy": "Updated By"
+    }
+  }
+}

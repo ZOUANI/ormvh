@@ -1,0 +1,224 @@
+
+// ============
+// -Courrier
+//=============
+entity Courrier {
+    idCourrier String /** Identifiant du courrier */
+    subject String /** Objet */
+    description String
+    typeCourrier TypeCourrier /** Arrivée / Sortie */
+    createdAt Instant
+    updatedAt Instant
+    createdBy String 
+    updatedBy String
+    delai Double
+    relance Double
+    accuse Boolean
+    reponse Boolean
+    dateAccuse LocalDate
+    dateReponse LocalDate
+    
+
+    status Status /** status */
+
+    data Blob
+
+    // Arrivee
+    receivedAt Instant /** Date d'arrivée */
+    instruction String
+    expediteurDesc String /** Expediteur description */
+
+    // Sortie
+    sentAt Instant /** Date d'envoie */
+    destinataireDesc String /** destinataire description */
+    destinataireVille String /** destinataire ville */
+}
+enum TypeCourrier { Arrivee, Sortie }
+
+// ============
+// -NatureCourrier
+//=============
+entity NatureCourrier {
+  libelle String required
+   delai Double
+    relance Double
+  createdAt Instant
+    updatedAt Instant
+      createdBy String 
+    updatedBy String
+ 
+}
+// ============
+// -Voie
+//=============
+entity Voie {
+  libelle String required
+  createdAt Instant
+    updatedAt Instant
+      createdBy String 
+    updatedBy String
+}
+
+//=============
+/** -Expeditor/Destinator */
+entity Expeditor {
+    title String
+    description String
+    nature String
+    sexe Sexe
+	age Integer
+    nationality String
+    adress String
+    createdAt Instant
+    updatedAt Instant
+      createdBy String 
+    updatedBy String
+}
+enum Sexe{	Homme, Femme, Unknown }
+
+entity ExpeditorType {
+    title String
+    createdAt Instant
+    updatedAt Instant
+      createdBy String 
+    updatedBy String
+}
+
+entity Subdivision {
+    title String
+    createdAt Instant
+    updatedAt Instant
+      createdBy String 
+    updatedBy String
+}
+
+entity LeService {
+	title String
+    description String
+    createdAt Instant
+    updatedAt Instant
+      createdBy String 
+    updatedBy String
+}
+
+
+entity Employee {
+createdAt Instant
+    updatedAt Instant
+      createdBy String 
+    updatedBy String
+}
+
+entity Task {
+	title String
+	description String
+	createdAt Instant
+    updatedAt Instant
+	assignedAt Instant
+    processedAt Instant
+    observation String
+    status Status
+      createdBy String 
+    updatedBy String
+        delai Double
+    relance Double
+    accuse Boolean
+    reponse Boolean
+    dateAccuse LocalDate
+    dateReponse LocalDate
+}
+enum Status { Ouvert, Encours, Traite }
+
+entity Evaluation {
+    title String
+    createdAt Instant
+    updatedAt Instant
+      createdBy String 
+    updatedBy String
+}
+
+entity CourrierObject {
+    title String
+    category String
+    createdAt Instant
+    updatedAt Instant
+      createdBy String 
+    updatedBy String
+}
+
+entity  ModelLettreReponse{
+libelle String required
+code String required
+chemin String required
+}
+entity  CategorieModelLettreReponse{
+libelle String required
+}
+entity  Bordereau{
+libelle String required
+description String
+nombrePieceJointe Integer
+dateBordereaux LocalDate
+}
+// ===========================
+// Relations
+// ===========================
+relationship OneToOne {
+ Courrier{voie} to Voie,
+ Courrier{natureCourrier} to NatureCourrier
+ ModelLettreReponse{categorieModelLettreReponse} to CategorieModelLettreReponse
+}
+
+
+relationship OneToOne {
+  Courrier{linkedTo} to Courrier //** Liaison de courrier */
+  Employee{user} to User //** employ data */
+}
+
+relationship OneToMany {
+  Courrier{task} to Task{courrier} //** Tasks */
+  Bordereau{courrier} to Courrier{bordereau}
+}
+
+relationship ManyToOne {
+	Courrier{expeditor} to Expeditor, //** Expeditor */
+    Courrier{destinator} to Expeditor, //** Destinator */
+    Courrier{coordinator} to LeService, //** Coordinateur */
+    Courrier{emetteur} to LeService, //** emmeteur */
+    Employee{service} to LeService, //** service */
+    Task{assigne} to User //** */
+    Courrier{evaluation} to Evaluation,
+    Courrier{courrierObject} to CourrierObject,
+    Courrier{expeditorType} to ExpeditorType
+    Courrier{subdivision} to Subdivision
+}
+
+relationship ManyToMany {
+	Courrier{services} to LeService{courrier}, //** Courrier destiné à plusieurs service */
+}
+
+
+// Set filters
+filter Courrier,
+		Task,
+		Employee,
+        LeService,
+        Expeditor
+
+// Set pagination options
+paginate Courrier,
+		LeService,
+		Task,
+		Employee,
+        Expeditor with pagination
+
+// Use Data Transfert Objects (DTO)
+// dto * with mapstruct
+
+// Set service options to all except few
+service all with serviceImpl
+
+// Set an angular suffix
+// angularSuffix * with mySuffix
+
+

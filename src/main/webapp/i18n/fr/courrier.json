@@ -1,0 +1,68 @@
+{
+  "ormvahApp": {
+    "courrier": {
+      "home": {
+        "title": "Courriers",
+        "createLabel": "Créer un nouveau Courrier",
+        "createOrEditLabel": "Créer ou éditer un Courrier",
+        "notFound": "Aucun Courrier trouvé"
+      },
+      "created": "Un nouveau Courrier a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Courrier avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Courrier avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Courrier {{ id }} ?"
+      },
+      "detail": {
+        "title": "Courrier"
+      },
+      "idCourrier": "Id Courrier",
+      "subject": "Subject",
+      "description": "Description",
+      "typeCourrier": "Type Courrier",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "createdBy": "Created By",
+      "updatedBy": "Updated By",
+      "delai": "Delai",
+      "relance": "Relance",
+      "accuse": "Accuse",
+      "reponse": "Reponse",
+      "dateAccuse": "Date Accuse",
+      "dateReponse": "Date Reponse",
+      "status": "Status",
+      "data": "Data",
+      "receivedAt": "Received At",
+      "instruction": "Instruction",
+      "expediteurDesc": "Expediteur Desc",
+      "sentAt": "Sent At",
+      "destinataireDesc": "Destinataire Desc",
+      "destinataireVille": "Destinataire Ville",
+      "voie": "Voie",
+      "natureCourrier": "Nature Courrier",
+      "linkedTo": "Linked To",
+      "task": "Task",
+      "expeditor": "Expeditor",
+      "destinator": "Destinator",
+      "coordinator": "Coordinator",
+      "emetteur": "Emetteur",
+      "evaluation": "Evaluation",
+      "courrierObject": "Courrier Object",
+      "expeditorType": "Expeditor Type",
+      "subdivision": "Subdivision",
+      "services": "Services",
+      "bordereau": "Bordereau",
+      "help": {
+        "idCourrier": "Identifiant du courrier",
+        "subject": "Objet",
+        "typeCourrier": "Arrivée / Sortie",
+        "status": "status",
+        "receivedAt": "Date d&#39;arrivée",
+        "expediteurDesc": "Expediteur description",
+        "sentAt": "Date d&#39;envoie",
+        "destinataireDesc": "destinataire description",
+        "destinataireVille": "destinataire ville"
+      }
+    }
+  }
+}

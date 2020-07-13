@@ -1,0 +1,22 @@
+{
+  "ormvahApp": {
+    "categorieModelLettreReponse": {
+      "home": {
+        "title": "CategorieModelLettreReponses",
+        "createLabel": "Créer un nouveau Categorie Model Lettre Reponse",
+        "createOrEditLabel": "Créer ou éditer un Categorie Model Lettre Reponse",
+        "notFound": "Aucun Categorie Model Lettre Reponse trouvé"
+      },
+      "created": "Un nouveau Categorie Model Lettre Reponse a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Categorie Model Lettre Reponse avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Categorie Model Lettre Reponse avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Categorie Model Lettre Reponse {{ id }} ?"
+      },
+      "detail": {
+        "title": "Categorie Model Lettre Reponse"
+      },
+      "libelle": "Libelle"
+    }
+  }
+}

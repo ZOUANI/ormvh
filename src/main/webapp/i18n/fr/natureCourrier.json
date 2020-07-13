@@ -1,0 +1,28 @@
+{
+  "ormvahApp": {
+    "natureCourrier": {
+      "home": {
+        "title": "NatureCourriers",
+        "createLabel": "Créer un nouveau Nature Courrier",
+        "createOrEditLabel": "Créer ou éditer un Nature Courrier",
+        "notFound": "Aucun Nature Courrier trouvé"
+      },
+      "created": "Un nouveau Nature Courrier a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Nature Courrier avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Nature Courrier avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Nature Courrier {{ id }} ?"
+      },
+      "detail": {
+        "title": "Nature Courrier"
+      },
+      "libelle": "Libelle",
+      "delai": "Delai",
+      "relance": "Relance",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "createdBy": "Created By",
+      "updatedBy": "Updated By"
+    }
+  }
+}

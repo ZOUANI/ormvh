@@ -1,0 +1,26 @@
+{
+  "ormvahApp": {
+    "subdivision": {
+      "home": {
+        "title": "Subdivisions",
+        "createLabel": "Créer un nouveau Subdivision",
+        "createOrEditLabel": "Créer ou éditer un Subdivision",
+        "notFound": "Aucun Subdivision trouvé"
+      },
+      "created": "Un nouveau Subdivision a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Subdivision avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Subdivision avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Etes-vous certain de vouloir supprimer le Subdivision {{ id }} ?"
+      },
+      "detail": {
+        "title": "Subdivision"
+      },
+      "title": "Title",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "createdBy": "Created By",
+      "updatedBy": "Updated By"
+    }
+  }
+}

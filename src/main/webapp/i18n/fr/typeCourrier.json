@@ -1,0 +1,9 @@
+{
+  "ormvahApp": {
+    "TypeCourrier": {
+      "null": "",
+      "Arrivee": "Arrivee",
+      "Sortie": "Sortie"
+    }
+  }
+}

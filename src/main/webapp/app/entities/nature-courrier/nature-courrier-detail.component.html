@@ -1,0 +1,51 @@
+<div class="row justify-content-center">
+    <div class="col-8">
+        <div *ngIf="natureCourrier">
+            <h2><span jhiTranslate="ormvahApp.natureCourrier.detail.title">Nature Courrier</span> {{natureCourrier.id}}</h2>
+            <hr>
+            <jhi-alert-error></jhi-alert-error>
+            <dl class="row-md jh-entity-details">
+                <dt><span jhiTranslate="ormvahApp.natureCourrier.libelle">Libelle</span></dt>
+                <dd>
+                    <span>{{natureCourrier.libelle}}</span>
+                </dd>
+                <dt><span jhiTranslate="ormvahApp.natureCourrier.delai">Delai</span></dt>
+                <dd>
+                    <span>{{natureCourrier.delai}}</span>
+                </dd>
+                <dt><span jhiTranslate="ormvahApp.natureCourrier.relance">Relance</span></dt>
+                <dd>
+                    <span>{{natureCourrier.relance}}</span>
+                </dd>
+                <dt><span jhiTranslate="ormvahApp.natureCourrier.createdAt">Created At</span></dt>
+                <dd>
+                    <span>{{natureCourrier.createdAt}}</span>
+                </dd>
+                <dt><span jhiTranslate="ormvahApp.natureCourrier.updatedAt">Updated At</span></dt>
+                <dd>
+                    <span>{{natureCourrier.updatedAt}}</span>
+                </dd>
+                <dt><span jhiTranslate="ormvahApp.natureCourrier.createdBy">Created By</span></dt>
+                <dd>
+                    <span>{{natureCourrier.createdBy}}</span>
+                </dd>
+                <dt><span jhiTranslate="ormvahApp.natureCourrier.updatedBy">Updated By</span></dt>
+                <dd>
+                    <span>{{natureCourrier.updatedBy}}</span>
+                </dd>
+            </dl>
+
+            <button type="submit"
+                    (click)="previousState()"
+                    class="btn btn-info">
+                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+            </button>
+
+            <button type="button"
+                    [routerLink]="['/nature-courrier', natureCourrier.id, 'edit']"
+                    class="btn btn-primary">
+                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+            </button>
+        </div>
+    </div>
+</div>

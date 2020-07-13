@@ -7,6 +7,20 @@
       "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
       "entities": {
         "main": "Entités",
+        "courrier": "Courrier",
+        "natureCourrier": "Nature Courrier",
+        "voie": "Voie",
+        "expeditor": "Expeditor",
+        "expeditorType": "Expeditor Type",
+        "subdivision": "Subdivision",
+        "leService": "Le Service",
+        "employee": "Employee",
+        "task": "Task",
+        "evaluation": "Evaluation",
+        "courrierObject": "Courrier Object",
+        "modelLettreReponse": "Model Lettre Reponse",
+        "categorieModelLettreReponse": "Categorie Model Lettre Reponse",
+        "bordereau": "Bordereau",
         "jhipster-needle-menu-add-entry": "JHipster will add additional entities here (do not translate!)"
       },
       "account": {

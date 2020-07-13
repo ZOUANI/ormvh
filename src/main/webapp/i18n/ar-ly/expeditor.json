@@ -1,0 +1,32 @@
+{
+  "ormvahApp": {
+    "expeditor": {
+      "home": {
+        "title": "Expeditors",
+        "createLabel": "Create a new Expeditor",
+        "createOrEditLabel": "Create or edit a Expeditor",
+        "notFound": "No Expeditor found"
+      },
+      "created": "A new Expeditor is created with identifier {{ param }}",
+      "updated": "A Expeditor is updated with identifier {{ param }}",
+      "deleted": "A Expeditor is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Expeditor {{ id }}?"
+      },
+      "detail": {
+        "title": "Expeditor"
+      },
+      "title": "Title",
+      "description": "Description",
+      "nature": "Nature",
+      "sexe": "Sexe",
+      "age": "Age",
+      "nationality": "Nationality",
+      "adress": "Adress",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "createdBy": "Created By",
+      "updatedBy": "Updated By"
+    }
+  }
+}

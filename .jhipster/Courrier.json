@@ -1,0 +1,217 @@
+{
+    "name": "Courrier",
+    "fields": [
+        {
+            "fieldName": "idCourrier",
+            "javadoc": "Identifiant du courrier",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "subject",
+            "javadoc": "Objet",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "description",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "typeCourrier",
+            "javadoc": "Arrivée / Sortie",
+            "fieldType": "TypeCourrier",
+            "fieldValues": "Arrivee,Sortie"
+        },
+        {
+            "fieldName": "createdAt",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "updatedAt",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "createdBy",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "updatedBy",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "delai",
+            "fieldType": "Double"
+        },
+        {
+            "fieldName": "relance",
+            "fieldType": "Double"
+        },
+        {
+            "fieldName": "accuse",
+            "fieldType": "Boolean"
+        },
+        {
+            "fieldName": "reponse",
+            "fieldType": "Boolean"
+        },
+        {
+            "fieldName": "dateAccuse",
+            "fieldType": "LocalDate"
+        },
+        {
+            "fieldName": "dateReponse",
+            "fieldType": "LocalDate"
+        },
+        {
+            "fieldName": "status",
+            "javadoc": "status",
+            "fieldType": "Status",
+            "fieldValues": "Ouvert,Encours,Traite"
+        },
+        {
+            "fieldName": "data",
+            "fieldType": "byte[]",
+            "fieldTypeBlobContent": "any"
+        },
+        {
+            "fieldName": "receivedAt",
+            "javadoc": "Date d'arrivée",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "instruction",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "expediteurDesc",
+            "javadoc": "Expediteur description",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "sentAt",
+            "javadoc": "Date d'envoie",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "destinataireDesc",
+            "javadoc": "destinataire description",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "destinataireVille",
+            "javadoc": "destinataire ville",
+            "fieldType": "String"
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "one-to-one",
+            "otherEntityName": "voie",
+            "otherEntityRelationshipName": "courrier",
+            "relationshipName": "voie",
+            "otherEntityField": "id",
+            "ownerSide": true
+        },
+        {
+            "relationshipType": "one-to-one",
+            "otherEntityName": "natureCourrier",
+            "otherEntityRelationshipName": "courrier",
+            "relationshipName": "natureCourrier",
+            "otherEntityField": "id",
+            "ownerSide": true
+        },
+        {
+            "relationshipType": "one-to-one",
+            "otherEntityName": "courrier",
+            "otherEntityRelationshipName": "courrier",
+            "relationshipName": "linkedTo",
+            "otherEntityField": "id",
+            "ownerSide": true
+        },
+        {
+            "relationshipType": "one-to-many",
+            "otherEntityName": "task",
+            "otherEntityRelationshipName": "courrier",
+            "relationshipName": "task"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "expeditor",
+            "otherEntityRelationshipName": "courrier",
+            "relationshipName": "expeditor",
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "expeditor",
+            "otherEntityRelationshipName": "courrier",
+            "relationshipName": "destinator",
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "leService",
+            "otherEntityRelationshipName": "courrier",
+            "relationshipName": "coordinator",
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "leService",
+            "otherEntityRelationshipName": "courrier",
+            "relationshipName": "emetteur",
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "evaluation",
+            "otherEntityRelationshipName": "courrier",
+            "relationshipName": "evaluation",
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "courrierObject",
+            "otherEntityRelationshipName": "courrier",
+            "relationshipName": "courrierObject",
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "expeditorType",
+            "otherEntityRelationshipName": "courrier",
+            "relationshipName": "expeditorType",
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "subdivision",
+            "otherEntityRelationshipName": "courrier",
+            "relationshipName": "subdivision",
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipType": "many-to-many",
+            "otherEntityName": "leService",
+            "otherEntityRelationshipName": "courrier",
+            "relationshipName": "services",
+            "otherEntityField": "id",
+            "ownerSide": true
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "bordereau",
+            "otherEntityRelationshipName": "courrier",
+            "relationshipName": "bordereau",
+            "otherEntityField": "id"
+        }
+    ],
+    "changelogDate": "20200713001202",
+    "entityTableName": "courrier",
+    "dto": "no",
+    "pagination": "pagination",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": true,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}

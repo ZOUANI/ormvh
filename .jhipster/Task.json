@@ -1,0 +1,95 @@
+{
+    "name": "Task",
+    "fields": [
+        {
+            "fieldName": "title",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "description",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "createdAt",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "updatedAt",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "assignedAt",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "processedAt",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "observation",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "status",
+            "fieldType": "Status",
+            "fieldValues": "Ouvert,Encours,Traite"
+        },
+        {
+            "fieldName": "createdBy",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "updatedBy",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "delai",
+            "fieldType": "Double"
+        },
+        {
+            "fieldName": "relance",
+            "fieldType": "Double"
+        },
+        {
+            "fieldName": "accuse",
+            "fieldType": "Boolean"
+        },
+        {
+            "fieldName": "reponse",
+            "fieldType": "Boolean"
+        },
+        {
+            "fieldName": "dateAccuse",
+            "fieldType": "LocalDate"
+        },
+        {
+            "fieldName": "dateReponse",
+            "fieldType": "LocalDate"
+        }
+    ],
+    "relationships": [
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "user",
+            "otherEntityRelationshipName": "task",
+            "relationshipName": "assigne",
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "otherEntityName": "courrier",
+            "otherEntityRelationshipName": "task",
+            "relationshipName": "courrier",
+            "otherEntityField": "id"
+        }
+    ],
+    "changelogDate": "20200713001210",
+    "entityTableName": "task",
+    "dto": "no",
+    "pagination": "pagination",
+    "service": "serviceImpl",
+    "jpaMetamodelFiltering": true,
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "applications": "*"
+}

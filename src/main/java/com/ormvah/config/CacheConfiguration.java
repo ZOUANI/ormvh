@@ -45,6 +45,24 @@ public class CacheConfiguration {
             createCache(cm, com.ormvah.domain.User.class.getName() + ".authorities");
             createCache(cm, com.ormvah.domain.PersistentToken.class.getName());
             createCache(cm, com.ormvah.domain.User.class.getName() + ".persistentTokens");
+            createCache(cm, com.ormvah.domain.Courrier.class.getName());
+            createCache(cm, com.ormvah.domain.Courrier.class.getName() + ".tasks");
+            createCache(cm, com.ormvah.domain.Courrier.class.getName() + ".services");
+            createCache(cm, com.ormvah.domain.NatureCourrier.class.getName());
+            createCache(cm, com.ormvah.domain.Voie.class.getName());
+            createCache(cm, com.ormvah.domain.Expeditor.class.getName());
+            createCache(cm, com.ormvah.domain.ExpeditorType.class.getName());
+            createCache(cm, com.ormvah.domain.Subdivision.class.getName());
+            createCache(cm, com.ormvah.domain.LeService.class.getName());
+            createCache(cm, com.ormvah.domain.LeService.class.getName() + ".courriers");
+            createCache(cm, com.ormvah.domain.Employee.class.getName());
+            createCache(cm, com.ormvah.domain.Task.class.getName());
+            createCache(cm, com.ormvah.domain.Evaluation.class.getName());
+            createCache(cm, com.ormvah.domain.CourrierObject.class.getName());
+            createCache(cm, com.ormvah.domain.ModelLettreReponse.class.getName());
+            createCache(cm, com.ormvah.domain.CategorieModelLettreReponse.class.getName());
+            createCache(cm, com.ormvah.domain.Bordereau.class.getName());
+            createCache(cm, com.ormvah.domain.Bordereau.class.getName() + ".courriers");
             // jhipster-needle-ehcache-add-entry
         };
     }
