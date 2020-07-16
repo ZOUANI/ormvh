@@ -1,39 +1,39 @@
 {
-    "name": "CourrierObject",
-    "fields": [
-        {
-            "fieldName": "title",
-            "fieldType": "String"
-        },
-        {
-            "fieldName": "category",
-            "fieldType": "String"
-        },
-        {
-            "fieldName": "createdAt",
-            "fieldType": "Instant"
-        },
-        {
-            "fieldName": "updatedAt",
-            "fieldType": "Instant"
-        },
-        {
-            "fieldName": "createdBy",
-            "fieldType": "String"
-        },
-        {
-            "fieldName": "updatedBy",
-            "fieldType": "String"
-        }
-    ],
-    "relationships": [],
-    "changelogDate": "20200713001212",
-    "entityTableName": "courrier_object",
-    "dto": "no",
-    "pagination": "no",
-    "service": "serviceImpl",
-    "jpaMetamodelFiltering": false,
-    "fluentMethods": true,
-    "clientRootFolder": "",
-    "applications": "*"
+  "name": "CourrierObject",
+  "fields": [
+    {
+      "fieldName": "title",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "category",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "createdAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "updatedAt",
+      "fieldType": "Instant"
+    },
+    {
+      "fieldName": "createdBy",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "updatedBy",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [],
+  "changelogDate": "20200713001212",
+  "entityTableName": "courrier_object",
+  "dto": "no",
+  "pagination": "no",
+  "service": "serviceImpl",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "clientRootFolder": "",
+  "applications": "*"
 }

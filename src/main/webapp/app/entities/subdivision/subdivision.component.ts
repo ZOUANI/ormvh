@@ -1,65 +1,53 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
+import { JhiEventManager } from 'ng-jhipster';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { ISubdivision } from 'app/shared/model/subdivision.model';
-import { AccountService } from 'app/core';
 import { SubdivisionService } from './subdivision.service';
+import { SubdivisionDeleteDialogComponent } from './subdivision-delete-dialog.component';
 
 @Component({
   selector: 'jhi-subdivision',
-  templateUrl: './subdivision.component.html'
+  templateUrl: './subdivision.component.html',
 })
 export class SubdivisionComponent implements OnInit, OnDestroy {
-  subdivisions: ISubdivision[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+  subdivisions?: ISubdivision[];
+  eventSubscriber?: Subscription;
 
   constructor(
     protected subdivisionService: SubdivisionService,
-    protected jhiAlertService: JhiAlertService,
     protected eventManager: JhiEventManager,
-    protected accountService: AccountService
+    protected modalService: NgbModal
   ) {}
 
-  loadAll() {
-    this.subdivisionService
-      .query()
-      .pipe(
-        filter((res: HttpResponse<ISubdivision[]>) => res.ok),
-        map((res: HttpResponse<ISubdivision[]>) => res.body)
-      )
-      .subscribe(
-        (res: ISubdivision[]) => {
-          this.subdivisions = res;
-        },
-        (res: HttpErrorResponse) => this.onError(res.message)
-      );
+  loadAll(): void {
+    this.subdivisionService.query().subscribe((res: HttpResponse<ISubdivision[]>) => (this.subdivisions = res.body || []));
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
     this.registerChangeInSubdivisions();
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  ngOnDestroy(): void {
+    if (this.eventSubscriber) {
+      this.eventManager.destroy(this.eventSubscriber);
+    }
   }
 
-  trackId(index: number, item: ISubdivision) {
-    return item.id;
+  trackId(index: number, item: ISubdivision): number {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    return item.id!;
   }
 
-  registerChangeInSubdivisions() {
-    this.eventSubscriber = this.eventManager.subscribe('subdivisionListModification', response => this.loadAll());
+  registerChangeInSubdivisions(): void {
+    this.eventSubscriber = this.eventManager.subscribe('subdivisionListModification', () => this.loadAll());
   }
 
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  delete(subdivision: ISubdivision): void {
+    const modalRef = this.modalService.open(SubdivisionDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
+    modalRef.componentInstance.subdivision = subdivision;
   }
 }

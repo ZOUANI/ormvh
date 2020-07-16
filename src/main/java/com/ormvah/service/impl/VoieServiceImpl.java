@@ -27,23 +27,12 @@ public class VoieServiceImpl implements VoieService {
         this.voieRepository = voieRepository;
     }
 
-    /**
-     * Save a voie.
-     *
-     * @param voie the entity to save.
-     * @return the persisted entity.
-     */
     @Override
     public Voie save(Voie voie) {
         log.debug("Request to save Voie : {}", voie);
         return voieRepository.save(voie);
     }
 
-    /**
-     * Get all the voies.
-     *
-     * @return the list of entities.
-     */
     @Override
     @Transactional(readOnly = true)
     public List<Voie> findAll() {
@@ -52,12 +41,6 @@ public class VoieServiceImpl implements VoieService {
     }
 
 
-    /**
-     * Get one voie by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<Voie> findOne(Long id) {
@@ -65,11 +48,6 @@ public class VoieServiceImpl implements VoieService {
         return voieRepository.findById(id);
     }
 
-    /**
-     * Delete the voie by id.
-     *
-     * @param id the id of the entity.
-     */
     @Override
     public void delete(Long id) {
         log.debug("Request to delete Voie : {}", id);

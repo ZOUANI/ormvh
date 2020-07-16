@@ -1,87 +1,82 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { JhiAlertService } from 'ng-jhipster';
+import { map } from 'rxjs/operators';
+
 import { IModelLettreReponse, ModelLettreReponse } from 'app/shared/model/model-lettre-reponse.model';
 import { ModelLettreReponseService } from './model-lettre-reponse.service';
 import { ICategorieModelLettreReponse } from 'app/shared/model/categorie-model-lettre-reponse.model';
-import { CategorieModelLettreReponseService } from 'app/entities/categorie-model-lettre-reponse';
+import { CategorieModelLettreReponseService } from 'app/entities/categorie-model-lettre-reponse/categorie-model-lettre-reponse.service';
 
 @Component({
   selector: 'jhi-model-lettre-reponse-update',
-  templateUrl: './model-lettre-reponse-update.component.html'
+  templateUrl: './model-lettre-reponse-update.component.html',
 })
 export class ModelLettreReponseUpdateComponent implements OnInit {
-  isSaving: boolean;
-
-  categoriemodellettrereponses: ICategorieModelLettreReponse[];
+  isSaving = false;
+  categoriemodellettrereponses: ICategorieModelLettreReponse[] = [];
 
   editForm = this.fb.group({
     id: [],
     libelle: [null, [Validators.required]],
     code: [null, [Validators.required]],
     chemin: [null, [Validators.required]],
-    categorieModelLettreReponse: []
+    categorieModelLettreReponse: [],
   });
 
   constructor(
-    protected jhiAlertService: JhiAlertService,
     protected modelLettreReponseService: ModelLettreReponseService,
     protected categorieModelLettreReponseService: CategorieModelLettreReponseService,
     protected activatedRoute: ActivatedRoute,
     private fb: FormBuilder
   ) {}
 
-  ngOnInit() {
-    this.isSaving = false;
+  ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ modelLettreReponse }) => {
       this.updateForm(modelLettreReponse);
-    });
-    this.categorieModelLettreReponseService
-      .query({ filter: 'modellettrereponse-is-null' })
-      .pipe(
-        filter((mayBeOk: HttpResponse<ICategorieModelLettreReponse[]>) => mayBeOk.ok),
-        map((response: HttpResponse<ICategorieModelLettreReponse[]>) => response.body)
-      )
-      .subscribe(
-        (res: ICategorieModelLettreReponse[]) => {
-          if (!this.editForm.get('categorieModelLettreReponse').value || !this.editForm.get('categorieModelLettreReponse').value.id) {
-            this.categoriemodellettrereponses = res;
+
+      this.categorieModelLettreReponseService
+        .query({ filter: 'modellettrereponse-is-null' })
+        .pipe(
+          map((res: HttpResponse<ICategorieModelLettreReponse[]>) => {
+            return res.body || [];
+          })
+        )
+        .subscribe((resBody: ICategorieModelLettreReponse[]) => {
+          if (!modelLettreReponse.categorieModelLettreReponse || !modelLettreReponse.categorieModelLettreReponse.id) {
+            this.categoriemodellettrereponses = resBody;
           } else {
             this.categorieModelLettreReponseService
-              .find(this.editForm.get('categorieModelLettreReponse').value.id)
+              .find(modelLettreReponse.categorieModelLettreReponse.id)
               .pipe(
-                filter((subResMayBeOk: HttpResponse<ICategorieModelLettreReponse>) => subResMayBeOk.ok),
-                map((subResponse: HttpResponse<ICategorieModelLettreReponse>) => subResponse.body)
+                map((subRes: HttpResponse<ICategorieModelLettreReponse>) => {
+                  return subRes.body ? [subRes.body].concat(resBody) : resBody;
+                })
               )
-              .subscribe(
-                (subRes: ICategorieModelLettreReponse) => (this.categoriemodellettrereponses = [subRes].concat(res)),
-                (subRes: HttpErrorResponse) => this.onError(subRes.message)
-              );
+              .subscribe((concatRes: ICategorieModelLettreReponse[]) => (this.categoriemodellettrereponses = concatRes));
           }
-        },
-        (res: HttpErrorResponse) => this.onError(res.message)
-      );
+        });
+    });
   }
 
-  updateForm(modelLettreReponse: IModelLettreReponse) {
+  updateForm(modelLettreReponse: IModelLettreReponse): void {
     this.editForm.patchValue({
       id: modelLettreReponse.id,
       libelle: modelLettreReponse.libelle,
       code: modelLettreReponse.code,
       chemin: modelLettreReponse.chemin,
-      categorieModelLettreReponse: modelLettreReponse.categorieModelLettreReponse
+      categorieModelLettreReponse: modelLettreReponse.categorieModelLettreReponse,
     });
   }
 
-  previousState() {
+  previousState(): void {
     window.history.back();
   }
 
-  save() {
+  save(): void {
     this.isSaving = true;
     const modelLettreReponse = this.createFromForm();
     if (modelLettreReponse.id !== undefined) {
@@ -94,31 +89,31 @@ export class ModelLettreReponseUpdateComponent implements OnInit {
   private createFromForm(): IModelLettreReponse {
     return {
       ...new ModelLettreReponse(),
-      id: this.editForm.get(['id']).value,
-      libelle: this.editForm.get(['libelle']).value,
-      code: this.editForm.get(['code']).value,
-      chemin: this.editForm.get(['chemin']).value,
-      categorieModelLettreReponse: this.editForm.get(['categorieModelLettreReponse']).value
+      id: this.editForm.get(['id'])!.value,
+      libelle: this.editForm.get(['libelle'])!.value,
+      code: this.editForm.get(['code'])!.value,
+      chemin: this.editForm.get(['chemin'])!.value,
+      categorieModelLettreReponse: this.editForm.get(['categorieModelLettreReponse'])!.value,
     };
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IModelLettreReponse>>) {
-    result.subscribe(() => this.onSaveSuccess(), () => this.onSaveError());
+  protected subscribeToSaveResponse(result: Observable<HttpResponse<IModelLettreReponse>>): void {
+    result.subscribe(
+      () => this.onSaveSuccess(),
+      () => this.onSaveError()
+    );
   }
 
-  protected onSaveSuccess() {
+  protected onSaveSuccess(): void {
     this.isSaving = false;
     this.previousState();
   }
 
-  protected onSaveError() {
+  protected onSaveError(): void {
     this.isSaving = false;
   }
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
-  }
 
-  trackCategorieModelLettreReponseById(index: number, item: ICategorieModelLettreReponse) {
+  trackById(index: number, item: ICategorieModelLettreReponse): any {
     return item.id;
   }
 }

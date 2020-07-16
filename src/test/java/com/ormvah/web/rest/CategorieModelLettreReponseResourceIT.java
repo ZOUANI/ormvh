@@ -4,34 +4,31 @@ import com.ormvah.OrmvahApp;
 import com.ormvah.domain.CategorieModelLettreReponse;
 import com.ormvah.repository.CategorieModelLettreReponseRepository;
 import com.ormvah.service.CategorieModelLettreReponseService;
-import com.ormvah.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.util.List;
 
-import static com.ormvah.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link CategorieModelLettreReponseResource} REST controller.
+ * Integration tests for the {@link CategorieModelLettreReponseResource} REST controller.
  */
 @SpringBootTest(classes = OrmvahApp.class)
+@AutoConfigureMockMvc
+@WithMockUser
 public class CategorieModelLettreReponseResourceIT {
 
     private static final String DEFAULT_LIBELLE = "AAAAAAAAAA";
@@ -44,35 +41,12 @@ public class CategorieModelLettreReponseResourceIT {
     private CategorieModelLettreReponseService categorieModelLettreReponseService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restCategorieModelLettreReponseMockMvc;
 
     private CategorieModelLettreReponse categorieModelLettreReponse;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final CategorieModelLettreReponseResource categorieModelLettreReponseResource = new CategorieModelLettreReponseResource(categorieModelLettreReponseService);
-        this.restCategorieModelLettreReponseMockMvc = MockMvcBuilders.standaloneSetup(categorieModelLettreReponseResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -106,10 +80,9 @@ public class CategorieModelLettreReponseResourceIT {
     @Transactional
     public void createCategorieModelLettreReponse() throws Exception {
         int databaseSizeBeforeCreate = categorieModelLettreReponseRepository.findAll().size();
-
         // Create the CategorieModelLettreReponse
-        restCategorieModelLettreReponseMockMvc.perform(post("/api/categorie-model-lettre-reponses")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restCategorieModelLettreReponseMockMvc.perform(post("/api/categorie-model-lettre-reponses").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(categorieModelLettreReponse)))
             .andExpect(status().isCreated());
 
@@ -129,8 +102,8 @@ public class CategorieModelLettreReponseResourceIT {
         categorieModelLettreReponse.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restCategorieModelLettreReponseMockMvc.perform(post("/api/categorie-model-lettre-reponses")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restCategorieModelLettreReponseMockMvc.perform(post("/api/categorie-model-lettre-reponses").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(categorieModelLettreReponse)))
             .andExpect(status().isBadRequest());
 
@@ -149,8 +122,9 @@ public class CategorieModelLettreReponseResourceIT {
 
         // Create the CategorieModelLettreReponse, which fails.
 
-        restCategorieModelLettreReponseMockMvc.perform(post("/api/categorie-model-lettre-reponses")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+
+        restCategorieModelLettreReponseMockMvc.perform(post("/api/categorie-model-lettre-reponses").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(categorieModelLettreReponse)))
             .andExpect(status().isBadRequest());
 
@@ -167,9 +141,9 @@ public class CategorieModelLettreReponseResourceIT {
         // Get all the categorieModelLettreReponseList
         restCategorieModelLettreReponseMockMvc.perform(get("/api/categorie-model-lettre-reponses?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(categorieModelLettreReponse.getId().intValue())))
-            .andExpect(jsonPath("$.[*].libelle").value(hasItem(DEFAULT_LIBELLE.toString())));
+            .andExpect(jsonPath("$.[*].libelle").value(hasItem(DEFAULT_LIBELLE)));
     }
     
     @Test
@@ -181,11 +155,10 @@ public class CategorieModelLettreReponseResourceIT {
         // Get the categorieModelLettreReponse
         restCategorieModelLettreReponseMockMvc.perform(get("/api/categorie-model-lettre-reponses/{id}", categorieModelLettreReponse.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(categorieModelLettreReponse.getId().intValue()))
-            .andExpect(jsonPath("$.libelle").value(DEFAULT_LIBELLE.toString()));
+            .andExpect(jsonPath("$.libelle").value(DEFAULT_LIBELLE));
     }
-
     @Test
     @Transactional
     public void getNonExistingCategorieModelLettreReponse() throws Exception {
@@ -209,8 +182,8 @@ public class CategorieModelLettreReponseResourceIT {
         updatedCategorieModelLettreReponse
             .libelle(UPDATED_LIBELLE);
 
-        restCategorieModelLettreReponseMockMvc.perform(put("/api/categorie-model-lettre-reponses")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restCategorieModelLettreReponseMockMvc.perform(put("/api/categorie-model-lettre-reponses").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedCategorieModelLettreReponse)))
             .andExpect(status().isOk());
 
@@ -226,11 +199,9 @@ public class CategorieModelLettreReponseResourceIT {
     public void updateNonExistingCategorieModelLettreReponse() throws Exception {
         int databaseSizeBeforeUpdate = categorieModelLettreReponseRepository.findAll().size();
 
-        // Create the CategorieModelLettreReponse
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restCategorieModelLettreReponseMockMvc.perform(put("/api/categorie-model-lettre-reponses")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restCategorieModelLettreReponseMockMvc.perform(put("/api/categorie-model-lettre-reponses").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(categorieModelLettreReponse)))
             .andExpect(status().isBadRequest());
 
@@ -248,27 +219,12 @@ public class CategorieModelLettreReponseResourceIT {
         int databaseSizeBeforeDelete = categorieModelLettreReponseRepository.findAll().size();
 
         // Delete the categorieModelLettreReponse
-        restCategorieModelLettreReponseMockMvc.perform(delete("/api/categorie-model-lettre-reponses/{id}", categorieModelLettreReponse.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+        restCategorieModelLettreReponseMockMvc.perform(delete("/api/categorie-model-lettre-reponses/{id}", categorieModelLettreReponse.getId()).with(csrf())
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
         List<CategorieModelLettreReponse> categorieModelLettreReponseList = categorieModelLettreReponseRepository.findAll();
         assertThat(categorieModelLettreReponseList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(CategorieModelLettreReponse.class);
-        CategorieModelLettreReponse categorieModelLettreReponse1 = new CategorieModelLettreReponse();
-        categorieModelLettreReponse1.setId(1L);
-        CategorieModelLettreReponse categorieModelLettreReponse2 = new CategorieModelLettreReponse();
-        categorieModelLettreReponse2.setId(categorieModelLettreReponse1.getId());
-        assertThat(categorieModelLettreReponse1).isEqualTo(categorieModelLettreReponse2);
-        categorieModelLettreReponse2.setId(2L);
-        assertThat(categorieModelLettreReponse1).isNotEqualTo(categorieModelLettreReponse2);
-        categorieModelLettreReponse1.setId(null);
-        assertThat(categorieModelLettreReponse1).isNotEqualTo(categorieModelLettreReponse2);
     }
 }

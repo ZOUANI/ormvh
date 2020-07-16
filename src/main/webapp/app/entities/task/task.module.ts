@@ -1,34 +1,16 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { JhiLanguageService } from 'ng-jhipster';
-import { JhiLanguageHelper } from 'app/core';
 
-import { OrmvahSharedModule } from 'app/shared';
-import {
-  TaskComponent,
-  TaskDetailComponent,
-  TaskUpdateComponent,
-  TaskDeletePopupComponent,
-  TaskDeleteDialogComponent,
-  taskRoute,
-  taskPopupRoute
-} from './';
-
-const ENTITY_STATES = [...taskRoute, ...taskPopupRoute];
+import { OrmvahSharedModule } from 'app/shared/shared.module';
+import { TaskComponent } from './task.component';
+import { TaskDetailComponent } from './task-detail.component';
+import { TaskUpdateComponent } from './task-update.component';
+import { TaskDeleteDialogComponent } from './task-delete-dialog.component';
+import { taskRoute } from './task.route';
 
 @NgModule({
-  imports: [OrmvahSharedModule, RouterModule.forChild(ENTITY_STATES)],
-  declarations: [TaskComponent, TaskDetailComponent, TaskUpdateComponent, TaskDeleteDialogComponent, TaskDeletePopupComponent],
-  entryComponents: [TaskComponent, TaskUpdateComponent, TaskDeleteDialogComponent, TaskDeletePopupComponent],
-  providers: [{ provide: JhiLanguageService, useClass: JhiLanguageService }],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  imports: [OrmvahSharedModule, RouterModule.forChild(taskRoute)],
+  declarations: [TaskComponent, TaskDetailComponent, TaskUpdateComponent, TaskDeleteDialogComponent],
+  entryComponents: [TaskDeleteDialogComponent],
 })
-export class OrmvahTaskModule {
-  constructor(private languageService: JhiLanguageService, private languageHelper: JhiLanguageHelper) {
-    this.languageHelper.language.subscribe((languageKey: string) => {
-      if (languageKey !== undefined) {
-        this.languageService.changeLanguage(languageKey);
-      }
-    });
-  }
-}
+export class OrmvahTaskModule {}

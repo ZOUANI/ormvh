@@ -6,23 +6,18 @@ import com.ormvah.domain.User;
 import com.ormvah.domain.Courrier;
 import com.ormvah.repository.TaskRepository;
 import com.ormvah.service.TaskService;
-import com.ormvah.web.rest.errors.ExceptionTranslator;
 import com.ormvah.service.dto.TaskCriteria;
 import com.ormvah.service.TaskQueryService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.Instant;
@@ -30,17 +25,19 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static com.ormvah.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.ormvah.domain.enumeration.Status;
 /**
- * Integration tests for the {@Link TaskResource} REST controller.
+ * Integration tests for the {@link TaskResource} REST controller.
  */
 @SpringBootTest(classes = OrmvahApp.class)
+@AutoConfigureMockMvc
+@WithMockUser
 public class TaskResourceIT {
 
     private static final String DEFAULT_TITLE = "AAAAAAAAAA";
@@ -75,9 +72,11 @@ public class TaskResourceIT {
 
     private static final Double DEFAULT_DELAI = 1D;
     private static final Double UPDATED_DELAI = 2D;
+    private static final Double SMALLER_DELAI = 1D - 1D;
 
     private static final Double DEFAULT_RELANCE = 1D;
     private static final Double UPDATED_RELANCE = 2D;
+    private static final Double SMALLER_RELANCE = 1D - 1D;
 
     private static final Boolean DEFAULT_ACCUSE = false;
     private static final Boolean UPDATED_ACCUSE = true;
@@ -87,9 +86,11 @@ public class TaskResourceIT {
 
     private static final LocalDate DEFAULT_DATE_ACCUSE = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_DATE_ACCUSE = LocalDate.now(ZoneId.systemDefault());
+    private static final LocalDate SMALLER_DATE_ACCUSE = LocalDate.ofEpochDay(-1L);
 
     private static final LocalDate DEFAULT_DATE_REPONSE = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_DATE_REPONSE = LocalDate.now(ZoneId.systemDefault());
+    private static final LocalDate SMALLER_DATE_REPONSE = LocalDate.ofEpochDay(-1L);
 
     @Autowired
     private TaskRepository taskRepository;
@@ -101,35 +102,12 @@ public class TaskResourceIT {
     private TaskQueryService taskQueryService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restTaskMockMvc;
 
     private Task task;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final TaskResource taskResource = new TaskResource(taskService, taskQueryService);
-        this.restTaskMockMvc = MockMvcBuilders.standaloneSetup(taskResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -193,10 +171,9 @@ public class TaskResourceIT {
     @Transactional
     public void createTask() throws Exception {
         int databaseSizeBeforeCreate = taskRepository.findAll().size();
-
         // Create the Task
-        restTaskMockMvc.perform(post("/api/tasks")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restTaskMockMvc.perform(post("/api/tasks").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(task)))
             .andExpect(status().isCreated());
 
@@ -231,8 +208,8 @@ public class TaskResourceIT {
         task.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restTaskMockMvc.perform(post("/api/tasks")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restTaskMockMvc.perform(post("/api/tasks").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(task)))
             .andExpect(status().isBadRequest());
 
@@ -251,18 +228,18 @@ public class TaskResourceIT {
         // Get all the taskList
         restTaskMockMvc.perform(get("/api/tasks?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(task.getId().intValue())))
-            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
             .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())))
             .andExpect(jsonPath("$.[*].assignedAt").value(hasItem(DEFAULT_ASSIGNED_AT.toString())))
             .andExpect(jsonPath("$.[*].processedAt").value(hasItem(DEFAULT_PROCESSED_AT.toString())))
-            .andExpect(jsonPath("$.[*].observation").value(hasItem(DEFAULT_OBSERVATION.toString())))
+            .andExpect(jsonPath("$.[*].observation").value(hasItem(DEFAULT_OBSERVATION)))
             .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
-            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(DEFAULT_CREATED_BY.toString())))
-            .andExpect(jsonPath("$.[*].updatedBy").value(hasItem(DEFAULT_UPDATED_BY.toString())))
+            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(DEFAULT_CREATED_BY)))
+            .andExpect(jsonPath("$.[*].updatedBy").value(hasItem(DEFAULT_UPDATED_BY)))
             .andExpect(jsonPath("$.[*].delai").value(hasItem(DEFAULT_DELAI.doubleValue())))
             .andExpect(jsonPath("$.[*].relance").value(hasItem(DEFAULT_RELANCE.doubleValue())))
             .andExpect(jsonPath("$.[*].accuse").value(hasItem(DEFAULT_ACCUSE.booleanValue())))
@@ -280,18 +257,18 @@ public class TaskResourceIT {
         // Get the task
         restTaskMockMvc.perform(get("/api/tasks/{id}", task.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(task.getId().intValue()))
-            .andExpect(jsonPath("$.title").value(DEFAULT_TITLE.toString()))
-            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
+            .andExpect(jsonPath("$.title").value(DEFAULT_TITLE))
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
             .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
             .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()))
             .andExpect(jsonPath("$.assignedAt").value(DEFAULT_ASSIGNED_AT.toString()))
             .andExpect(jsonPath("$.processedAt").value(DEFAULT_PROCESSED_AT.toString()))
-            .andExpect(jsonPath("$.observation").value(DEFAULT_OBSERVATION.toString()))
+            .andExpect(jsonPath("$.observation").value(DEFAULT_OBSERVATION))
             .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()))
-            .andExpect(jsonPath("$.createdBy").value(DEFAULT_CREATED_BY.toString()))
-            .andExpect(jsonPath("$.updatedBy").value(DEFAULT_UPDATED_BY.toString()))
+            .andExpect(jsonPath("$.createdBy").value(DEFAULT_CREATED_BY))
+            .andExpect(jsonPath("$.updatedBy").value(DEFAULT_UPDATED_BY))
             .andExpect(jsonPath("$.delai").value(DEFAULT_DELAI.doubleValue()))
             .andExpect(jsonPath("$.relance").value(DEFAULT_RELANCE.doubleValue()))
             .andExpect(jsonPath("$.accuse").value(DEFAULT_ACCUSE.booleanValue()))
@@ -299,6 +276,26 @@ public class TaskResourceIT {
             .andExpect(jsonPath("$.dateAccuse").value(DEFAULT_DATE_ACCUSE.toString()))
             .andExpect(jsonPath("$.dateReponse").value(DEFAULT_DATE_REPONSE.toString()));
     }
+
+
+    @Test
+    @Transactional
+    public void getTasksByIdFiltering() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        Long id = task.getId();
+
+        defaultTaskShouldBeFound("id.equals=" + id);
+        defaultTaskShouldNotBeFound("id.notEquals=" + id);
+
+        defaultTaskShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultTaskShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultTaskShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultTaskShouldNotBeFound("id.lessThan=" + id);
+    }
+
 
     @Test
     @Transactional
@@ -311,6 +308,19 @@ public class TaskResourceIT {
 
         // Get all the taskList where title equals to UPDATED_TITLE
         defaultTaskShouldNotBeFound("title.equals=" + UPDATED_TITLE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByTitleIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where title not equals to DEFAULT_TITLE
+        defaultTaskShouldNotBeFound("title.notEquals=" + DEFAULT_TITLE);
+
+        // Get all the taskList where title not equals to UPDATED_TITLE
+        defaultTaskShouldBeFound("title.notEquals=" + UPDATED_TITLE);
     }
 
     @Test
@@ -338,6 +348,32 @@ public class TaskResourceIT {
         // Get all the taskList where title is null
         defaultTaskShouldNotBeFound("title.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllTasksByTitleContainsSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where title contains DEFAULT_TITLE
+        defaultTaskShouldBeFound("title.contains=" + DEFAULT_TITLE);
+
+        // Get all the taskList where title contains UPDATED_TITLE
+        defaultTaskShouldNotBeFound("title.contains=" + UPDATED_TITLE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByTitleNotContainsSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where title does not contain DEFAULT_TITLE
+        defaultTaskShouldNotBeFound("title.doesNotContain=" + DEFAULT_TITLE);
+
+        // Get all the taskList where title does not contain UPDATED_TITLE
+        defaultTaskShouldBeFound("title.doesNotContain=" + UPDATED_TITLE);
+    }
+
 
     @Test
     @Transactional
@@ -350,6 +386,19 @@ public class TaskResourceIT {
 
         // Get all the taskList where description equals to UPDATED_DESCRIPTION
         defaultTaskShouldNotBeFound("description.equals=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByDescriptionIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where description not equals to DEFAULT_DESCRIPTION
+        defaultTaskShouldNotBeFound("description.notEquals=" + DEFAULT_DESCRIPTION);
+
+        // Get all the taskList where description not equals to UPDATED_DESCRIPTION
+        defaultTaskShouldBeFound("description.notEquals=" + UPDATED_DESCRIPTION);
     }
 
     @Test
@@ -377,6 +426,32 @@ public class TaskResourceIT {
         // Get all the taskList where description is null
         defaultTaskShouldNotBeFound("description.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllTasksByDescriptionContainsSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where description contains DEFAULT_DESCRIPTION
+        defaultTaskShouldBeFound("description.contains=" + DEFAULT_DESCRIPTION);
+
+        // Get all the taskList where description contains UPDATED_DESCRIPTION
+        defaultTaskShouldNotBeFound("description.contains=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByDescriptionNotContainsSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where description does not contain DEFAULT_DESCRIPTION
+        defaultTaskShouldNotBeFound("description.doesNotContain=" + DEFAULT_DESCRIPTION);
+
+        // Get all the taskList where description does not contain UPDATED_DESCRIPTION
+        defaultTaskShouldBeFound("description.doesNotContain=" + UPDATED_DESCRIPTION);
+    }
+
 
     @Test
     @Transactional
@@ -389,6 +464,19 @@ public class TaskResourceIT {
 
         // Get all the taskList where createdAt equals to UPDATED_CREATED_AT
         defaultTaskShouldNotBeFound("createdAt.equals=" + UPDATED_CREATED_AT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByCreatedAtIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where createdAt not equals to DEFAULT_CREATED_AT
+        defaultTaskShouldNotBeFound("createdAt.notEquals=" + DEFAULT_CREATED_AT);
+
+        // Get all the taskList where createdAt not equals to UPDATED_CREATED_AT
+        defaultTaskShouldBeFound("createdAt.notEquals=" + UPDATED_CREATED_AT);
     }
 
     @Test
@@ -432,6 +520,19 @@ public class TaskResourceIT {
 
     @Test
     @Transactional
+    public void getAllTasksByUpdatedAtIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where updatedAt not equals to DEFAULT_UPDATED_AT
+        defaultTaskShouldNotBeFound("updatedAt.notEquals=" + DEFAULT_UPDATED_AT);
+
+        // Get all the taskList where updatedAt not equals to UPDATED_UPDATED_AT
+        defaultTaskShouldBeFound("updatedAt.notEquals=" + UPDATED_UPDATED_AT);
+    }
+
+    @Test
+    @Transactional
     public void getAllTasksByUpdatedAtIsInShouldWork() throws Exception {
         // Initialize the database
         taskRepository.saveAndFlush(task);
@@ -467,6 +568,19 @@ public class TaskResourceIT {
 
         // Get all the taskList where assignedAt equals to UPDATED_ASSIGNED_AT
         defaultTaskShouldNotBeFound("assignedAt.equals=" + UPDATED_ASSIGNED_AT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByAssignedAtIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where assignedAt not equals to DEFAULT_ASSIGNED_AT
+        defaultTaskShouldNotBeFound("assignedAt.notEquals=" + DEFAULT_ASSIGNED_AT);
+
+        // Get all the taskList where assignedAt not equals to UPDATED_ASSIGNED_AT
+        defaultTaskShouldBeFound("assignedAt.notEquals=" + UPDATED_ASSIGNED_AT);
     }
 
     @Test
@@ -510,6 +624,19 @@ public class TaskResourceIT {
 
     @Test
     @Transactional
+    public void getAllTasksByProcessedAtIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where processedAt not equals to DEFAULT_PROCESSED_AT
+        defaultTaskShouldNotBeFound("processedAt.notEquals=" + DEFAULT_PROCESSED_AT);
+
+        // Get all the taskList where processedAt not equals to UPDATED_PROCESSED_AT
+        defaultTaskShouldBeFound("processedAt.notEquals=" + UPDATED_PROCESSED_AT);
+    }
+
+    @Test
+    @Transactional
     public void getAllTasksByProcessedAtIsInShouldWork() throws Exception {
         // Initialize the database
         taskRepository.saveAndFlush(task);
@@ -549,6 +676,19 @@ public class TaskResourceIT {
 
     @Test
     @Transactional
+    public void getAllTasksByObservationIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where observation not equals to DEFAULT_OBSERVATION
+        defaultTaskShouldNotBeFound("observation.notEquals=" + DEFAULT_OBSERVATION);
+
+        // Get all the taskList where observation not equals to UPDATED_OBSERVATION
+        defaultTaskShouldBeFound("observation.notEquals=" + UPDATED_OBSERVATION);
+    }
+
+    @Test
+    @Transactional
     public void getAllTasksByObservationIsInShouldWork() throws Exception {
         // Initialize the database
         taskRepository.saveAndFlush(task);
@@ -572,6 +712,32 @@ public class TaskResourceIT {
         // Get all the taskList where observation is null
         defaultTaskShouldNotBeFound("observation.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllTasksByObservationContainsSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where observation contains DEFAULT_OBSERVATION
+        defaultTaskShouldBeFound("observation.contains=" + DEFAULT_OBSERVATION);
+
+        // Get all the taskList where observation contains UPDATED_OBSERVATION
+        defaultTaskShouldNotBeFound("observation.contains=" + UPDATED_OBSERVATION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByObservationNotContainsSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where observation does not contain DEFAULT_OBSERVATION
+        defaultTaskShouldNotBeFound("observation.doesNotContain=" + DEFAULT_OBSERVATION);
+
+        // Get all the taskList where observation does not contain UPDATED_OBSERVATION
+        defaultTaskShouldBeFound("observation.doesNotContain=" + UPDATED_OBSERVATION);
+    }
+
 
     @Test
     @Transactional
@@ -584,6 +750,19 @@ public class TaskResourceIT {
 
         // Get all the taskList where status equals to UPDATED_STATUS
         defaultTaskShouldNotBeFound("status.equals=" + UPDATED_STATUS);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByStatusIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where status not equals to DEFAULT_STATUS
+        defaultTaskShouldNotBeFound("status.notEquals=" + DEFAULT_STATUS);
+
+        // Get all the taskList where status not equals to UPDATED_STATUS
+        defaultTaskShouldBeFound("status.notEquals=" + UPDATED_STATUS);
     }
 
     @Test
@@ -627,6 +806,19 @@ public class TaskResourceIT {
 
     @Test
     @Transactional
+    public void getAllTasksByCreatedByIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where createdBy not equals to DEFAULT_CREATED_BY
+        defaultTaskShouldNotBeFound("createdBy.notEquals=" + DEFAULT_CREATED_BY);
+
+        // Get all the taskList where createdBy not equals to UPDATED_CREATED_BY
+        defaultTaskShouldBeFound("createdBy.notEquals=" + UPDATED_CREATED_BY);
+    }
+
+    @Test
+    @Transactional
     public void getAllTasksByCreatedByIsInShouldWork() throws Exception {
         // Initialize the database
         taskRepository.saveAndFlush(task);
@@ -650,6 +842,32 @@ public class TaskResourceIT {
         // Get all the taskList where createdBy is null
         defaultTaskShouldNotBeFound("createdBy.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllTasksByCreatedByContainsSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where createdBy contains DEFAULT_CREATED_BY
+        defaultTaskShouldBeFound("createdBy.contains=" + DEFAULT_CREATED_BY);
+
+        // Get all the taskList where createdBy contains UPDATED_CREATED_BY
+        defaultTaskShouldNotBeFound("createdBy.contains=" + UPDATED_CREATED_BY);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByCreatedByNotContainsSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where createdBy does not contain DEFAULT_CREATED_BY
+        defaultTaskShouldNotBeFound("createdBy.doesNotContain=" + DEFAULT_CREATED_BY);
+
+        // Get all the taskList where createdBy does not contain UPDATED_CREATED_BY
+        defaultTaskShouldBeFound("createdBy.doesNotContain=" + UPDATED_CREATED_BY);
+    }
+
 
     @Test
     @Transactional
@@ -662,6 +880,19 @@ public class TaskResourceIT {
 
         // Get all the taskList where updatedBy equals to UPDATED_UPDATED_BY
         defaultTaskShouldNotBeFound("updatedBy.equals=" + UPDATED_UPDATED_BY);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByUpdatedByIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where updatedBy not equals to DEFAULT_UPDATED_BY
+        defaultTaskShouldNotBeFound("updatedBy.notEquals=" + DEFAULT_UPDATED_BY);
+
+        // Get all the taskList where updatedBy not equals to UPDATED_UPDATED_BY
+        defaultTaskShouldBeFound("updatedBy.notEquals=" + UPDATED_UPDATED_BY);
     }
 
     @Test
@@ -689,6 +920,32 @@ public class TaskResourceIT {
         // Get all the taskList where updatedBy is null
         defaultTaskShouldNotBeFound("updatedBy.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllTasksByUpdatedByContainsSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where updatedBy contains DEFAULT_UPDATED_BY
+        defaultTaskShouldBeFound("updatedBy.contains=" + DEFAULT_UPDATED_BY);
+
+        // Get all the taskList where updatedBy contains UPDATED_UPDATED_BY
+        defaultTaskShouldNotBeFound("updatedBy.contains=" + UPDATED_UPDATED_BY);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByUpdatedByNotContainsSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where updatedBy does not contain DEFAULT_UPDATED_BY
+        defaultTaskShouldNotBeFound("updatedBy.doesNotContain=" + DEFAULT_UPDATED_BY);
+
+        // Get all the taskList where updatedBy does not contain UPDATED_UPDATED_BY
+        defaultTaskShouldBeFound("updatedBy.doesNotContain=" + UPDATED_UPDATED_BY);
+    }
+
 
     @Test
     @Transactional
@@ -701,6 +958,19 @@ public class TaskResourceIT {
 
         // Get all the taskList where delai equals to UPDATED_DELAI
         defaultTaskShouldNotBeFound("delai.equals=" + UPDATED_DELAI);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByDelaiIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where delai not equals to DEFAULT_DELAI
+        defaultTaskShouldNotBeFound("delai.notEquals=" + DEFAULT_DELAI);
+
+        // Get all the taskList where delai not equals to UPDATED_DELAI
+        defaultTaskShouldBeFound("delai.notEquals=" + UPDATED_DELAI);
     }
 
     @Test
@@ -731,6 +1001,59 @@ public class TaskResourceIT {
 
     @Test
     @Transactional
+    public void getAllTasksByDelaiIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where delai is greater than or equal to DEFAULT_DELAI
+        defaultTaskShouldBeFound("delai.greaterThanOrEqual=" + DEFAULT_DELAI);
+
+        // Get all the taskList where delai is greater than or equal to UPDATED_DELAI
+        defaultTaskShouldNotBeFound("delai.greaterThanOrEqual=" + UPDATED_DELAI);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByDelaiIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where delai is less than or equal to DEFAULT_DELAI
+        defaultTaskShouldBeFound("delai.lessThanOrEqual=" + DEFAULT_DELAI);
+
+        // Get all the taskList where delai is less than or equal to SMALLER_DELAI
+        defaultTaskShouldNotBeFound("delai.lessThanOrEqual=" + SMALLER_DELAI);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByDelaiIsLessThanSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where delai is less than DEFAULT_DELAI
+        defaultTaskShouldNotBeFound("delai.lessThan=" + DEFAULT_DELAI);
+
+        // Get all the taskList where delai is less than UPDATED_DELAI
+        defaultTaskShouldBeFound("delai.lessThan=" + UPDATED_DELAI);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByDelaiIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where delai is greater than DEFAULT_DELAI
+        defaultTaskShouldNotBeFound("delai.greaterThan=" + DEFAULT_DELAI);
+
+        // Get all the taskList where delai is greater than SMALLER_DELAI
+        defaultTaskShouldBeFound("delai.greaterThan=" + SMALLER_DELAI);
+    }
+
+
+    @Test
+    @Transactional
     public void getAllTasksByRelanceIsEqualToSomething() throws Exception {
         // Initialize the database
         taskRepository.saveAndFlush(task);
@@ -740,6 +1063,19 @@ public class TaskResourceIT {
 
         // Get all the taskList where relance equals to UPDATED_RELANCE
         defaultTaskShouldNotBeFound("relance.equals=" + UPDATED_RELANCE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByRelanceIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where relance not equals to DEFAULT_RELANCE
+        defaultTaskShouldNotBeFound("relance.notEquals=" + DEFAULT_RELANCE);
+
+        // Get all the taskList where relance not equals to UPDATED_RELANCE
+        defaultTaskShouldBeFound("relance.notEquals=" + UPDATED_RELANCE);
     }
 
     @Test
@@ -770,6 +1106,59 @@ public class TaskResourceIT {
 
     @Test
     @Transactional
+    public void getAllTasksByRelanceIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where relance is greater than or equal to DEFAULT_RELANCE
+        defaultTaskShouldBeFound("relance.greaterThanOrEqual=" + DEFAULT_RELANCE);
+
+        // Get all the taskList where relance is greater than or equal to UPDATED_RELANCE
+        defaultTaskShouldNotBeFound("relance.greaterThanOrEqual=" + UPDATED_RELANCE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByRelanceIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where relance is less than or equal to DEFAULT_RELANCE
+        defaultTaskShouldBeFound("relance.lessThanOrEqual=" + DEFAULT_RELANCE);
+
+        // Get all the taskList where relance is less than or equal to SMALLER_RELANCE
+        defaultTaskShouldNotBeFound("relance.lessThanOrEqual=" + SMALLER_RELANCE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByRelanceIsLessThanSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where relance is less than DEFAULT_RELANCE
+        defaultTaskShouldNotBeFound("relance.lessThan=" + DEFAULT_RELANCE);
+
+        // Get all the taskList where relance is less than UPDATED_RELANCE
+        defaultTaskShouldBeFound("relance.lessThan=" + UPDATED_RELANCE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByRelanceIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where relance is greater than DEFAULT_RELANCE
+        defaultTaskShouldNotBeFound("relance.greaterThan=" + DEFAULT_RELANCE);
+
+        // Get all the taskList where relance is greater than SMALLER_RELANCE
+        defaultTaskShouldBeFound("relance.greaterThan=" + SMALLER_RELANCE);
+    }
+
+
+    @Test
+    @Transactional
     public void getAllTasksByAccuseIsEqualToSomething() throws Exception {
         // Initialize the database
         taskRepository.saveAndFlush(task);
@@ -779,6 +1168,19 @@ public class TaskResourceIT {
 
         // Get all the taskList where accuse equals to UPDATED_ACCUSE
         defaultTaskShouldNotBeFound("accuse.equals=" + UPDATED_ACCUSE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByAccuseIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where accuse not equals to DEFAULT_ACCUSE
+        defaultTaskShouldNotBeFound("accuse.notEquals=" + DEFAULT_ACCUSE);
+
+        // Get all the taskList where accuse not equals to UPDATED_ACCUSE
+        defaultTaskShouldBeFound("accuse.notEquals=" + UPDATED_ACCUSE);
     }
 
     @Test
@@ -822,6 +1224,19 @@ public class TaskResourceIT {
 
     @Test
     @Transactional
+    public void getAllTasksByReponseIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where reponse not equals to DEFAULT_REPONSE
+        defaultTaskShouldNotBeFound("reponse.notEquals=" + DEFAULT_REPONSE);
+
+        // Get all the taskList where reponse not equals to UPDATED_REPONSE
+        defaultTaskShouldBeFound("reponse.notEquals=" + UPDATED_REPONSE);
+    }
+
+    @Test
+    @Transactional
     public void getAllTasksByReponseIsInShouldWork() throws Exception {
         // Initialize the database
         taskRepository.saveAndFlush(task);
@@ -861,6 +1276,19 @@ public class TaskResourceIT {
 
     @Test
     @Transactional
+    public void getAllTasksByDateAccuseIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where dateAccuse not equals to DEFAULT_DATE_ACCUSE
+        defaultTaskShouldNotBeFound("dateAccuse.notEquals=" + DEFAULT_DATE_ACCUSE);
+
+        // Get all the taskList where dateAccuse not equals to UPDATED_DATE_ACCUSE
+        defaultTaskShouldBeFound("dateAccuse.notEquals=" + UPDATED_DATE_ACCUSE);
+    }
+
+    @Test
+    @Transactional
     public void getAllTasksByDateAccuseIsInShouldWork() throws Exception {
         // Initialize the database
         taskRepository.saveAndFlush(task);
@@ -891,11 +1319,24 @@ public class TaskResourceIT {
         // Initialize the database
         taskRepository.saveAndFlush(task);
 
-        // Get all the taskList where dateAccuse greater than or equals to DEFAULT_DATE_ACCUSE
-        defaultTaskShouldBeFound("dateAccuse.greaterOrEqualThan=" + DEFAULT_DATE_ACCUSE);
+        // Get all the taskList where dateAccuse is greater than or equal to DEFAULT_DATE_ACCUSE
+        defaultTaskShouldBeFound("dateAccuse.greaterThanOrEqual=" + DEFAULT_DATE_ACCUSE);
 
-        // Get all the taskList where dateAccuse greater than or equals to UPDATED_DATE_ACCUSE
-        defaultTaskShouldNotBeFound("dateAccuse.greaterOrEqualThan=" + UPDATED_DATE_ACCUSE);
+        // Get all the taskList where dateAccuse is greater than or equal to UPDATED_DATE_ACCUSE
+        defaultTaskShouldNotBeFound("dateAccuse.greaterThanOrEqual=" + UPDATED_DATE_ACCUSE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByDateAccuseIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where dateAccuse is less than or equal to DEFAULT_DATE_ACCUSE
+        defaultTaskShouldBeFound("dateAccuse.lessThanOrEqual=" + DEFAULT_DATE_ACCUSE);
+
+        // Get all the taskList where dateAccuse is less than or equal to SMALLER_DATE_ACCUSE
+        defaultTaskShouldNotBeFound("dateAccuse.lessThanOrEqual=" + SMALLER_DATE_ACCUSE);
     }
 
     @Test
@@ -904,11 +1345,24 @@ public class TaskResourceIT {
         // Initialize the database
         taskRepository.saveAndFlush(task);
 
-        // Get all the taskList where dateAccuse less than or equals to DEFAULT_DATE_ACCUSE
+        // Get all the taskList where dateAccuse is less than DEFAULT_DATE_ACCUSE
         defaultTaskShouldNotBeFound("dateAccuse.lessThan=" + DEFAULT_DATE_ACCUSE);
 
-        // Get all the taskList where dateAccuse less than or equals to UPDATED_DATE_ACCUSE
+        // Get all the taskList where dateAccuse is less than UPDATED_DATE_ACCUSE
         defaultTaskShouldBeFound("dateAccuse.lessThan=" + UPDATED_DATE_ACCUSE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByDateAccuseIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where dateAccuse is greater than DEFAULT_DATE_ACCUSE
+        defaultTaskShouldNotBeFound("dateAccuse.greaterThan=" + DEFAULT_DATE_ACCUSE);
+
+        // Get all the taskList where dateAccuse is greater than SMALLER_DATE_ACCUSE
+        defaultTaskShouldBeFound("dateAccuse.greaterThan=" + SMALLER_DATE_ACCUSE);
     }
 
 
@@ -923,6 +1377,19 @@ public class TaskResourceIT {
 
         // Get all the taskList where dateReponse equals to UPDATED_DATE_REPONSE
         defaultTaskShouldNotBeFound("dateReponse.equals=" + UPDATED_DATE_REPONSE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByDateReponseIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where dateReponse not equals to DEFAULT_DATE_REPONSE
+        defaultTaskShouldNotBeFound("dateReponse.notEquals=" + DEFAULT_DATE_REPONSE);
+
+        // Get all the taskList where dateReponse not equals to UPDATED_DATE_REPONSE
+        defaultTaskShouldBeFound("dateReponse.notEquals=" + UPDATED_DATE_REPONSE);
     }
 
     @Test
@@ -957,11 +1424,24 @@ public class TaskResourceIT {
         // Initialize the database
         taskRepository.saveAndFlush(task);
 
-        // Get all the taskList where dateReponse greater than or equals to DEFAULT_DATE_REPONSE
-        defaultTaskShouldBeFound("dateReponse.greaterOrEqualThan=" + DEFAULT_DATE_REPONSE);
+        // Get all the taskList where dateReponse is greater than or equal to DEFAULT_DATE_REPONSE
+        defaultTaskShouldBeFound("dateReponse.greaterThanOrEqual=" + DEFAULT_DATE_REPONSE);
 
-        // Get all the taskList where dateReponse greater than or equals to UPDATED_DATE_REPONSE
-        defaultTaskShouldNotBeFound("dateReponse.greaterOrEqualThan=" + UPDATED_DATE_REPONSE);
+        // Get all the taskList where dateReponse is greater than or equal to UPDATED_DATE_REPONSE
+        defaultTaskShouldNotBeFound("dateReponse.greaterThanOrEqual=" + UPDATED_DATE_REPONSE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByDateReponseIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where dateReponse is less than or equal to DEFAULT_DATE_REPONSE
+        defaultTaskShouldBeFound("dateReponse.lessThanOrEqual=" + DEFAULT_DATE_REPONSE);
+
+        // Get all the taskList where dateReponse is less than or equal to SMALLER_DATE_REPONSE
+        defaultTaskShouldNotBeFound("dateReponse.lessThanOrEqual=" + SMALLER_DATE_REPONSE);
     }
 
     @Test
@@ -970,11 +1450,24 @@ public class TaskResourceIT {
         // Initialize the database
         taskRepository.saveAndFlush(task);
 
-        // Get all the taskList where dateReponse less than or equals to DEFAULT_DATE_REPONSE
+        // Get all the taskList where dateReponse is less than DEFAULT_DATE_REPONSE
         defaultTaskShouldNotBeFound("dateReponse.lessThan=" + DEFAULT_DATE_REPONSE);
 
-        // Get all the taskList where dateReponse less than or equals to UPDATED_DATE_REPONSE
+        // Get all the taskList where dateReponse is less than UPDATED_DATE_REPONSE
         defaultTaskShouldBeFound("dateReponse.lessThan=" + UPDATED_DATE_REPONSE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllTasksByDateReponseIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        taskRepository.saveAndFlush(task);
+
+        // Get all the taskList where dateReponse is greater than DEFAULT_DATE_REPONSE
+        defaultTaskShouldNotBeFound("dateReponse.greaterThan=" + DEFAULT_DATE_REPONSE);
+
+        // Get all the taskList where dateReponse is greater than SMALLER_DATE_REPONSE
+        defaultTaskShouldBeFound("dateReponse.greaterThan=" + SMALLER_DATE_REPONSE);
     }
 
 
@@ -982,6 +1475,7 @@ public class TaskResourceIT {
     @Transactional
     public void getAllTasksByAssigneIsEqualToSomething() throws Exception {
         // Initialize the database
+        taskRepository.saveAndFlush(task);
         User assigne = UserResourceIT.createEntity(em);
         em.persist(assigne);
         em.flush();
@@ -1001,6 +1495,7 @@ public class TaskResourceIT {
     @Transactional
     public void getAllTasksByCourrierIsEqualToSomething() throws Exception {
         // Initialize the database
+        taskRepository.saveAndFlush(task);
         Courrier courrier = CourrierResourceIT.createEntity(em);
         em.persist(courrier);
         em.flush();
@@ -1021,7 +1516,7 @@ public class TaskResourceIT {
     private void defaultTaskShouldBeFound(String filter) throws Exception {
         restTaskMockMvc.perform(get("/api/tasks?sort=id,desc&" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(task.getId().intValue())))
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
@@ -1043,7 +1538,7 @@ public class TaskResourceIT {
         // Check, that the count call also returns 1
         restTaskMockMvc.perform(get("/api/tasks/count?sort=id,desc&" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(content().string("1"));
     }
 
@@ -1053,17 +1548,16 @@ public class TaskResourceIT {
     private void defaultTaskShouldNotBeFound(String filter) throws Exception {
         restTaskMockMvc.perform(get("/api/tasks?sort=id,desc&" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$").isEmpty());
 
         // Check, that the count call also returns 0
         restTaskMockMvc.perform(get("/api/tasks/count?sort=id,desc&" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(content().string("0"));
     }
-
 
     @Test
     @Transactional
@@ -1103,8 +1597,8 @@ public class TaskResourceIT {
             .dateAccuse(UPDATED_DATE_ACCUSE)
             .dateReponse(UPDATED_DATE_REPONSE);
 
-        restTaskMockMvc.perform(put("/api/tasks")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restTaskMockMvc.perform(put("/api/tasks").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedTask)))
             .andExpect(status().isOk());
 
@@ -1135,11 +1629,9 @@ public class TaskResourceIT {
     public void updateNonExistingTask() throws Exception {
         int databaseSizeBeforeUpdate = taskRepository.findAll().size();
 
-        // Create the Task
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restTaskMockMvc.perform(put("/api/tasks")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restTaskMockMvc.perform(put("/api/tasks").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(task)))
             .andExpect(status().isBadRequest());
 
@@ -1157,27 +1649,12 @@ public class TaskResourceIT {
         int databaseSizeBeforeDelete = taskRepository.findAll().size();
 
         // Delete the task
-        restTaskMockMvc.perform(delete("/api/tasks/{id}", task.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+        restTaskMockMvc.perform(delete("/api/tasks/{id}", task.getId()).with(csrf())
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
         List<Task> taskList = taskRepository.findAll();
         assertThat(taskList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Task.class);
-        Task task1 = new Task();
-        task1.setId(1L);
-        Task task2 = new Task();
-        task2.setId(task1.getId());
-        assertThat(task1).isEqualTo(task2);
-        task2.setId(2L);
-        assertThat(task1).isNotEqualTo(task2);
-        task1.setId(null);
-        assertThat(task1).isNotEqualTo(task2);
     }
 }

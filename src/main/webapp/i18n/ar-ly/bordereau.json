@@ -5,7 +5,7 @@
         "title": "Bordereaus",
         "createLabel": "Create a new Bordereau",
         "createOrEditLabel": "Create or edit a Bordereau",
-        "notFound": "No Bordereau found"
+        "notFound": "No Bordereaus found"
       },
       "created": "A new Bordereau is created with identifier {{ param }}",
       "updated": "A Bordereau is updated with identifier {{ param }}",

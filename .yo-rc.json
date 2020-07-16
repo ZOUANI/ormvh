@@ -4,7 +4,7 @@
       "packageName": "com.ormvah",
       "nativeLanguage": "fr"
     },
-    "jhipsterVersion": "6.1.2",
+    "jhipsterVersion": "6.10.1",
     "applicationType": "monolith",
     "baseName": "Ormvah",
     "packageName": "com.ormvah",
@@ -35,6 +35,9 @@
     "otherModules": [],
     "enableTranslation": true,
     "nativeLanguage": "fr",
-    "languages": ["fr", "ar-ly"]
+    "languages": ["fr", "ar-ly"],
+    "embeddableLaunchScript": false,
+    "creationTimestamp": 1594917838828,
+    "blueprints": []
   }
 }

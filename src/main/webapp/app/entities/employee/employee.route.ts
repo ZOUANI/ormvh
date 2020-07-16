@@ -1,28 +1,33 @@
 import { Injectable } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Routes } from '@angular/router';
-import { JhiPaginationUtil, JhiResolvePagingParams } from 'ng-jhipster';
-import { UserRouteAccessService } from 'app/core';
-import { Observable, of } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { Employee } from 'app/shared/model/employee.model';
+import { Resolve, ActivatedRouteSnapshot, Routes, Router } from '@angular/router';
+import { Observable, of, EMPTY } from 'rxjs';
+import { flatMap } from 'rxjs/operators';
+
+import { Authority } from 'app/shared/constants/authority.constants';
+import { UserRouteAccessService } from 'app/core/auth/user-route-access-service';
+import { IEmployee, Employee } from 'app/shared/model/employee.model';
 import { EmployeeService } from './employee.service';
 import { EmployeeComponent } from './employee.component';
 import { EmployeeDetailComponent } from './employee-detail.component';
 import { EmployeeUpdateComponent } from './employee-update.component';
-import { EmployeeDeletePopupComponent } from './employee-delete-dialog.component';
-import { IEmployee } from 'app/shared/model/employee.model';
 
 @Injectable({ providedIn: 'root' })
 export class EmployeeResolve implements Resolve<IEmployee> {
-  constructor(private service: EmployeeService) {}
+  constructor(private service: EmployeeService, private router: Router) {}
 
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<IEmployee> {
-    const id = route.params['id'] ? route.params['id'] : null;
+  resolve(route: ActivatedRouteSnapshot): Observable<IEmployee> | Observable<never> {
+    const id = route.params['id'];
     if (id) {
       return this.service.find(id).pipe(
-        filter((response: HttpResponse<Employee>) => response.ok),
-        map((employee: HttpResponse<Employee>) => employee.body)
+        flatMap((employee: HttpResponse<Employee>) => {
+          if (employee.body) {
+            return of(employee.body);
+          } else {
+            this.router.navigate(['404']);
+            return EMPTY;
+          }
+        })
       );
     }
     return of(new Employee());
@@ -33,66 +38,47 @@ export const employeeRoute: Routes = [
   {
     path: '',
     component: EmployeeComponent,
-    resolve: {
-      pagingParams: JhiResolvePagingParams
-    },
     data: {
-      authorities: ['ROLE_USER'],
+      authorities: [Authority.USER],
       defaultSort: 'id,asc',
-      pageTitle: 'ormvahApp.employee.home.title'
+      pageTitle: 'ormvahApp.employee.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/view',
     component: EmployeeDetailComponent,
     resolve: {
-      employee: EmployeeResolve
+      employee: EmployeeResolve,
     },
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'ormvahApp.employee.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'ormvahApp.employee.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: 'new',
     component: EmployeeUpdateComponent,
     resolve: {
-      employee: EmployeeResolve
+      employee: EmployeeResolve,
     },
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'ormvahApp.employee.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'ormvahApp.employee.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/edit',
     component: EmployeeUpdateComponent,
     resolve: {
-      employee: EmployeeResolve
+      employee: EmployeeResolve,
     },
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'ormvahApp.employee.home.title'
-    },
-    canActivate: [UserRouteAccessService]
-  }
-];
-
-export const employeePopupRoute: Routes = [
-  {
-    path: ':id/delete',
-    component: EmployeeDeletePopupComponent,
-    resolve: {
-      employee: EmployeeResolve
-    },
-    data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'ormvahApp.employee.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'ormvahApp.employee.home.title',
     },
     canActivate: [UserRouteAccessService],
-    outlet: 'popup'
-  }
+  },
 ];

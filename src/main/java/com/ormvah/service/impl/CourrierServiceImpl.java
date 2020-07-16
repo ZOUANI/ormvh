@@ -28,24 +28,12 @@ public class CourrierServiceImpl implements CourrierService {
         this.courrierRepository = courrierRepository;
     }
 
-    /**
-     * Save a courrier.
-     *
-     * @param courrier the entity to save.
-     * @return the persisted entity.
-     */
     @Override
     public Courrier save(Courrier courrier) {
         log.debug("Request to save Courrier : {}", courrier);
         return courrierRepository.save(courrier);
     }
 
-    /**
-     * Get all the courriers.
-     *
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
     @Override
     @Transactional(readOnly = true)
     public Page<Courrier> findAll(Pageable pageable) {
@@ -53,22 +41,11 @@ public class CourrierServiceImpl implements CourrierService {
         return courrierRepository.findAll(pageable);
     }
 
-    /**
-     * Get all the courriers with eager load of many-to-many relationships.
-     *
-     * @return the list of entities.
-     */
+
     public Page<Courrier> findAllWithEagerRelationships(Pageable pageable) {
         return courrierRepository.findAllWithEagerRelationships(pageable);
     }
-    
 
-    /**
-     * Get one courrier by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<Courrier> findOne(Long id) {
@@ -76,11 +53,6 @@ public class CourrierServiceImpl implements CourrierService {
         return courrierRepository.findOneWithEagerRelationships(id);
     }
 
-    /**
-     * Delete the courrier by id.
-     *
-     * @param id the id of the entity.
-     */
     @Override
     public void delete(Long id) {
         log.debug("Request to delete Courrier : {}", id);

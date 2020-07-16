@@ -1,82 +1,85 @@
 <div class="row justify-content-center">
     <div class="col-8">
         <div *ngIf="task">
-            <h2><span jhiTranslate="ormvahApp.task.detail.title">Task</span> {{task.id}}</h2>
+            <h2><span jhiTranslate="ormvahApp.task.detail.title">Task</span> {{ task.id }}</h2>
+
             <hr>
+
             <jhi-alert-error></jhi-alert-error>
+
             <dl class="row-md jh-entity-details">
                 <dt><span jhiTranslate="ormvahApp.task.title">Title</span></dt>
                 <dd>
-                    <span>{{task.title}}</span>
+                    <span>{{ task.title }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.task.description">Description</span></dt>
                 <dd>
-                    <span>{{task.description}}</span>
+                    <span>{{ task.description }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.task.createdAt">Created At</span></dt>
                 <dd>
-                    <span>{{task.createdAt}}</span>
+                    <span>{{ task.createdAt }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.task.updatedAt">Updated At</span></dt>
                 <dd>
-                    <span>{{task.updatedAt}}</span>
+                    <span>{{ task.updatedAt }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.task.assignedAt">Assigned At</span></dt>
                 <dd>
-                    <span>{{task.assignedAt}}</span>
+                    <span>{{ task.assignedAt }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.task.processedAt">Processed At</span></dt>
                 <dd>
-                    <span>{{task.processedAt}}</span>
+                    <span>{{ task.processedAt }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.task.observation">Observation</span></dt>
                 <dd>
-                    <span>{{task.observation}}</span>
+                    <span>{{ task.observation }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.task.status">Status</span></dt>
                 <dd>
-                    <span jhiTranslate="{{'ormvahApp.Status.' + task.status}}">{{task.status}}</span>
+                    <span jhiTranslate="{{ 'ormvahApp.Status.' + task.status }}">{{ task.status }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.task.createdBy">Created By</span></dt>
                 <dd>
-                    <span>{{task.createdBy}}</span>
+                    <span>{{ task.createdBy }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.task.updatedBy">Updated By</span></dt>
                 <dd>
-                    <span>{{task.updatedBy}}</span>
+                    <span>{{ task.updatedBy }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.task.delai">Delai</span></dt>
                 <dd>
-                    <span>{{task.delai}}</span>
+                    <span>{{ task.delai }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.task.relance">Relance</span></dt>
                 <dd>
-                    <span>{{task.relance}}</span>
+                    <span>{{ task.relance }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.task.accuse">Accuse</span></dt>
                 <dd>
-                    <span>{{task.accuse}}</span>
+                    <span>{{ task.accuse }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.task.reponse">Reponse</span></dt>
                 <dd>
-                    <span>{{task.reponse}}</span>
+                    <span>{{ task.reponse }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.task.dateAccuse">Date Accuse</span></dt>
                 <dd>
-                    <span>{{task.dateAccuse}}</span>
+                    <span>{{ task.dateAccuse }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.task.dateReponse">Date Reponse</span></dt>
                 <dd>
-                    <span>{{task.dateReponse}}</span>
+                    <span>{{ task.dateReponse }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.task.assigne">Assigne</span></dt>
                 <dd>
-                    {{task.assigne?.id}}
+                    {{ task.assigne?.id }}
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.task.courrier">Courrier</span></dt>
                 <dd>
                     <div *ngIf="task.courrier">
-                        <a [routerLink]="['/courrier', task.courrier?.id, 'view']">{{task.courrier?.id}}</a>
+                        <a [routerLink]="['/courrier', task.courrier?.id, 'view']">{{ task.courrier?.id }}</a>
                     </div>
                 </dd>
             </dl>
@@ -84,13 +87,13 @@
             <button type="submit"
                     (click)="previousState()"
                     class="btn btn-info">
-                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+                <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
             </button>
 
             <button type="button"
                     [routerLink]="['/task', task.id, 'edit']"
                     class="btn btn-primary">
-                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+                <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
             </button>
         </div>
     </div>

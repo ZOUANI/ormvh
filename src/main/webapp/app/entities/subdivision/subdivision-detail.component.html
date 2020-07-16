@@ -1,42 +1,45 @@
 <div class="row justify-content-center">
     <div class="col-8">
         <div *ngIf="subdivision">
-            <h2><span jhiTranslate="ormvahApp.subdivision.detail.title">Subdivision</span> {{subdivision.id}}</h2>
+            <h2><span jhiTranslate="ormvahApp.subdivision.detail.title">Subdivision</span> {{ subdivision.id }}</h2>
+
             <hr>
+
             <jhi-alert-error></jhi-alert-error>
+
             <dl class="row-md jh-entity-details">
                 <dt><span jhiTranslate="ormvahApp.subdivision.title">Title</span></dt>
                 <dd>
-                    <span>{{subdivision.title}}</span>
+                    <span>{{ subdivision.title }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.subdivision.createdAt">Created At</span></dt>
                 <dd>
-                    <span>{{subdivision.createdAt}}</span>
+                    <span>{{ subdivision.createdAt }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.subdivision.updatedAt">Updated At</span></dt>
                 <dd>
-                    <span>{{subdivision.updatedAt}}</span>
+                    <span>{{ subdivision.updatedAt }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.subdivision.createdBy">Created By</span></dt>
                 <dd>
-                    <span>{{subdivision.createdBy}}</span>
+                    <span>{{ subdivision.createdBy }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.subdivision.updatedBy">Updated By</span></dt>
                 <dd>
-                    <span>{{subdivision.updatedBy}}</span>
+                    <span>{{ subdivision.updatedBy }}</span>
                 </dd>
             </dl>
 
             <button type="submit"
                     (click)="previousState()"
                     class="btn btn-info">
-                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+                <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
             </button>
 
             <button type="button"
                     [routerLink]="['/subdivision', subdivision.id, 'edit']"
                     class="btn btn-primary">
-                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+                <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
             </button>
         </div>
     </div>

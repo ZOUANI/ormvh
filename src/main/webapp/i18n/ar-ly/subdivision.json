@@ -5,7 +5,7 @@
         "title": "Subdivisions",
         "createLabel": "Create a new Subdivision",
         "createOrEditLabel": "Create or edit a Subdivision",
-        "notFound": "No Subdivision found"
+        "notFound": "No Subdivisions found"
       },
       "created": "A new Subdivision is created with identifier {{ param }}",
       "updated": "A Subdivision is updated with identifier {{ param }}",

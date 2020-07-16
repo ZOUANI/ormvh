@@ -1,4 +1,5 @@
 package com.ormvah.domain;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.Cache;
@@ -21,7 +22,7 @@ import com.ormvah.domain.enumeration.Status;
  */
 @Entity
 @Table(name = "courrier")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Courrier implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -151,53 +152,53 @@ public class Courrier implements Serializable {
     private Courrier linkedTo;
 
     @OneToMany(mappedBy = "courrier")
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<Task> tasks = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties("courriers")
+    @JsonIgnoreProperties(value = "courriers", allowSetters = true)
     private Expeditor expeditor;
 
     @ManyToOne
-    @JsonIgnoreProperties("courriers")
+    @JsonIgnoreProperties(value = "courriers", allowSetters = true)
     private Expeditor destinator;
 
     @ManyToOne
-    @JsonIgnoreProperties("courriers")
+    @JsonIgnoreProperties(value = "courriers", allowSetters = true)
     private LeService coordinator;
 
     @ManyToOne
-    @JsonIgnoreProperties("courriers")
+    @JsonIgnoreProperties(value = "courriers", allowSetters = true)
     private LeService emetteur;
 
     @ManyToOne
-    @JsonIgnoreProperties("courriers")
+    @JsonIgnoreProperties(value = "courriers", allowSetters = true)
     private Evaluation evaluation;
 
     @ManyToOne
-    @JsonIgnoreProperties("courriers")
+    @JsonIgnoreProperties(value = "courriers", allowSetters = true)
     private CourrierObject courrierObject;
 
     @ManyToOne
-    @JsonIgnoreProperties("courriers")
+    @JsonIgnoreProperties(value = "courriers", allowSetters = true)
     private ExpeditorType expeditorType;
 
     @ManyToOne
-    @JsonIgnoreProperties("courriers")
+    @JsonIgnoreProperties(value = "courriers", allowSetters = true)
     private Subdivision subdivision;
 
     @ManyToMany
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @JoinTable(name = "courrier_services",
                joinColumns = @JoinColumn(name = "courrier_id", referencedColumnName = "id"),
                inverseJoinColumns = @JoinColumn(name = "services_id", referencedColumnName = "id"))
     private Set<LeService> services = new HashSet<>();
 
     @ManyToOne
-    @JsonIgnoreProperties("courriers")
+    @JsonIgnoreProperties(value = "courriers", allowSetters = true)
     private Bordereau bordereau;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
         return id;
     }
@@ -710,7 +711,7 @@ public class Courrier implements Serializable {
     public void setBordereau(Bordereau bordereau) {
         this.bordereau = bordereau;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -728,6 +729,7 @@ public class Courrier implements Serializable {
         return 31;
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "Courrier{" +

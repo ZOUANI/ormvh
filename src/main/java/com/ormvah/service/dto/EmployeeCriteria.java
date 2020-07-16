@@ -39,10 +39,10 @@ public class EmployeeCriteria implements Serializable, Criteria {
 
     private LongFilter serviceId;
 
-    public EmployeeCriteria(){
+    public EmployeeCriteria() {
     }
 
-    public EmployeeCriteria(EmployeeCriteria other){
+    public EmployeeCriteria(EmployeeCriteria other) {
         this.id = other.id == null ? null : other.id.copy();
         this.createdAt = other.createdAt == null ? null : other.createdAt.copy();
         this.updatedAt = other.updatedAt == null ? null : other.updatedAt.copy();
@@ -146,6 +146,7 @@ public class EmployeeCriteria implements Serializable, Criteria {
         );
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "EmployeeCriteria{" +

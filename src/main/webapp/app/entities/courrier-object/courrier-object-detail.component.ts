@@ -5,20 +5,18 @@ import { ICourrierObject } from 'app/shared/model/courrier-object.model';
 
 @Component({
   selector: 'jhi-courrier-object-detail',
-  templateUrl: './courrier-object-detail.component.html'
+  templateUrl: './courrier-object-detail.component.html',
 })
 export class CourrierObjectDetailComponent implements OnInit {
-  courrierObject: ICourrierObject;
+  courrierObject: ICourrierObject | null = null;
 
   constructor(protected activatedRoute: ActivatedRoute) {}
 
-  ngOnInit() {
-    this.activatedRoute.data.subscribe(({ courrierObject }) => {
-      this.courrierObject = courrierObject;
-    });
+  ngOnInit(): void {
+    this.activatedRoute.data.subscribe(({ courrierObject }) => (this.courrierObject = courrierObject));
   }
 
-  previousState() {
+  previousState(): void {
     window.history.back();
   }
 }

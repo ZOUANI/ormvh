@@ -1,59 +1,64 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import * as moment from 'moment';
 import { DATE_TIME_FORMAT } from 'app/shared/constants/input.constants';
-import { JhiAlertService, JhiDataUtils } from 'ng-jhipster';
+import { JhiDataUtils, JhiFileLoadError, JhiEventManager, JhiEventWithContent } from 'ng-jhipster';
+
 import { ICourrier, Courrier } from 'app/shared/model/courrier.model';
 import { CourrierService } from './courrier.service';
+import { AlertError } from 'app/shared/alert/alert-error.model';
 import { IVoie } from 'app/shared/model/voie.model';
-import { VoieService } from 'app/entities/voie';
+import { VoieService } from 'app/entities/voie/voie.service';
 import { INatureCourrier } from 'app/shared/model/nature-courrier.model';
-import { NatureCourrierService } from 'app/entities/nature-courrier';
+import { NatureCourrierService } from 'app/entities/nature-courrier/nature-courrier.service';
 import { IExpeditor } from 'app/shared/model/expeditor.model';
-import { ExpeditorService } from 'app/entities/expeditor';
+import { ExpeditorService } from 'app/entities/expeditor/expeditor.service';
 import { ILeService } from 'app/shared/model/le-service.model';
-import { LeServiceService } from 'app/entities/le-service';
+import { LeServiceService } from 'app/entities/le-service/le-service.service';
 import { IEvaluation } from 'app/shared/model/evaluation.model';
-import { EvaluationService } from 'app/entities/evaluation';
+import { EvaluationService } from 'app/entities/evaluation/evaluation.service';
 import { ICourrierObject } from 'app/shared/model/courrier-object.model';
-import { CourrierObjectService } from 'app/entities/courrier-object';
+import { CourrierObjectService } from 'app/entities/courrier-object/courrier-object.service';
 import { IExpeditorType } from 'app/shared/model/expeditor-type.model';
-import { ExpeditorTypeService } from 'app/entities/expeditor-type';
+import { ExpeditorTypeService } from 'app/entities/expeditor-type/expeditor-type.service';
 import { ISubdivision } from 'app/shared/model/subdivision.model';
-import { SubdivisionService } from 'app/entities/subdivision';
+import { SubdivisionService } from 'app/entities/subdivision/subdivision.service';
 import { IBordereau } from 'app/shared/model/bordereau.model';
-import { BordereauService } from 'app/entities/bordereau';
+import { BordereauService } from 'app/entities/bordereau/bordereau.service';
+
+type SelectableEntity =
+  | IVoie
+  | INatureCourrier
+  | ICourrier
+  | IExpeditor
+  | ILeService
+  | IEvaluation
+  | ICourrierObject
+  | IExpeditorType
+  | ISubdivision
+  | IBordereau;
 
 @Component({
   selector: 'jhi-courrier-update',
-  templateUrl: './courrier-update.component.html'
+  templateUrl: './courrier-update.component.html',
 })
 export class CourrierUpdateComponent implements OnInit {
-  isSaving: boolean;
-
-  voies: IVoie[];
-
-  naturecourriers: INatureCourrier[];
-
-  linkedtos: ICourrier[];
-
-  expeditors: IExpeditor[];
-
-  leservices: ILeService[];
-
-  evaluations: IEvaluation[];
-
-  courrierobjects: ICourrierObject[];
-
-  expeditortypes: IExpeditorType[];
-
-  subdivisions: ISubdivision[];
-
-  bordereaus: IBordereau[];
+  isSaving = false;
+  voies: IVoie[] = [];
+  naturecourriers: INatureCourrier[] = [];
+  linkedtos: ICourrier[] = [];
+  expeditors: IExpeditor[] = [];
+  leservices: ILeService[] = [];
+  evaluations: IEvaluation[] = [];
+  courrierobjects: ICourrierObject[] = [];
+  expeditortypes: IExpeditorType[] = [];
+  subdivisions: ISubdivision[] = [];
+  bordereaus: IBordereau[] = [];
   dateAccuseDp: any;
   dateReponseDp: any;
 
@@ -94,12 +99,12 @@ export class CourrierUpdateComponent implements OnInit {
     expeditorType: [],
     subdivision: [],
     services: [],
-    bordereau: []
+    bordereau: [],
   });
 
   constructor(
     protected dataUtils: JhiDataUtils,
-    protected jhiAlertService: JhiAlertService,
+    protected eventManager: JhiEventManager,
     protected courrierService: CourrierService,
     protected voieService: VoieService,
     protected natureCourrierService: NatureCourrierService,
@@ -114,146 +119,109 @@ export class CourrierUpdateComponent implements OnInit {
     private fb: FormBuilder
   ) {}
 
-  ngOnInit() {
-    this.isSaving = false;
+  ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ courrier }) => {
+      if (!courrier.id) {
+        const today = moment().startOf('day');
+        courrier.createdAt = today;
+        courrier.updatedAt = today;
+        courrier.receivedAt = today;
+        courrier.sentAt = today;
+      }
+
       this.updateForm(courrier);
-    });
-    this.voieService
-      .query({ 'courrierId.specified': 'false' })
-      .pipe(
-        filter((mayBeOk: HttpResponse<IVoie[]>) => mayBeOk.ok),
-        map((response: HttpResponse<IVoie[]>) => response.body)
-      )
-      .subscribe(
-        (res: IVoie[]) => {
-          if (!this.editForm.get('voie').value || !this.editForm.get('voie').value.id) {
-            this.voies = res;
+
+      this.voieService
+        .query({ filter: 'courrier-is-null' })
+        .pipe(
+          map((res: HttpResponse<IVoie[]>) => {
+            return res.body || [];
+          })
+        )
+        .subscribe((resBody: IVoie[]) => {
+          if (!courrier.voie || !courrier.voie.id) {
+            this.voies = resBody;
           } else {
             this.voieService
-              .find(this.editForm.get('voie').value.id)
+              .find(courrier.voie.id)
               .pipe(
-                filter((subResMayBeOk: HttpResponse<IVoie>) => subResMayBeOk.ok),
-                map((subResponse: HttpResponse<IVoie>) => subResponse.body)
+                map((subRes: HttpResponse<IVoie>) => {
+                  return subRes.body ? [subRes.body].concat(resBody) : resBody;
+                })
               )
-              .subscribe(
-                (subRes: IVoie) => (this.voies = [subRes].concat(res)),
-                (subRes: HttpErrorResponse) => this.onError(subRes.message)
-              );
+              .subscribe((concatRes: IVoie[]) => (this.voies = concatRes));
           }
-        },
-        (res: HttpErrorResponse) => this.onError(res.message)
-      );
-    this.natureCourrierService
-      .query({ 'courrierId.specified': 'false' })
-      .pipe(
-        filter((mayBeOk: HttpResponse<INatureCourrier[]>) => mayBeOk.ok),
-        map((response: HttpResponse<INatureCourrier[]>) => response.body)
-      )
-      .subscribe(
-        (res: INatureCourrier[]) => {
-          if (!this.editForm.get('natureCourrier').value || !this.editForm.get('natureCourrier').value.id) {
-            this.naturecourriers = res;
+        });
+
+      this.natureCourrierService
+        .query({ filter: 'courrier-is-null' })
+        .pipe(
+          map((res: HttpResponse<INatureCourrier[]>) => {
+            return res.body || [];
+          })
+        )
+        .subscribe((resBody: INatureCourrier[]) => {
+          if (!courrier.natureCourrier || !courrier.natureCourrier.id) {
+            this.naturecourriers = resBody;
           } else {
             this.natureCourrierService
-              .find(this.editForm.get('natureCourrier').value.id)
+              .find(courrier.natureCourrier.id)
               .pipe(
-                filter((subResMayBeOk: HttpResponse<INatureCourrier>) => subResMayBeOk.ok),
-                map((subResponse: HttpResponse<INatureCourrier>) => subResponse.body)
+                map((subRes: HttpResponse<INatureCourrier>) => {
+                  return subRes.body ? [subRes.body].concat(resBody) : resBody;
+                })
               )
-              .subscribe(
-                (subRes: INatureCourrier) => (this.naturecourriers = [subRes].concat(res)),
-                (subRes: HttpErrorResponse) => this.onError(subRes.message)
-              );
+              .subscribe((concatRes: INatureCourrier[]) => (this.naturecourriers = concatRes));
           }
-        },
-        (res: HttpErrorResponse) => this.onError(res.message)
-      );
-    this.courrierService
-      .query({ 'courrierId.specified': 'false' })
-      .pipe(
-        filter((mayBeOk: HttpResponse<ICourrier[]>) => mayBeOk.ok),
-        map((response: HttpResponse<ICourrier[]>) => response.body)
-      )
-      .subscribe(
-        (res: ICourrier[]) => {
-          if (!this.editForm.get('linkedTo').value || !this.editForm.get('linkedTo').value.id) {
-            this.linkedtos = res;
+        });
+
+      this.courrierService
+        .query({ 'courrierId.specified': 'false' })
+        .pipe(
+          map((res: HttpResponse<ICourrier[]>) => {
+            return res.body || [];
+          })
+        )
+        .subscribe((resBody: ICourrier[]) => {
+          if (!courrier.linkedTo || !courrier.linkedTo.id) {
+            this.linkedtos = resBody;
           } else {
             this.courrierService
-              .find(this.editForm.get('linkedTo').value.id)
+              .find(courrier.linkedTo.id)
               .pipe(
-                filter((subResMayBeOk: HttpResponse<ICourrier>) => subResMayBeOk.ok),
-                map((subResponse: HttpResponse<ICourrier>) => subResponse.body)
+                map((subRes: HttpResponse<ICourrier>) => {
+                  return subRes.body ? [subRes.body].concat(resBody) : resBody;
+                })
               )
-              .subscribe(
-                (subRes: ICourrier) => (this.linkedtos = [subRes].concat(res)),
-                (subRes: HttpErrorResponse) => this.onError(subRes.message)
-              );
+              .subscribe((concatRes: ICourrier[]) => (this.linkedtos = concatRes));
           }
-        },
-        (res: HttpErrorResponse) => this.onError(res.message)
-      );
-    this.expeditorService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<IExpeditor[]>) => mayBeOk.ok),
-        map((response: HttpResponse<IExpeditor[]>) => response.body)
-      )
-      .subscribe((res: IExpeditor[]) => (this.expeditors = res), (res: HttpErrorResponse) => this.onError(res.message));
-    this.leServiceService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<ILeService[]>) => mayBeOk.ok),
-        map((response: HttpResponse<ILeService[]>) => response.body)
-      )
-      .subscribe((res: ILeService[]) => (this.leservices = res), (res: HttpErrorResponse) => this.onError(res.message));
-    this.evaluationService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<IEvaluation[]>) => mayBeOk.ok),
-        map((response: HttpResponse<IEvaluation[]>) => response.body)
-      )
-      .subscribe((res: IEvaluation[]) => (this.evaluations = res), (res: HttpErrorResponse) => this.onError(res.message));
-    this.courrierObjectService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<ICourrierObject[]>) => mayBeOk.ok),
-        map((response: HttpResponse<ICourrierObject[]>) => response.body)
-      )
-      .subscribe((res: ICourrierObject[]) => (this.courrierobjects = res), (res: HttpErrorResponse) => this.onError(res.message));
-    this.expeditorTypeService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<IExpeditorType[]>) => mayBeOk.ok),
-        map((response: HttpResponse<IExpeditorType[]>) => response.body)
-      )
-      .subscribe((res: IExpeditorType[]) => (this.expeditortypes = res), (res: HttpErrorResponse) => this.onError(res.message));
-    this.subdivisionService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<ISubdivision[]>) => mayBeOk.ok),
-        map((response: HttpResponse<ISubdivision[]>) => response.body)
-      )
-      .subscribe((res: ISubdivision[]) => (this.subdivisions = res), (res: HttpErrorResponse) => this.onError(res.message));
-    this.bordereauService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<IBordereau[]>) => mayBeOk.ok),
-        map((response: HttpResponse<IBordereau[]>) => response.body)
-      )
-      .subscribe((res: IBordereau[]) => (this.bordereaus = res), (res: HttpErrorResponse) => this.onError(res.message));
+        });
+
+      this.expeditorService.query().subscribe((res: HttpResponse<IExpeditor[]>) => (this.expeditors = res.body || []));
+
+      this.leServiceService.query().subscribe((res: HttpResponse<ILeService[]>) => (this.leservices = res.body || []));
+
+      this.evaluationService.query().subscribe((res: HttpResponse<IEvaluation[]>) => (this.evaluations = res.body || []));
+
+      this.courrierObjectService.query().subscribe((res: HttpResponse<ICourrierObject[]>) => (this.courrierobjects = res.body || []));
+
+      this.expeditorTypeService.query().subscribe((res: HttpResponse<IExpeditorType[]>) => (this.expeditortypes = res.body || []));
+
+      this.subdivisionService.query().subscribe((res: HttpResponse<ISubdivision[]>) => (this.subdivisions = res.body || []));
+
+      this.bordereauService.query().subscribe((res: HttpResponse<IBordereau[]>) => (this.bordereaus = res.body || []));
+    });
   }
 
-  updateForm(courrier: ICourrier) {
+  updateForm(courrier: ICourrier): void {
     this.editForm.patchValue({
       id: courrier.id,
       idCourrier: courrier.idCourrier,
       subject: courrier.subject,
       description: courrier.description,
       typeCourrier: courrier.typeCourrier,
-      createdAt: courrier.createdAt != null ? courrier.createdAt.format(DATE_TIME_FORMAT) : null,
-      updatedAt: courrier.updatedAt != null ? courrier.updatedAt.format(DATE_TIME_FORMAT) : null,
+      createdAt: courrier.createdAt ? courrier.createdAt.format(DATE_TIME_FORMAT) : null,
+      updatedAt: courrier.updatedAt ? courrier.updatedAt.format(DATE_TIME_FORMAT) : null,
       createdBy: courrier.createdBy,
       updatedBy: courrier.updatedBy,
       delai: courrier.delai,
@@ -265,10 +233,10 @@ export class CourrierUpdateComponent implements OnInit {
       status: courrier.status,
       data: courrier.data,
       dataContentType: courrier.dataContentType,
-      receivedAt: courrier.receivedAt != null ? courrier.receivedAt.format(DATE_TIME_FORMAT) : null,
+      receivedAt: courrier.receivedAt ? courrier.receivedAt.format(DATE_TIME_FORMAT) : null,
       instruction: courrier.instruction,
       expediteurDesc: courrier.expediteurDesc,
-      sentAt: courrier.sentAt != null ? courrier.sentAt.format(DATE_TIME_FORMAT) : null,
+      sentAt: courrier.sentAt ? courrier.sentAt.format(DATE_TIME_FORMAT) : null,
       destinataireDesc: courrier.destinataireDesc,
       destinataireVille: courrier.destinataireVille,
       voie: courrier.voie,
@@ -283,47 +251,31 @@ export class CourrierUpdateComponent implements OnInit {
       expeditorType: courrier.expeditorType,
       subdivision: courrier.subdivision,
       services: courrier.services,
-      bordereau: courrier.bordereau
+      bordereau: courrier.bordereau,
     });
   }
 
-  byteSize(field) {
-    return this.dataUtils.byteSize(field);
+  byteSize(base64String: string): string {
+    return this.dataUtils.byteSize(base64String);
   }
 
-  openFile(contentType, field) {
-    return this.dataUtils.openFile(contentType, field);
+  openFile(contentType: string, base64String: string): void {
+    this.dataUtils.openFile(contentType, base64String);
   }
 
-  setFileData(event, field: string, isImage) {
-    return new Promise((resolve, reject) => {
-      if (event && event.target && event.target.files && event.target.files[0]) {
-        const file = event.target.files[0];
-        if (isImage && !/^image\//.test(file.type)) {
-          reject(`File was expected to be an image but was found to be ${file.type}`);
-        } else {
-          const filedContentType: string = field + 'ContentType';
-          this.dataUtils.toBase64(file, base64Data => {
-            this.editForm.patchValue({
-              [field]: base64Data,
-              [filedContentType]: file.type
-            });
-          });
-        }
-      } else {
-        reject(`Base64 data was not set as file could not be extracted from passed parameter: ${event}`);
-      }
-    }).then(
-      () => console.log('blob added'), // sucess
-      this.onError
-    );
+  setFileData(event: Event, field: string, isImage: boolean): void {
+    this.dataUtils.loadFileToForm(event, this.editForm, field, isImage).subscribe(null, (err: JhiFileLoadError) => {
+      this.eventManager.broadcast(
+        new JhiEventWithContent<AlertError>('ormvahApp.error', { ...err, key: 'error.file.' + err.key })
+      );
+    });
   }
 
-  previousState() {
+  previousState(): void {
     window.history.back();
   }
 
-  save() {
+  save(): void {
     this.isSaving = true;
     const courrier = this.createFromForm();
     if (courrier.id !== undefined) {
@@ -336,106 +288,67 @@ export class CourrierUpdateComponent implements OnInit {
   private createFromForm(): ICourrier {
     return {
       ...new Courrier(),
-      id: this.editForm.get(['id']).value,
-      idCourrier: this.editForm.get(['idCourrier']).value,
-      subject: this.editForm.get(['subject']).value,
-      description: this.editForm.get(['description']).value,
-      typeCourrier: this.editForm.get(['typeCourrier']).value,
-      createdAt:
-        this.editForm.get(['createdAt']).value != null ? moment(this.editForm.get(['createdAt']).value, DATE_TIME_FORMAT) : undefined,
-      updatedAt:
-        this.editForm.get(['updatedAt']).value != null ? moment(this.editForm.get(['updatedAt']).value, DATE_TIME_FORMAT) : undefined,
-      createdBy: this.editForm.get(['createdBy']).value,
-      updatedBy: this.editForm.get(['updatedBy']).value,
-      delai: this.editForm.get(['delai']).value,
-      relance: this.editForm.get(['relance']).value,
-      accuse: this.editForm.get(['accuse']).value,
-      reponse: this.editForm.get(['reponse']).value,
-      dateAccuse: this.editForm.get(['dateAccuse']).value,
-      dateReponse: this.editForm.get(['dateReponse']).value,
-      status: this.editForm.get(['status']).value,
-      dataContentType: this.editForm.get(['dataContentType']).value,
-      data: this.editForm.get(['data']).value,
-      receivedAt:
-        this.editForm.get(['receivedAt']).value != null ? moment(this.editForm.get(['receivedAt']).value, DATE_TIME_FORMAT) : undefined,
-      instruction: this.editForm.get(['instruction']).value,
-      expediteurDesc: this.editForm.get(['expediteurDesc']).value,
-      sentAt: this.editForm.get(['sentAt']).value != null ? moment(this.editForm.get(['sentAt']).value, DATE_TIME_FORMAT) : undefined,
-      destinataireDesc: this.editForm.get(['destinataireDesc']).value,
-      destinataireVille: this.editForm.get(['destinataireVille']).value,
-      voie: this.editForm.get(['voie']).value,
-      natureCourrier: this.editForm.get(['natureCourrier']).value,
-      linkedTo: this.editForm.get(['linkedTo']).value,
-      expeditor: this.editForm.get(['expeditor']).value,
-      destinator: this.editForm.get(['destinator']).value,
-      coordinator: this.editForm.get(['coordinator']).value,
-      emetteur: this.editForm.get(['emetteur']).value,
-      evaluation: this.editForm.get(['evaluation']).value,
-      courrierObject: this.editForm.get(['courrierObject']).value,
-      expeditorType: this.editForm.get(['expeditorType']).value,
-      subdivision: this.editForm.get(['subdivision']).value,
-      services: this.editForm.get(['services']).value,
-      bordereau: this.editForm.get(['bordereau']).value
+      id: this.editForm.get(['id'])!.value,
+      idCourrier: this.editForm.get(['idCourrier'])!.value,
+      subject: this.editForm.get(['subject'])!.value,
+      description: this.editForm.get(['description'])!.value,
+      typeCourrier: this.editForm.get(['typeCourrier'])!.value,
+      createdAt: this.editForm.get(['createdAt'])!.value ? moment(this.editForm.get(['createdAt'])!.value, DATE_TIME_FORMAT) : undefined,
+      updatedAt: this.editForm.get(['updatedAt'])!.value ? moment(this.editForm.get(['updatedAt'])!.value, DATE_TIME_FORMAT) : undefined,
+      createdBy: this.editForm.get(['createdBy'])!.value,
+      updatedBy: this.editForm.get(['updatedBy'])!.value,
+      delai: this.editForm.get(['delai'])!.value,
+      relance: this.editForm.get(['relance'])!.value,
+      accuse: this.editForm.get(['accuse'])!.value,
+      reponse: this.editForm.get(['reponse'])!.value,
+      dateAccuse: this.editForm.get(['dateAccuse'])!.value,
+      dateReponse: this.editForm.get(['dateReponse'])!.value,
+      status: this.editForm.get(['status'])!.value,
+      dataContentType: this.editForm.get(['dataContentType'])!.value,
+      data: this.editForm.get(['data'])!.value,
+      receivedAt: this.editForm.get(['receivedAt'])!.value ? moment(this.editForm.get(['receivedAt'])!.value, DATE_TIME_FORMAT) : undefined,
+      instruction: this.editForm.get(['instruction'])!.value,
+      expediteurDesc: this.editForm.get(['expediteurDesc'])!.value,
+      sentAt: this.editForm.get(['sentAt'])!.value ? moment(this.editForm.get(['sentAt'])!.value, DATE_TIME_FORMAT) : undefined,
+      destinataireDesc: this.editForm.get(['destinataireDesc'])!.value,
+      destinataireVille: this.editForm.get(['destinataireVille'])!.value,
+      voie: this.editForm.get(['voie'])!.value,
+      natureCourrier: this.editForm.get(['natureCourrier'])!.value,
+      linkedTo: this.editForm.get(['linkedTo'])!.value,
+      expeditor: this.editForm.get(['expeditor'])!.value,
+      destinator: this.editForm.get(['destinator'])!.value,
+      coordinator: this.editForm.get(['coordinator'])!.value,
+      emetteur: this.editForm.get(['emetteur'])!.value,
+      evaluation: this.editForm.get(['evaluation'])!.value,
+      courrierObject: this.editForm.get(['courrierObject'])!.value,
+      expeditorType: this.editForm.get(['expeditorType'])!.value,
+      subdivision: this.editForm.get(['subdivision'])!.value,
+      services: this.editForm.get(['services'])!.value,
+      bordereau: this.editForm.get(['bordereau'])!.value,
     };
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<ICourrier>>) {
-    result.subscribe(() => this.onSaveSuccess(), () => this.onSaveError());
+  protected subscribeToSaveResponse(result: Observable<HttpResponse<ICourrier>>): void {
+    result.subscribe(
+      () => this.onSaveSuccess(),
+      () => this.onSaveError()
+    );
   }
 
-  protected onSaveSuccess() {
+  protected onSaveSuccess(): void {
     this.isSaving = false;
     this.previousState();
   }
 
-  protected onSaveError() {
+  protected onSaveError(): void {
     this.isSaving = false;
   }
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
-  }
 
-  trackVoieById(index: number, item: IVoie) {
+  trackById(index: number, item: SelectableEntity): any {
     return item.id;
   }
 
-  trackNatureCourrierById(index: number, item: INatureCourrier) {
-    return item.id;
-  }
-
-  trackCourrierById(index: number, item: ICourrier) {
-    return item.id;
-  }
-
-  trackExpeditorById(index: number, item: IExpeditor) {
-    return item.id;
-  }
-
-  trackLeServiceById(index: number, item: ILeService) {
-    return item.id;
-  }
-
-  trackEvaluationById(index: number, item: IEvaluation) {
-    return item.id;
-  }
-
-  trackCourrierObjectById(index: number, item: ICourrierObject) {
-    return item.id;
-  }
-
-  trackExpeditorTypeById(index: number, item: IExpeditorType) {
-    return item.id;
-  }
-
-  trackSubdivisionById(index: number, item: ISubdivision) {
-    return item.id;
-  }
-
-  trackBordereauById(index: number, item: IBordereau) {
-    return item.id;
-  }
-
-  getSelected(selectedVals: Array<any>, option: any) {
+  getSelected(selectedVals: ILeService[], option: ILeService): ILeService {
     if (selectedVals) {
       for (let i = 0; i < selectedVals.length; i++) {
         if (option.id === selectedVals[i].id) {

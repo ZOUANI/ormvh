@@ -1,4 +1,5 @@
 package com.ormvah.domain;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -16,7 +17,7 @@ import com.ormvah.domain.enumeration.Status;
  */
 @Entity
 @Table(name = "task")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Task implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -75,14 +76,14 @@ public class Task implements Serializable {
     private LocalDate dateReponse;
 
     @ManyToOne
-    @JsonIgnoreProperties("tasks")
+    @JsonIgnoreProperties(value = "tasks", allowSetters = true)
     private User assigne;
 
     @ManyToOne
-    @JsonIgnoreProperties("tasks")
+    @JsonIgnoreProperties(value = "tasks", allowSetters = true)
     private Courrier courrier;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
         return id;
     }
@@ -324,7 +325,7 @@ public class Task implements Serializable {
     public void setCourrier(Courrier courrier) {
         this.courrier = courrier;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -342,6 +343,7 @@ public class Task implements Serializable {
         return 31;
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "Task{" +

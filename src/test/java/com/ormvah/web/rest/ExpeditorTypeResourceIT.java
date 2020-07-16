@@ -4,36 +4,33 @@ import com.ormvah.OrmvahApp;
 import com.ormvah.domain.ExpeditorType;
 import com.ormvah.repository.ExpeditorTypeRepository;
 import com.ormvah.service.ExpeditorTypeService;
-import com.ormvah.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static com.ormvah.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link ExpeditorTypeResource} REST controller.
+ * Integration tests for the {@link ExpeditorTypeResource} REST controller.
  */
 @SpringBootTest(classes = OrmvahApp.class)
+@AutoConfigureMockMvc
+@WithMockUser
 public class ExpeditorTypeResourceIT {
 
     private static final String DEFAULT_TITLE = "AAAAAAAAAA";
@@ -58,35 +55,12 @@ public class ExpeditorTypeResourceIT {
     private ExpeditorTypeService expeditorTypeService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restExpeditorTypeMockMvc;
 
     private ExpeditorType expeditorType;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final ExpeditorTypeResource expeditorTypeResource = new ExpeditorTypeResource(expeditorTypeService);
-        this.restExpeditorTypeMockMvc = MockMvcBuilders.standaloneSetup(expeditorTypeResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -128,10 +102,9 @@ public class ExpeditorTypeResourceIT {
     @Transactional
     public void createExpeditorType() throws Exception {
         int databaseSizeBeforeCreate = expeditorTypeRepository.findAll().size();
-
         // Create the ExpeditorType
-        restExpeditorTypeMockMvc.perform(post("/api/expeditor-types")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restExpeditorTypeMockMvc.perform(post("/api/expeditor-types").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(expeditorType)))
             .andExpect(status().isCreated());
 
@@ -155,8 +128,8 @@ public class ExpeditorTypeResourceIT {
         expeditorType.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restExpeditorTypeMockMvc.perform(post("/api/expeditor-types")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restExpeditorTypeMockMvc.perform(post("/api/expeditor-types").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(expeditorType)))
             .andExpect(status().isBadRequest());
 
@@ -175,13 +148,13 @@ public class ExpeditorTypeResourceIT {
         // Get all the expeditorTypeList
         restExpeditorTypeMockMvc.perform(get("/api/expeditor-types?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(expeditorType.getId().intValue())))
-            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
             .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())))
-            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(DEFAULT_CREATED_BY.toString())))
-            .andExpect(jsonPath("$.[*].updatedBy").value(hasItem(DEFAULT_UPDATED_BY.toString())));
+            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(DEFAULT_CREATED_BY)))
+            .andExpect(jsonPath("$.[*].updatedBy").value(hasItem(DEFAULT_UPDATED_BY)));
     }
     
     @Test
@@ -193,15 +166,14 @@ public class ExpeditorTypeResourceIT {
         // Get the expeditorType
         restExpeditorTypeMockMvc.perform(get("/api/expeditor-types/{id}", expeditorType.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(expeditorType.getId().intValue()))
-            .andExpect(jsonPath("$.title").value(DEFAULT_TITLE.toString()))
+            .andExpect(jsonPath("$.title").value(DEFAULT_TITLE))
             .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
             .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()))
-            .andExpect(jsonPath("$.createdBy").value(DEFAULT_CREATED_BY.toString()))
-            .andExpect(jsonPath("$.updatedBy").value(DEFAULT_UPDATED_BY.toString()));
+            .andExpect(jsonPath("$.createdBy").value(DEFAULT_CREATED_BY))
+            .andExpect(jsonPath("$.updatedBy").value(DEFAULT_UPDATED_BY));
     }
-
     @Test
     @Transactional
     public void getNonExistingExpeditorType() throws Exception {
@@ -229,8 +201,8 @@ public class ExpeditorTypeResourceIT {
             .createdBy(UPDATED_CREATED_BY)
             .updatedBy(UPDATED_UPDATED_BY);
 
-        restExpeditorTypeMockMvc.perform(put("/api/expeditor-types")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restExpeditorTypeMockMvc.perform(put("/api/expeditor-types").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedExpeditorType)))
             .andExpect(status().isOk());
 
@@ -250,11 +222,9 @@ public class ExpeditorTypeResourceIT {
     public void updateNonExistingExpeditorType() throws Exception {
         int databaseSizeBeforeUpdate = expeditorTypeRepository.findAll().size();
 
-        // Create the ExpeditorType
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restExpeditorTypeMockMvc.perform(put("/api/expeditor-types")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restExpeditorTypeMockMvc.perform(put("/api/expeditor-types").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(expeditorType)))
             .andExpect(status().isBadRequest());
 
@@ -272,27 +242,12 @@ public class ExpeditorTypeResourceIT {
         int databaseSizeBeforeDelete = expeditorTypeRepository.findAll().size();
 
         // Delete the expeditorType
-        restExpeditorTypeMockMvc.perform(delete("/api/expeditor-types/{id}", expeditorType.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+        restExpeditorTypeMockMvc.perform(delete("/api/expeditor-types/{id}", expeditorType.getId()).with(csrf())
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
         List<ExpeditorType> expeditorTypeList = expeditorTypeRepository.findAll();
         assertThat(expeditorTypeList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(ExpeditorType.class);
-        ExpeditorType expeditorType1 = new ExpeditorType();
-        expeditorType1.setId(1L);
-        ExpeditorType expeditorType2 = new ExpeditorType();
-        expeditorType2.setId(expeditorType1.getId());
-        assertThat(expeditorType1).isEqualTo(expeditorType2);
-        expeditorType2.setId(2L);
-        assertThat(expeditorType1).isNotEqualTo(expeditorType2);
-        expeditorType1.setId(null);
-        assertThat(expeditorType1).isNotEqualTo(expeditorType2);
     }
 }

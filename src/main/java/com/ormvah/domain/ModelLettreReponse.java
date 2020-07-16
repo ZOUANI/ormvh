@@ -1,4 +1,5 @@
 package com.ormvah.domain;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -12,7 +13,7 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "model_lettre_reponse")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ModelLettreReponse implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -37,7 +38,7 @@ public class ModelLettreReponse implements Serializable {
     @JoinColumn(unique = true)
     private CategorieModelLettreReponse categorieModelLettreReponse;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
         return id;
     }
@@ -97,7 +98,7 @@ public class ModelLettreReponse implements Serializable {
     public void setCategorieModelLettreReponse(CategorieModelLettreReponse categorieModelLettreReponse) {
         this.categorieModelLettreReponse = categorieModelLettreReponse;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -115,6 +116,7 @@ public class ModelLettreReponse implements Serializable {
         return 31;
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "ModelLettreReponse{" +

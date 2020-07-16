@@ -28,24 +28,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         this.employeeRepository = employeeRepository;
     }
 
-    /**
-     * Save a employee.
-     *
-     * @param employee the entity to save.
-     * @return the persisted entity.
-     */
     @Override
     public Employee save(Employee employee) {
         log.debug("Request to save Employee : {}", employee);
         return employeeRepository.save(employee);
     }
 
-    /**
-     * Get all the employees.
-     *
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
     @Override
     @Transactional(readOnly = true)
     public Page<Employee> findAll(Pageable pageable) {
@@ -54,12 +42,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
 
-    /**
-     * Get one employee by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<Employee> findOne(Long id) {
@@ -67,11 +49,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeRepository.findById(id);
     }
 
-    /**
-     * Delete the employee by id.
-     *
-     * @param id the id of the entity.
-     */
     @Override
     public void delete(Long id) {
         log.debug("Request to delete Employee : {}", id);

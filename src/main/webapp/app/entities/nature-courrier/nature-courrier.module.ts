@@ -1,45 +1,21 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { JhiLanguageService } from 'ng-jhipster';
-import { JhiLanguageHelper } from 'app/core';
 
-import { OrmvahSharedModule } from 'app/shared';
-import {
-  NatureCourrierComponent,
-  NatureCourrierDetailComponent,
-  NatureCourrierUpdateComponent,
-  NatureCourrierDeletePopupComponent,
-  NatureCourrierDeleteDialogComponent,
-  natureCourrierRoute,
-  natureCourrierPopupRoute
-} from './';
-
-const ENTITY_STATES = [...natureCourrierRoute, ...natureCourrierPopupRoute];
+import { OrmvahSharedModule } from 'app/shared/shared.module';
+import { NatureCourrierComponent } from './nature-courrier.component';
+import { NatureCourrierDetailComponent } from './nature-courrier-detail.component';
+import { NatureCourrierUpdateComponent } from './nature-courrier-update.component';
+import { NatureCourrierDeleteDialogComponent } from './nature-courrier-delete-dialog.component';
+import { natureCourrierRoute } from './nature-courrier.route';
 
 @NgModule({
-  imports: [OrmvahSharedModule, RouterModule.forChild(ENTITY_STATES)],
+  imports: [OrmvahSharedModule, RouterModule.forChild(natureCourrierRoute)],
   declarations: [
     NatureCourrierComponent,
     NatureCourrierDetailComponent,
     NatureCourrierUpdateComponent,
     NatureCourrierDeleteDialogComponent,
-    NatureCourrierDeletePopupComponent
   ],
-  entryComponents: [
-    NatureCourrierComponent,
-    NatureCourrierUpdateComponent,
-    NatureCourrierDeleteDialogComponent,
-    NatureCourrierDeletePopupComponent
-  ],
-  providers: [{ provide: JhiLanguageService, useClass: JhiLanguageService }],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  entryComponents: [NatureCourrierDeleteDialogComponent],
 })
-export class OrmvahNatureCourrierModule {
-  constructor(private languageService: JhiLanguageService, private languageHelper: JhiLanguageHelper) {
-    this.languageHelper.language.subscribe((languageKey: string) => {
-      if (languageKey !== undefined) {
-        this.languageService.changeLanguage(languageKey);
-      }
-    });
-  }
-}
+export class OrmvahNatureCourrierModule {}

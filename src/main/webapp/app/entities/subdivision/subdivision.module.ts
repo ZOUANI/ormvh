@@ -1,40 +1,16 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { JhiLanguageService } from 'ng-jhipster';
-import { JhiLanguageHelper } from 'app/core';
 
-import { OrmvahSharedModule } from 'app/shared';
-import {
-  SubdivisionComponent,
-  SubdivisionDetailComponent,
-  SubdivisionUpdateComponent,
-  SubdivisionDeletePopupComponent,
-  SubdivisionDeleteDialogComponent,
-  subdivisionRoute,
-  subdivisionPopupRoute
-} from './';
-
-const ENTITY_STATES = [...subdivisionRoute, ...subdivisionPopupRoute];
+import { OrmvahSharedModule } from 'app/shared/shared.module';
+import { SubdivisionComponent } from './subdivision.component';
+import { SubdivisionDetailComponent } from './subdivision-detail.component';
+import { SubdivisionUpdateComponent } from './subdivision-update.component';
+import { SubdivisionDeleteDialogComponent } from './subdivision-delete-dialog.component';
+import { subdivisionRoute } from './subdivision.route';
 
 @NgModule({
-  imports: [OrmvahSharedModule, RouterModule.forChild(ENTITY_STATES)],
-  declarations: [
-    SubdivisionComponent,
-    SubdivisionDetailComponent,
-    SubdivisionUpdateComponent,
-    SubdivisionDeleteDialogComponent,
-    SubdivisionDeletePopupComponent
-  ],
-  entryComponents: [SubdivisionComponent, SubdivisionUpdateComponent, SubdivisionDeleteDialogComponent, SubdivisionDeletePopupComponent],
-  providers: [{ provide: JhiLanguageService, useClass: JhiLanguageService }],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  imports: [OrmvahSharedModule, RouterModule.forChild(subdivisionRoute)],
+  declarations: [SubdivisionComponent, SubdivisionDetailComponent, SubdivisionUpdateComponent, SubdivisionDeleteDialogComponent],
+  entryComponents: [SubdivisionDeleteDialogComponent],
 })
-export class OrmvahSubdivisionModule {
-  constructor(private languageService: JhiLanguageService, private languageHelper: JhiLanguageHelper) {
-    this.languageHelper.language.subscribe((languageKey: string) => {
-      if (languageKey !== undefined) {
-        this.languageService.changeLanguage(languageKey);
-      }
-    });
-  }
-}
+export class OrmvahSubdivisionModule {}

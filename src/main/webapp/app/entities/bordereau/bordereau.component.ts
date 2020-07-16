@@ -1,65 +1,49 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
+import { JhiEventManager } from 'ng-jhipster';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { IBordereau } from 'app/shared/model/bordereau.model';
-import { AccountService } from 'app/core';
 import { BordereauService } from './bordereau.service';
+import { BordereauDeleteDialogComponent } from './bordereau-delete-dialog.component';
 
 @Component({
   selector: 'jhi-bordereau',
-  templateUrl: './bordereau.component.html'
+  templateUrl: './bordereau.component.html',
 })
 export class BordereauComponent implements OnInit, OnDestroy {
-  bordereaus: IBordereau[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+  bordereaus?: IBordereau[];
+  eventSubscriber?: Subscription;
 
-  constructor(
-    protected bordereauService: BordereauService,
-    protected jhiAlertService: JhiAlertService,
-    protected eventManager: JhiEventManager,
-    protected accountService: AccountService
-  ) {}
+  constructor(protected bordereauService: BordereauService, protected eventManager: JhiEventManager, protected modalService: NgbModal) {}
 
-  loadAll() {
-    this.bordereauService
-      .query()
-      .pipe(
-        filter((res: HttpResponse<IBordereau[]>) => res.ok),
-        map((res: HttpResponse<IBordereau[]>) => res.body)
-      )
-      .subscribe(
-        (res: IBordereau[]) => {
-          this.bordereaus = res;
-        },
-        (res: HttpErrorResponse) => this.onError(res.message)
-      );
+  loadAll(): void {
+    this.bordereauService.query().subscribe((res: HttpResponse<IBordereau[]>) => (this.bordereaus = res.body || []));
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
     this.registerChangeInBordereaus();
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  ngOnDestroy(): void {
+    if (this.eventSubscriber) {
+      this.eventManager.destroy(this.eventSubscriber);
+    }
   }
 
-  trackId(index: number, item: IBordereau) {
-    return item.id;
+  trackId(index: number, item: IBordereau): number {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    return item.id!;
   }
 
-  registerChangeInBordereaus() {
-    this.eventSubscriber = this.eventManager.subscribe('bordereauListModification', response => this.loadAll());
+  registerChangeInBordereaus(): void {
+    this.eventSubscriber = this.eventManager.subscribe('bordereauListModification', () => this.loadAll());
   }
 
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  delete(bordereau: IBordereau): void {
+    const modalRef = this.modalService.open(BordereauDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
+    modalRef.componentInstance.bordereau = bordereau;
   }
 }

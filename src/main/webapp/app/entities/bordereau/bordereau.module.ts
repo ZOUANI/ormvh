@@ -1,40 +1,16 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { JhiLanguageService } from 'ng-jhipster';
-import { JhiLanguageHelper } from 'app/core';
 
-import { OrmvahSharedModule } from 'app/shared';
-import {
-  BordereauComponent,
-  BordereauDetailComponent,
-  BordereauUpdateComponent,
-  BordereauDeletePopupComponent,
-  BordereauDeleteDialogComponent,
-  bordereauRoute,
-  bordereauPopupRoute
-} from './';
-
-const ENTITY_STATES = [...bordereauRoute, ...bordereauPopupRoute];
+import { OrmvahSharedModule } from 'app/shared/shared.module';
+import { BordereauComponent } from './bordereau.component';
+import { BordereauDetailComponent } from './bordereau-detail.component';
+import { BordereauUpdateComponent } from './bordereau-update.component';
+import { BordereauDeleteDialogComponent } from './bordereau-delete-dialog.component';
+import { bordereauRoute } from './bordereau.route';
 
 @NgModule({
-  imports: [OrmvahSharedModule, RouterModule.forChild(ENTITY_STATES)],
-  declarations: [
-    BordereauComponent,
-    BordereauDetailComponent,
-    BordereauUpdateComponent,
-    BordereauDeleteDialogComponent,
-    BordereauDeletePopupComponent
-  ],
-  entryComponents: [BordereauComponent, BordereauUpdateComponent, BordereauDeleteDialogComponent, BordereauDeletePopupComponent],
-  providers: [{ provide: JhiLanguageService, useClass: JhiLanguageService }],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  imports: [OrmvahSharedModule, RouterModule.forChild(bordereauRoute)],
+  declarations: [BordereauComponent, BordereauDetailComponent, BordereauUpdateComponent, BordereauDeleteDialogComponent],
+  entryComponents: [BordereauDeleteDialogComponent],
 })
-export class OrmvahBordereauModule {
-  constructor(private languageService: JhiLanguageService, private languageHelper: JhiLanguageHelper) {
-    this.languageHelper.language.subscribe((languageKey: string) => {
-      if (languageKey !== undefined) {
-        this.languageService.changeLanguage(languageKey);
-      }
-    });
-  }
-}
+export class OrmvahBordereauModule {}

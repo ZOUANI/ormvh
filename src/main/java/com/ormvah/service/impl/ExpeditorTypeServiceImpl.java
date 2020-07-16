@@ -27,23 +27,12 @@ public class ExpeditorTypeServiceImpl implements ExpeditorTypeService {
         this.expeditorTypeRepository = expeditorTypeRepository;
     }
 
-    /**
-     * Save a expeditorType.
-     *
-     * @param expeditorType the entity to save.
-     * @return the persisted entity.
-     */
     @Override
     public ExpeditorType save(ExpeditorType expeditorType) {
         log.debug("Request to save ExpeditorType : {}", expeditorType);
         return expeditorTypeRepository.save(expeditorType);
     }
 
-    /**
-     * Get all the expeditorTypes.
-     *
-     * @return the list of entities.
-     */
     @Override
     @Transactional(readOnly = true)
     public List<ExpeditorType> findAll() {
@@ -52,12 +41,6 @@ public class ExpeditorTypeServiceImpl implements ExpeditorTypeService {
     }
 
 
-    /**
-     * Get one expeditorType by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<ExpeditorType> findOne(Long id) {
@@ -65,11 +48,6 @@ public class ExpeditorTypeServiceImpl implements ExpeditorTypeService {
         return expeditorTypeRepository.findById(id);
     }
 
-    /**
-     * Delete the expeditorType by id.
-     *
-     * @param id the id of the entity.
-     */
     @Override
     public void delete(Long id) {
         log.debug("Request to delete ExpeditorType : {}", id);

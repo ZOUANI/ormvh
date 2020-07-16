@@ -1,10 +1,11 @@
-/* tslint:disable max-line-length */
 import { ComponentFixture, TestBed, inject, fakeAsync, tick } from '@angular/core/testing';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 import { JhiEventManager } from 'ng-jhipster';
 
 import { OrmvahTestModule } from '../../../test.module';
+import { MockEventManager } from '../../../helpers/mock-event-manager.service';
+import { MockActiveModal } from '../../../helpers/mock-active-modal.service';
 import { NatureCourrierDeleteDialogComponent } from 'app/entities/nature-courrier/nature-courrier-delete-dialog.component';
 import { NatureCourrierService } from 'app/entities/nature-courrier/nature-courrier.service';
 
@@ -13,21 +14,21 @@ describe('Component Tests', () => {
     let comp: NatureCourrierDeleteDialogComponent;
     let fixture: ComponentFixture<NatureCourrierDeleteDialogComponent>;
     let service: NatureCourrierService;
-    let mockEventManager: any;
-    let mockActiveModal: any;
+    let mockEventManager: MockEventManager;
+    let mockActiveModal: MockActiveModal;
 
     beforeEach(() => {
       TestBed.configureTestingModule({
         imports: [OrmvahTestModule],
-        declarations: [NatureCourrierDeleteDialogComponent]
+        declarations: [NatureCourrierDeleteDialogComponent],
       })
         .overrideTemplate(NatureCourrierDeleteDialogComponent, '')
         .compileComponents();
       fixture = TestBed.createComponent(NatureCourrierDeleteDialogComponent);
       comp = fixture.componentInstance;
       service = fixture.debugElement.injector.get(NatureCourrierService);
-      mockEventManager = fixture.debugElement.injector.get(JhiEventManager);
-      mockActiveModal = fixture.debugElement.injector.get(NgbActiveModal);
+      mockEventManager = TestBed.get(JhiEventManager);
+      mockActiveModal = TestBed.get(NgbActiveModal);
     });
 
     describe('confirmDelete', () => {
@@ -43,10 +44,22 @@ describe('Component Tests', () => {
 
           // THEN
           expect(service.delete).toHaveBeenCalledWith(123);
-          expect(mockActiveModal.dismissSpy).toHaveBeenCalled();
+          expect(mockActiveModal.closeSpy).toHaveBeenCalled();
           expect(mockEventManager.broadcastSpy).toHaveBeenCalled();
         })
       ));
+
+      it('Should not call delete service on clear', () => {
+        // GIVEN
+        spyOn(service, 'delete');
+
+        // WHEN
+        comp.cancel();
+
+        // THEN
+        expect(service.delete).not.toHaveBeenCalled();
+        expect(mockActiveModal.dismissSpy).toHaveBeenCalled();
+      });
     });
   });
 });

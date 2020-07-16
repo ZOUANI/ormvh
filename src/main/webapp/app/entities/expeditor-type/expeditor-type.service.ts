@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import * as moment from 'moment';
-import { DATE_FORMAT } from 'app/shared/constants/input.constants';
 import { map } from 'rxjs/operators';
+import * as moment from 'moment';
 
 import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOption } from 'app/shared';
+import { createRequestOption } from 'app/shared/util/request-util';
 import { IExpeditorType } from 'app/shared/model/expeditor-type.model';
 
 type EntityResponseType = HttpResponse<IExpeditorType>;
@@ -45,22 +44,22 @@ export class ExpeditorTypeService {
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
-  delete(id: number): Observable<HttpResponse<any>> {
-    return this.http.delete<any>(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  delete(id: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
   protected convertDateFromClient(expeditorType: IExpeditorType): IExpeditorType {
     const copy: IExpeditorType = Object.assign({}, expeditorType, {
-      createdAt: expeditorType.createdAt != null && expeditorType.createdAt.isValid() ? expeditorType.createdAt.toJSON() : null,
-      updatedAt: expeditorType.updatedAt != null && expeditorType.updatedAt.isValid() ? expeditorType.updatedAt.toJSON() : null
+      createdAt: expeditorType.createdAt && expeditorType.createdAt.isValid() ? expeditorType.createdAt.toJSON() : undefined,
+      updatedAt: expeditorType.updatedAt && expeditorType.updatedAt.isValid() ? expeditorType.updatedAt.toJSON() : undefined,
     });
     return copy;
   }
 
   protected convertDateFromServer(res: EntityResponseType): EntityResponseType {
     if (res.body) {
-      res.body.createdAt = res.body.createdAt != null ? moment(res.body.createdAt) : null;
-      res.body.updatedAt = res.body.updatedAt != null ? moment(res.body.updatedAt) : null;
+      res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
+      res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;
     }
     return res;
   }
@@ -68,8 +67,8 @@ export class ExpeditorTypeService {
   protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
     if (res.body) {
       res.body.forEach((expeditorType: IExpeditorType) => {
-        expeditorType.createdAt = expeditorType.createdAt != null ? moment(expeditorType.createdAt) : null;
-        expeditorType.updatedAt = expeditorType.updatedAt != null ? moment(expeditorType.updatedAt) : null;
+        expeditorType.createdAt = expeditorType.createdAt ? moment(expeditorType.createdAt) : undefined;
+        expeditorType.updatedAt = expeditorType.updatedAt ? moment(expeditorType.updatedAt) : undefined;
       });
     }
     return res;

@@ -1,9 +1,5 @@
-/* tslint:disable max-line-length */
 import { TestBed, getTestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { of } from 'rxjs';
-import { take, map } from 'rxjs/operators';
 import * as moment from 'moment';
 import { DATE_FORMAT } from 'app/shared/constants/input.constants';
 import { BordereauService } from 'app/entities/bordereau/bordereau.service';
@@ -15,13 +11,14 @@ describe('Service Tests', () => {
     let service: BordereauService;
     let httpMock: HttpTestingController;
     let elemDefault: IBordereau;
-    let expectedResult;
+    let expectedResult: IBordereau | IBordereau[] | boolean | null;
     let currentDate: moment.Moment;
+
     beforeEach(() => {
       TestBed.configureTestingModule({
-        imports: [HttpClientTestingModule]
+        imports: [HttpClientTestingModule],
       });
-      expectedResult = {};
+      expectedResult = null;
       injector = getTestBed();
       service = injector.get(BordereauService);
       httpMock = injector.get(HttpTestingController);
@@ -31,103 +28,97 @@ describe('Service Tests', () => {
     });
 
     describe('Service methods', () => {
-      it('should find an element', async () => {
+      it('should find an element', () => {
         const returnedFromService = Object.assign(
           {
-            dateBordereaux: currentDate.format(DATE_FORMAT)
+            dateBordereaux: currentDate.format(DATE_FORMAT),
           },
           elemDefault
         );
-        service
-          .find(123)
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
+
+        service.find(123).subscribe(resp => (expectedResult = resp.body));
 
         const req = httpMock.expectOne({ method: 'GET' });
         req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: elemDefault });
+        expect(expectedResult).toMatchObject(elemDefault);
       });
 
-      it('should create a Bordereau', async () => {
+      it('should create a Bordereau', () => {
         const returnedFromService = Object.assign(
           {
             id: 0,
-            dateBordereaux: currentDate.format(DATE_FORMAT)
+            dateBordereaux: currentDate.format(DATE_FORMAT),
           },
           elemDefault
         );
+
         const expected = Object.assign(
           {
-            dateBordereaux: currentDate
+            dateBordereaux: currentDate,
           },
           returnedFromService
         );
-        service
-          .create(new Bordereau(null))
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
+
+        service.create(new Bordereau()).subscribe(resp => (expectedResult = resp.body));
+
         const req = httpMock.expectOne({ method: 'POST' });
         req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: expected });
+        expect(expectedResult).toMatchObject(expected);
       });
 
-      it('should update a Bordereau', async () => {
+      it('should update a Bordereau', () => {
         const returnedFromService = Object.assign(
           {
             libelle: 'BBBBBB',
             description: 'BBBBBB',
             nombrePieceJointe: 1,
-            dateBordereaux: currentDate.format(DATE_FORMAT)
+            dateBordereaux: currentDate.format(DATE_FORMAT),
           },
           elemDefault
         );
 
         const expected = Object.assign(
           {
-            dateBordereaux: currentDate
+            dateBordereaux: currentDate,
           },
           returnedFromService
         );
-        service
-          .update(expected)
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
+
+        service.update(expected).subscribe(resp => (expectedResult = resp.body));
+
         const req = httpMock.expectOne({ method: 'PUT' });
         req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: expected });
+        expect(expectedResult).toMatchObject(expected);
       });
 
-      it('should return a list of Bordereau', async () => {
+      it('should return a list of Bordereau', () => {
         const returnedFromService = Object.assign(
           {
             libelle: 'BBBBBB',
             description: 'BBBBBB',
             nombrePieceJointe: 1,
-            dateBordereaux: currentDate.format(DATE_FORMAT)
+            dateBordereaux: currentDate.format(DATE_FORMAT),
           },
           elemDefault
         );
+
         const expected = Object.assign(
           {
-            dateBordereaux: currentDate
+            dateBordereaux: currentDate,
           },
           returnedFromService
         );
-        service
-          .query(expected)
-          .pipe(
-            take(1),
-            map(resp => resp.body)
-          )
-          .subscribe(body => (expectedResult = body));
+
+        service.query().subscribe(resp => (expectedResult = resp.body));
+
         const req = httpMock.expectOne({ method: 'GET' });
         req.flush([returnedFromService]);
         httpMock.verify();
         expect(expectedResult).toContainEqual(expected);
       });
 
-      it('should delete a Bordereau', async () => {
-        const rxPromise = service.delete(123).subscribe(resp => (expectedResult = resp.ok));
+      it('should delete a Bordereau', () => {
+        service.delete(123).subscribe(resp => (expectedResult = resp.ok));
 
         const req = httpMock.expectOne({ method: 'DELETE' });
         req.flush({ status: 200 });

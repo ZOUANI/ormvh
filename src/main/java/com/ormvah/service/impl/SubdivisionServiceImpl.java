@@ -27,23 +27,12 @@ public class SubdivisionServiceImpl implements SubdivisionService {
         this.subdivisionRepository = subdivisionRepository;
     }
 
-    /**
-     * Save a subdivision.
-     *
-     * @param subdivision the entity to save.
-     * @return the persisted entity.
-     */
     @Override
     public Subdivision save(Subdivision subdivision) {
         log.debug("Request to save Subdivision : {}", subdivision);
         return subdivisionRepository.save(subdivision);
     }
 
-    /**
-     * Get all the subdivisions.
-     *
-     * @return the list of entities.
-     */
     @Override
     @Transactional(readOnly = true)
     public List<Subdivision> findAll() {
@@ -52,12 +41,6 @@ public class SubdivisionServiceImpl implements SubdivisionService {
     }
 
 
-    /**
-     * Get one subdivision by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<Subdivision> findOne(Long id) {
@@ -65,11 +48,6 @@ public class SubdivisionServiceImpl implements SubdivisionService {
         return subdivisionRepository.findById(id);
     }
 
-    /**
-     * Delete the subdivision by id.
-     *
-     * @param id the id of the entity.
-     */
     @Override
     public void delete(Long id) {
         log.debug("Request to delete Subdivision : {}", id);

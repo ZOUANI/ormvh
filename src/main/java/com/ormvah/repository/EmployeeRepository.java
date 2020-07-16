@@ -1,9 +1,9 @@
 package com.ormvah.repository;
 
 import com.ormvah.domain.Employee;
+
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
-
 
 /**
  * Spring Data  repository for the Employee entity.
@@ -11,5 +11,4 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSpecificationExecutor<Employee> {
-
 }

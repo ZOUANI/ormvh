@@ -5,7 +5,7 @@
         "title": "Le Services",
         "createLabel": "Create a new Le Service",
         "createOrEditLabel": "Create or edit a Le Service",
-        "notFound": "No Le Service found"
+        "notFound": "No Le Services found"
       },
       "created": "A new Le Service is created with identifier {{ param }}",
       "updated": "A Le Service is updated with identifier {{ param }}",

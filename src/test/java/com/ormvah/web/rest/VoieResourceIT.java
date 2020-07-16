@@ -4,36 +4,33 @@ import com.ormvah.OrmvahApp;
 import com.ormvah.domain.Voie;
 import com.ormvah.repository.VoieRepository;
 import com.ormvah.service.VoieService;
-import com.ormvah.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static com.ormvah.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link VoieResource} REST controller.
+ * Integration tests for the {@link VoieResource} REST controller.
  */
 @SpringBootTest(classes = OrmvahApp.class)
+@AutoConfigureMockMvc
+@WithMockUser
 public class VoieResourceIT {
 
     private static final String DEFAULT_LIBELLE = "AAAAAAAAAA";
@@ -58,35 +55,12 @@ public class VoieResourceIT {
     private VoieService voieService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restVoieMockMvc;
 
     private Voie voie;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final VoieResource voieResource = new VoieResource(voieService);
-        this.restVoieMockMvc = MockMvcBuilders.standaloneSetup(voieResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -128,10 +102,9 @@ public class VoieResourceIT {
     @Transactional
     public void createVoie() throws Exception {
         int databaseSizeBeforeCreate = voieRepository.findAll().size();
-
         // Create the Voie
-        restVoieMockMvc.perform(post("/api/voies")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restVoieMockMvc.perform(post("/api/voies").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(voie)))
             .andExpect(status().isCreated());
 
@@ -155,8 +128,8 @@ public class VoieResourceIT {
         voie.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restVoieMockMvc.perform(post("/api/voies")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restVoieMockMvc.perform(post("/api/voies").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(voie)))
             .andExpect(status().isBadRequest());
 
@@ -175,8 +148,9 @@ public class VoieResourceIT {
 
         // Create the Voie, which fails.
 
-        restVoieMockMvc.perform(post("/api/voies")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+
+        restVoieMockMvc.perform(post("/api/voies").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(voie)))
             .andExpect(status().isBadRequest());
 
@@ -193,13 +167,13 @@ public class VoieResourceIT {
         // Get all the voieList
         restVoieMockMvc.perform(get("/api/voies?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(voie.getId().intValue())))
-            .andExpect(jsonPath("$.[*].libelle").value(hasItem(DEFAULT_LIBELLE.toString())))
+            .andExpect(jsonPath("$.[*].libelle").value(hasItem(DEFAULT_LIBELLE)))
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
             .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())))
-            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(DEFAULT_CREATED_BY.toString())))
-            .andExpect(jsonPath("$.[*].updatedBy").value(hasItem(DEFAULT_UPDATED_BY.toString())));
+            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(DEFAULT_CREATED_BY)))
+            .andExpect(jsonPath("$.[*].updatedBy").value(hasItem(DEFAULT_UPDATED_BY)));
     }
     
     @Test
@@ -211,15 +185,14 @@ public class VoieResourceIT {
         // Get the voie
         restVoieMockMvc.perform(get("/api/voies/{id}", voie.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(voie.getId().intValue()))
-            .andExpect(jsonPath("$.libelle").value(DEFAULT_LIBELLE.toString()))
+            .andExpect(jsonPath("$.libelle").value(DEFAULT_LIBELLE))
             .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
             .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()))
-            .andExpect(jsonPath("$.createdBy").value(DEFAULT_CREATED_BY.toString()))
-            .andExpect(jsonPath("$.updatedBy").value(DEFAULT_UPDATED_BY.toString()));
+            .andExpect(jsonPath("$.createdBy").value(DEFAULT_CREATED_BY))
+            .andExpect(jsonPath("$.updatedBy").value(DEFAULT_UPDATED_BY));
     }
-
     @Test
     @Transactional
     public void getNonExistingVoie() throws Exception {
@@ -247,8 +220,8 @@ public class VoieResourceIT {
             .createdBy(UPDATED_CREATED_BY)
             .updatedBy(UPDATED_UPDATED_BY);
 
-        restVoieMockMvc.perform(put("/api/voies")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restVoieMockMvc.perform(put("/api/voies").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedVoie)))
             .andExpect(status().isOk());
 
@@ -268,11 +241,9 @@ public class VoieResourceIT {
     public void updateNonExistingVoie() throws Exception {
         int databaseSizeBeforeUpdate = voieRepository.findAll().size();
 
-        // Create the Voie
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restVoieMockMvc.perform(put("/api/voies")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restVoieMockMvc.perform(put("/api/voies").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(voie)))
             .andExpect(status().isBadRequest());
 
@@ -290,27 +261,12 @@ public class VoieResourceIT {
         int databaseSizeBeforeDelete = voieRepository.findAll().size();
 
         // Delete the voie
-        restVoieMockMvc.perform(delete("/api/voies/{id}", voie.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+        restVoieMockMvc.perform(delete("/api/voies/{id}", voie.getId()).with(csrf())
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
         List<Voie> voieList = voieRepository.findAll();
         assertThat(voieList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Voie.class);
-        Voie voie1 = new Voie();
-        voie1.setId(1L);
-        Voie voie2 = new Voie();
-        voie2.setId(voie1.getId());
-        assertThat(voie1).isEqualTo(voie2);
-        voie2.setId(2L);
-        assertThat(voie1).isNotEqualTo(voie2);
-        voie1.setId(null);
-        assertThat(voie1).isNotEqualTo(voie2);
     }
 }

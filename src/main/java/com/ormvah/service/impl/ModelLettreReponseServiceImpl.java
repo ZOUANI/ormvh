@@ -27,23 +27,12 @@ public class ModelLettreReponseServiceImpl implements ModelLettreReponseService 
         this.modelLettreReponseRepository = modelLettreReponseRepository;
     }
 
-    /**
-     * Save a modelLettreReponse.
-     *
-     * @param modelLettreReponse the entity to save.
-     * @return the persisted entity.
-     */
     @Override
     public ModelLettreReponse save(ModelLettreReponse modelLettreReponse) {
         log.debug("Request to save ModelLettreReponse : {}", modelLettreReponse);
         return modelLettreReponseRepository.save(modelLettreReponse);
     }
 
-    /**
-     * Get all the modelLettreReponses.
-     *
-     * @return the list of entities.
-     */
     @Override
     @Transactional(readOnly = true)
     public List<ModelLettreReponse> findAll() {
@@ -52,12 +41,6 @@ public class ModelLettreReponseServiceImpl implements ModelLettreReponseService 
     }
 
 
-    /**
-     * Get one modelLettreReponse by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<ModelLettreReponse> findOne(Long id) {
@@ -65,11 +48,6 @@ public class ModelLettreReponseServiceImpl implements ModelLettreReponseService 
         return modelLettreReponseRepository.findById(id);
     }
 
-    /**
-     * Delete the modelLettreReponse by id.
-     *
-     * @param id the id of the entity.
-     */
     @Override
     public void delete(Long id) {
         log.debug("Request to delete ModelLettreReponse : {}", id);

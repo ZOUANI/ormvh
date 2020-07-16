@@ -68,10 +68,10 @@ public class ExpeditorCriteria implements Serializable, Criteria {
 
     private StringFilter updatedBy;
 
-    public ExpeditorCriteria(){
+    public ExpeditorCriteria() {
     }
 
-    public ExpeditorCriteria(ExpeditorCriteria other){
+    public ExpeditorCriteria(ExpeditorCriteria other) {
         this.id = other.id == null ? null : other.id.copy();
         this.title = other.title == null ? null : other.title.copy();
         this.description = other.description == null ? null : other.description.copy();
@@ -230,6 +230,7 @@ public class ExpeditorCriteria implements Serializable, Criteria {
         );
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "ExpeditorCriteria{" +

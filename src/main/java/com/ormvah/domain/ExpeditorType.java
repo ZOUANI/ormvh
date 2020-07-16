@@ -1,4 +1,5 @@
 package com.ormvah.domain;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -12,7 +13,7 @@ import java.time.Instant;
  */
 @Entity
 @Table(name = "expeditor_type")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ExpeditorType implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -36,7 +37,7 @@ public class ExpeditorType implements Serializable {
     @Column(name = "updated_by")
     private String updatedBy;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
+    // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
         return id;
     }
@@ -109,7 +110,7 @@ public class ExpeditorType implements Serializable {
     public void setUpdatedBy(String updatedBy) {
         this.updatedBy = updatedBy;
     }
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here, do not remove
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -127,6 +128,7 @@ public class ExpeditorType implements Serializable {
         return 31;
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "ExpeditorType{" +

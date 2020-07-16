@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import * as moment from 'moment';
-import { DATE_FORMAT } from 'app/shared/constants/input.constants';
 import { map } from 'rxjs/operators';
+import * as moment from 'moment';
 
 import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOption } from 'app/shared';
+import { createRequestOption } from 'app/shared/util/request-util';
 import { ILeService } from 'app/shared/model/le-service.model';
 
 type EntityResponseType = HttpResponse<ILeService>;
@@ -45,22 +44,22 @@ export class LeServiceService {
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
-  delete(id: number): Observable<HttpResponse<any>> {
-    return this.http.delete<any>(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  delete(id: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
   protected convertDateFromClient(leService: ILeService): ILeService {
     const copy: ILeService = Object.assign({}, leService, {
-      createdAt: leService.createdAt != null && leService.createdAt.isValid() ? leService.createdAt.toJSON() : null,
-      updatedAt: leService.updatedAt != null && leService.updatedAt.isValid() ? leService.updatedAt.toJSON() : null
+      createdAt: leService.createdAt && leService.createdAt.isValid() ? leService.createdAt.toJSON() : undefined,
+      updatedAt: leService.updatedAt && leService.updatedAt.isValid() ? leService.updatedAt.toJSON() : undefined,
     });
     return copy;
   }
 
   protected convertDateFromServer(res: EntityResponseType): EntityResponseType {
     if (res.body) {
-      res.body.createdAt = res.body.createdAt != null ? moment(res.body.createdAt) : null;
-      res.body.updatedAt = res.body.updatedAt != null ? moment(res.body.updatedAt) : null;
+      res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
+      res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;
     }
     return res;
   }
@@ -68,8 +67,8 @@ export class LeServiceService {
   protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
     if (res.body) {
       res.body.forEach((leService: ILeService) => {
-        leService.createdAt = leService.createdAt != null ? moment(leService.createdAt) : null;
-        leService.updatedAt = leService.updatedAt != null ? moment(leService.updatedAt) : null;
+        leService.createdAt = leService.createdAt ? moment(leService.createdAt) : undefined;
+        leService.updatedAt = leService.updatedAt ? moment(leService.updatedAt) : undefined;
       });
     }
     return res;

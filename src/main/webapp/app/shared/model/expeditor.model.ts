@@ -1,10 +1,5 @@
 import { Moment } from 'moment';
-
-export const enum Sexe {
-  Homme = 'Homme',
-  Femme = 'Femme',
-  Unknown = 'Unknown'
-}
+import { Sexe } from 'app/shared/model/enumerations/sexe.model';
 
 export interface IExpeditor {
   id?: number;

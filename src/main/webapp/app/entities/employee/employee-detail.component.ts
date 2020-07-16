@@ -5,20 +5,18 @@ import { IEmployee } from 'app/shared/model/employee.model';
 
 @Component({
   selector: 'jhi-employee-detail',
-  templateUrl: './employee-detail.component.html'
+  templateUrl: './employee-detail.component.html',
 })
 export class EmployeeDetailComponent implements OnInit {
-  employee: IEmployee;
+  employee: IEmployee | null = null;
 
   constructor(protected activatedRoute: ActivatedRoute) {}
 
-  ngOnInit() {
-    this.activatedRoute.data.subscribe(({ employee }) => {
-      this.employee = employee;
-    });
+  ngOnInit(): void {
+    this.activatedRoute.data.subscribe(({ employee }) => (this.employee = employee));
   }
 
-  previousState() {
+  previousState(): void {
     window.history.back();
   }
 }

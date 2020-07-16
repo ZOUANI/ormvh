@@ -75,15 +75,15 @@ public class ExpeditorQueryService extends QueryService<Expeditor> {
     }
 
     /**
-     * Function to convert ConsumerCriteria to a {@link Specification}
+     * Function to convert {@link ExpeditorCriteria} to a {@link Specification}
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching {@link Specification} of the entity.
-     */    
-    private Specification<Expeditor> createSpecification(ExpeditorCriteria criteria) {
+     */
+    protected Specification<Expeditor> createSpecification(ExpeditorCriteria criteria) {
         Specification<Expeditor> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), Expeditor_.id));
+                specification = specification.and(buildRangeSpecification(criteria.getId(), Expeditor_.id));
             }
             if (criteria.getTitle() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getTitle(), Expeditor_.title));

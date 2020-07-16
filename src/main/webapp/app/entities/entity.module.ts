@@ -1,4 +1,4 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 @NgModule({
@@ -6,66 +6,65 @@ import { RouterModule } from '@angular/router';
     RouterModule.forChild([
       {
         path: 'courrier',
-        loadChildren: './courrier/courrier.module#OrmvahCourrierModule'
+        loadChildren: () => import('./courrier/courrier.module').then(m => m.OrmvahCourrierModule),
       },
       {
         path: 'nature-courrier',
-        loadChildren: './nature-courrier/nature-courrier.module#OrmvahNatureCourrierModule'
+        loadChildren: () => import('./nature-courrier/nature-courrier.module').then(m => m.OrmvahNatureCourrierModule),
       },
       {
         path: 'voie',
-        loadChildren: './voie/voie.module#OrmvahVoieModule'
+        loadChildren: () => import('./voie/voie.module').then(m => m.OrmvahVoieModule),
       },
       {
         path: 'expeditor',
-        loadChildren: './expeditor/expeditor.module#OrmvahExpeditorModule'
+        loadChildren: () => import('./expeditor/expeditor.module').then(m => m.OrmvahExpeditorModule),
       },
       {
         path: 'expeditor-type',
-        loadChildren: './expeditor-type/expeditor-type.module#OrmvahExpeditorTypeModule'
+        loadChildren: () => import('./expeditor-type/expeditor-type.module').then(m => m.OrmvahExpeditorTypeModule),
       },
       {
         path: 'subdivision',
-        loadChildren: './subdivision/subdivision.module#OrmvahSubdivisionModule'
+        loadChildren: () => import('./subdivision/subdivision.module').then(m => m.OrmvahSubdivisionModule),
       },
       {
         path: 'le-service',
-        loadChildren: './le-service/le-service.module#OrmvahLeServiceModule'
+        loadChildren: () => import('./le-service/le-service.module').then(m => m.OrmvahLeServiceModule),
       },
       {
         path: 'employee',
-        loadChildren: './employee/employee.module#OrmvahEmployeeModule'
+        loadChildren: () => import('./employee/employee.module').then(m => m.OrmvahEmployeeModule),
       },
       {
         path: 'task',
-        loadChildren: './task/task.module#OrmvahTaskModule'
+        loadChildren: () => import('./task/task.module').then(m => m.OrmvahTaskModule),
       },
       {
         path: 'evaluation',
-        loadChildren: './evaluation/evaluation.module#OrmvahEvaluationModule'
+        loadChildren: () => import('./evaluation/evaluation.module').then(m => m.OrmvahEvaluationModule),
       },
       {
         path: 'courrier-object',
-        loadChildren: './courrier-object/courrier-object.module#OrmvahCourrierObjectModule'
+        loadChildren: () => import('./courrier-object/courrier-object.module').then(m => m.OrmvahCourrierObjectModule),
       },
       {
         path: 'model-lettre-reponse',
-        loadChildren: './model-lettre-reponse/model-lettre-reponse.module#OrmvahModelLettreReponseModule'
+        loadChildren: () => import('./model-lettre-reponse/model-lettre-reponse.module').then(m => m.OrmvahModelLettreReponseModule),
       },
       {
         path: 'categorie-model-lettre-reponse',
-        loadChildren: './categorie-model-lettre-reponse/categorie-model-lettre-reponse.module#OrmvahCategorieModelLettreReponseModule'
+        loadChildren: () =>
+          import('./categorie-model-lettre-reponse/categorie-model-lettre-reponse.module').then(
+            m => m.OrmvahCategorieModelLettreReponseModule
+          ),
       },
       {
         path: 'bordereau',
-        loadChildren: './bordereau/bordereau.module#OrmvahBordereauModule'
-      }
+        loadChildren: () => import('./bordereau/bordereau.module').then(m => m.OrmvahBordereauModule),
+      },
       /* jhipster-needle-add-entity-route - JHipster will add entity modules routes here */
-    ])
+    ]),
   ],
-  declarations: [],
-  entryComponents: [],
-  providers: [],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class OrmvahEntityModule {}

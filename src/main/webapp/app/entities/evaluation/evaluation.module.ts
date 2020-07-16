@@ -1,40 +1,16 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { JhiLanguageService } from 'ng-jhipster';
-import { JhiLanguageHelper } from 'app/core';
 
-import { OrmvahSharedModule } from 'app/shared';
-import {
-  EvaluationComponent,
-  EvaluationDetailComponent,
-  EvaluationUpdateComponent,
-  EvaluationDeletePopupComponent,
-  EvaluationDeleteDialogComponent,
-  evaluationRoute,
-  evaluationPopupRoute
-} from './';
-
-const ENTITY_STATES = [...evaluationRoute, ...evaluationPopupRoute];
+import { OrmvahSharedModule } from 'app/shared/shared.module';
+import { EvaluationComponent } from './evaluation.component';
+import { EvaluationDetailComponent } from './evaluation-detail.component';
+import { EvaluationUpdateComponent } from './evaluation-update.component';
+import { EvaluationDeleteDialogComponent } from './evaluation-delete-dialog.component';
+import { evaluationRoute } from './evaluation.route';
 
 @NgModule({
-  imports: [OrmvahSharedModule, RouterModule.forChild(ENTITY_STATES)],
-  declarations: [
-    EvaluationComponent,
-    EvaluationDetailComponent,
-    EvaluationUpdateComponent,
-    EvaluationDeleteDialogComponent,
-    EvaluationDeletePopupComponent
-  ],
-  entryComponents: [EvaluationComponent, EvaluationUpdateComponent, EvaluationDeleteDialogComponent, EvaluationDeletePopupComponent],
-  providers: [{ provide: JhiLanguageService, useClass: JhiLanguageService }],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  imports: [OrmvahSharedModule, RouterModule.forChild(evaluationRoute)],
+  declarations: [EvaluationComponent, EvaluationDetailComponent, EvaluationUpdateComponent, EvaluationDeleteDialogComponent],
+  entryComponents: [EvaluationDeleteDialogComponent],
 })
-export class OrmvahEvaluationModule {
-  constructor(private languageService: JhiLanguageService, private languageHelper: JhiLanguageHelper) {
-    this.languageHelper.language.subscribe((languageKey: string) => {
-      if (languageKey !== undefined) {
-        this.languageService.changeLanguage(languageKey);
-      }
-    });
-  }
-}
+export class OrmvahEvaluationModule {}

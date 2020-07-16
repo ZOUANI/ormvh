@@ -1,6 +1,7 @@
 package com.ormvah.repository;
 
 import com.ormvah.domain.Courrier;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
@@ -25,5 +26,4 @@ public interface CourrierRepository extends JpaRepository<Courrier, Long>, JpaSp
 
     @Query("select courrier from Courrier courrier left join fetch courrier.services where courrier.id =:id")
     Optional<Courrier> findOneWithEagerRelationships(@Param("id") Long id);
-
 }

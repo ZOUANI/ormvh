@@ -75,15 +75,15 @@ public class LeServiceQueryService extends QueryService<LeService> {
     }
 
     /**
-     * Function to convert ConsumerCriteria to a {@link Specification}
+     * Function to convert {@link LeServiceCriteria} to a {@link Specification}
      * @param criteria The object which holds all the filters, which the entities should match.
      * @return the matching {@link Specification} of the entity.
-     */    
-    private Specification<LeService> createSpecification(LeServiceCriteria criteria) {
+     */
+    protected Specification<LeService> createSpecification(LeServiceCriteria criteria) {
         Specification<LeService> specification = Specification.where(null);
         if (criteria != null) {
             if (criteria.getId() != null) {
-                specification = specification.and(buildSpecification(criteria.getId(), LeService_.id));
+                specification = specification.and(buildRangeSpecification(criteria.getId(), LeService_.id));
             }
             if (criteria.getTitle() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getTitle(), LeService_.title));

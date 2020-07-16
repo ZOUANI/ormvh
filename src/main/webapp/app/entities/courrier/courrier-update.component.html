@@ -2,112 +2,129 @@
     <div class="col-8">
         <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
             <h2 id="jhi-courrier-heading" jhiTranslate="ormvahApp.courrier.home.createOrEditLabel">Create or edit a Courrier</h2>
+
             <div>
                 <jhi-alert-error></jhi-alert-error>
-                <div class="form-group" [hidden]="!editForm.get('id').value">
+
+                <div class="form-group" [hidden]="!editForm.get('id')!.value">
                     <label for="id" jhiTranslate="global.field.id">ID</label>
-                    <input type="text" class="form-control" id="id" name="id" formControlName="id"
-                        readonly />
+                    <input type="text" class="form-control" id="id" name="id" formControlName="id" readonly />
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.idCourrier" for="field_idCourrier" [ngbTooltip]="'ormvahApp.courrier.help.idCourrier' | translate">Id Courrier</label>
                     <input type="text" class="form-control" name="idCourrier" id="field_idCourrier"
                            formControlName="idCourrier"/>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.subject" for="field_subject" [ngbTooltip]="'ormvahApp.courrier.help.subject' | translate">Subject</label>
                     <input type="text" class="form-control" name="subject" id="field_subject"
                            formControlName="subject"/>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.description" for="field_description">Description</label>
                     <input type="text" class="form-control" name="description" id="field_description"
                            formControlName="description"/>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.typeCourrier" for="field_typeCourrier" [ngbTooltip]="'ormvahApp.courrier.help.typeCourrier' | translate">Type Courrier</label>
                     <select class="form-control" name="typeCourrier" formControlName="typeCourrier" id="field_typeCourrier">
-                        <option value="Arrivee">{{'ormvahApp.TypeCourrier.Arrivee' | translate}}</option>
-                        <option value="Sortie">{{'ormvahApp.TypeCourrier.Sortie' | translate}}</option>
+                        <option value="Arrivee">{{ 'ormvahApp.TypeCourrier.Arrivee' | translate }}</option>
+                        <option value="Sortie">{{ 'ormvahApp.TypeCourrier.Sortie' | translate }}</option>
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.createdAt" for="field_createdAt">Created At</label>
                     <div class="d-flex">
                         <input id="field_createdAt" type="datetime-local" class="form-control" name="createdAt" formControlName="createdAt" placeholder="YYYY-MM-DD HH:mm"/>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.updatedAt" for="field_updatedAt">Updated At</label>
                     <div class="d-flex">
                         <input id="field_updatedAt" type="datetime-local" class="form-control" name="updatedAt" formControlName="updatedAt" placeholder="YYYY-MM-DD HH:mm"/>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.createdBy" for="field_createdBy">Created By</label>
                     <input type="text" class="form-control" name="createdBy" id="field_createdBy"
                            formControlName="createdBy"/>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.updatedBy" for="field_updatedBy">Updated By</label>
                     <input type="text" class="form-control" name="updatedBy" id="field_updatedBy"
                            formControlName="updatedBy"/>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.delai" for="field_delai">Delai</label>
                     <input type="number" class="form-control" name="delai" id="field_delai"
                            formControlName="delai"/>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.relance" for="field_relance">Relance</label>
                     <input type="number" class="form-control" name="relance" id="field_relance"
                            formControlName="relance"/>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.accuse" for="field_accuse">Accuse</label>
                     <input type="checkbox" class="form-control" name="accuse" id="field_accuse"
                            formControlName="accuse"/>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.reponse" for="field_reponse">Reponse</label>
                     <input type="checkbox" class="form-control" name="reponse" id="field_reponse"
                            formControlName="reponse"/>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.dateAccuse" for="field_dateAccuse">Date Accuse</label>
                     <div class="input-group">
-                        <input id="field_dateAccuse" type="text" class="form-control" name="dateAccuse" ngbDatepicker  #dateAccuseDp="ngbDatepicker" formControlName="dateAccuse"/>
+                        <input id="field_dateAccuse" type="text" class="form-control" name="dateAccuse" ngbDatepicker #dateAccuseDp="ngbDatepicker" formControlName="dateAccuse"/>
                         <span class="input-group-append">
-                            <button type="button" class="btn btn-secondary" (click)="dateAccuseDp.toggle()"><fa-icon [icon]="'calendar-alt'"></fa-icon></button>
+                            <button type="button" class="btn btn-secondary" (click)="dateAccuseDp.toggle()"><fa-icon icon="calendar-alt"></fa-icon></button>
                         </span>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.dateReponse" for="field_dateReponse">Date Reponse</label>
                     <div class="input-group">
-                        <input id="field_dateReponse" type="text" class="form-control" name="dateReponse" ngbDatepicker  #dateReponseDp="ngbDatepicker" formControlName="dateReponse"/>
+                        <input id="field_dateReponse" type="text" class="form-control" name="dateReponse" ngbDatepicker #dateReponseDp="ngbDatepicker" formControlName="dateReponse"/>
                         <span class="input-group-append">
-                            <button type="button" class="btn btn-secondary" (click)="dateReponseDp.toggle()"><fa-icon [icon]="'calendar-alt'"></fa-icon></button>
+                            <button type="button" class="btn btn-secondary" (click)="dateReponseDp.toggle()"><fa-icon icon="calendar-alt"></fa-icon></button>
                         </span>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.status" for="field_status" [ngbTooltip]="'ormvahApp.courrier.help.status' | translate">Status</label>
                     <select class="form-control" name="status" formControlName="status" id="field_status">
-                        <option value="Ouvert">{{'ormvahApp.Status.Ouvert' | translate}}</option>
-                        <option value="Encours">{{'ormvahApp.Status.Encours' | translate}}</option>
-                        <option value="Traite">{{'ormvahApp.Status.Traite' | translate}}</option>
+                        <option value="Ouvert">{{ 'ormvahApp.Status.Ouvert' | translate }}</option>
+                        <option value="Encours">{{ 'ormvahApp.Status.Encours' | translate }}</option>
+                        <option value="Traite">{{ 'ormvahApp.Status.Traite' | translate }}</option>
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.data" for="field_data">Data</label>
                     <div>
-                        <div *ngIf="editForm.get('data').value" class="form-text text-danger clearfix">
-                            <a class="pull-left" (click)="openFile(editForm.get('dataContentType').value, editForm.get('data').value)" jhiTranslate="entity.action.open">open</a><br>
-                            <span class="pull-left">{{editForm.get('dataContentType').value}}, {{byteSize(editForm.get('data').value)}}</span>
+                        <div *ngIf="editForm.get('data')!.value" class="form-text text-danger clearfix">
+                            <a class="pull-left" (click)="openFile(editForm.get('dataContentType')!.value, editForm.get('data')!.value)" jhiTranslate="entity.action.open">open</a><br>
+                            <span class="pull-left">{{ editForm.get('dataContentType')!.value }}, {{ byteSize(editForm.get('data')!.value) }}</span>
                             <button type="button" (click)="editForm.patchValue({data: null});editForm.patchValue({dataContentType: null});"
                                     class="btn btn-secondary btn-xs pull-right">
-                                <fa-icon [icon]="'times'"></fa-icon>
+                                <fa-icon icon="times"></fa-icon>
                             </button>
                         </div>
                         <input type="file" id="file_data" (change)="setFileData($event, 'data', false)" jhiTranslate="entity.action.addblob"/>
@@ -117,33 +134,39 @@
                     <input type="hidden" class="form-control" name="dataContentType" id="field_dataContentType"
                            formControlName="dataContentType" />
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.receivedAt" for="field_receivedAt" [ngbTooltip]="'ormvahApp.courrier.help.receivedAt' | translate">Received At</label>
                     <div class="d-flex">
                         <input id="field_receivedAt" type="datetime-local" class="form-control" name="receivedAt" formControlName="receivedAt" placeholder="YYYY-MM-DD HH:mm"/>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.instruction" for="field_instruction">Instruction</label>
                     <input type="text" class="form-control" name="instruction" id="field_instruction"
                            formControlName="instruction"/>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.expediteurDesc" for="field_expediteurDesc" [ngbTooltip]="'ormvahApp.courrier.help.expediteurDesc' | translate">Expediteur Desc</label>
                     <input type="text" class="form-control" name="expediteurDesc" id="field_expediteurDesc"
                            formControlName="expediteurDesc"/>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.sentAt" for="field_sentAt" [ngbTooltip]="'ormvahApp.courrier.help.sentAt' | translate">Sent At</label>
                     <div class="d-flex">
                         <input id="field_sentAt" type="datetime-local" class="form-control" name="sentAt" formControlName="sentAt" placeholder="YYYY-MM-DD HH:mm"/>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.destinataireDesc" for="field_destinataireDesc" [ngbTooltip]="'ormvahApp.courrier.help.destinataireDesc' | translate">Destinataire Desc</label>
                     <input type="text" class="form-control" name="destinataireDesc" id="field_destinataireDesc"
                            formControlName="destinataireDesc"/>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.destinataireVille" for="field_destinataireVille" [ngbTooltip]="'ormvahApp.courrier.help.destinataireVille' | translate">Destinataire Ville</label>
                     <input type="text" class="form-control" name="destinataireVille" id="field_destinataireVille"
@@ -154,99 +177,113 @@
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.voie" for="field_voie">Voie</label>
                     <select class="form-control" id="field_voie" name="voie" formControlName="voie">
                         <option [ngValue]="null"></option>
-                        <option [ngValue]="voieOption.id === editForm.get('voie').value?.id ? editForm.get('voie').value : voieOption" *ngFor="let voieOption of voies; trackBy: trackVoieById">{{voieOption.id}}</option>
+                        <option [ngValue]="voieOption.id === editForm.get('voie')!.value?.id ? editForm.get('voie')!.value : voieOption" *ngFor="let voieOption of voies; trackBy: trackById">{{ voieOption.id }}</option>
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.natureCourrier" for="field_natureCourrier">Nature Courrier</label>
                     <select class="form-control" id="field_natureCourrier" name="natureCourrier" formControlName="natureCourrier">
                         <option [ngValue]="null"></option>
-                        <option [ngValue]="natureCourrierOption.id === editForm.get('natureCourrier').value?.id ? editForm.get('natureCourrier').value : natureCourrierOption" *ngFor="let natureCourrierOption of naturecourriers; trackBy: trackNatureCourrierById">{{natureCourrierOption.id}}</option>
+                        <option [ngValue]="natureCourrierOption.id === editForm.get('natureCourrier')!.value?.id ? editForm.get('natureCourrier')!.value : natureCourrierOption" *ngFor="let natureCourrierOption of naturecourriers; trackBy: trackById">{{ natureCourrierOption.id }}</option>
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.linkedTo" for="field_linkedTo">Linked To</label>
                     <select class="form-control" id="field_linkedTo" name="linkedTo" formControlName="linkedTo">
                         <option [ngValue]="null"></option>
-                        <option [ngValue]="courrierOption.id === editForm.get('linkedTo').value?.id ? editForm.get('linkedTo').value : courrierOption" *ngFor="let courrierOption of linkedtos; trackBy: trackCourrierById">{{courrierOption.id}}</option>
+                        <option [ngValue]="courrierOption.id === editForm.get('linkedTo')!.value?.id ? editForm.get('linkedTo')!.value : courrierOption" *ngFor="let courrierOption of linkedtos; trackBy: trackById">{{ courrierOption.id }}</option>
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.expeditor" for="field_expeditor">Expeditor</label>
                     <select class="form-control" id="field_expeditor" name="expeditor" formControlName="expeditor">
                         <option [ngValue]="null"></option>
-                        <option [ngValue]="expeditorOption.id === editForm.get('expeditor').value?.id ? editForm.get('expeditor').value : expeditorOption" *ngFor="let expeditorOption of expeditors; trackBy: trackExpeditorById">{{expeditorOption.id}}</option>
+                        <option [ngValue]="expeditorOption.id === editForm.get('expeditor')!.value?.id ? editForm.get('expeditor')!.value : expeditorOption" *ngFor="let expeditorOption of expeditors; trackBy: trackById">{{ expeditorOption.id }}</option>
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.destinator" for="field_destinator">Destinator</label>
                     <select class="form-control" id="field_destinator" name="destinator" formControlName="destinator">
                         <option [ngValue]="null"></option>
-                        <option [ngValue]="expeditorOption.id === editForm.get('destinator').value?.id ? editForm.get('destinator').value : expeditorOption" *ngFor="let expeditorOption of expeditors; trackBy: trackExpeditorById">{{expeditorOption.id}}</option>
+                        <option [ngValue]="expeditorOption.id === editForm.get('destinator')!.value?.id ? editForm.get('destinator')!.value : expeditorOption" *ngFor="let expeditorOption of expeditors; trackBy: trackById">{{ expeditorOption.id }}</option>
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.coordinator" for="field_coordinator">Coordinator</label>
                     <select class="form-control" id="field_coordinator" name="coordinator" formControlName="coordinator">
                         <option [ngValue]="null"></option>
-                        <option [ngValue]="leServiceOption.id === editForm.get('coordinator').value?.id ? editForm.get('coordinator').value : leServiceOption" *ngFor="let leServiceOption of leservices; trackBy: trackLeServiceById">{{leServiceOption.id}}</option>
+                        <option [ngValue]="leServiceOption.id === editForm.get('coordinator')!.value?.id ? editForm.get('coordinator')!.value : leServiceOption" *ngFor="let leServiceOption of leservices; trackBy: trackById">{{ leServiceOption.id }}</option>
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.emetteur" for="field_emetteur">Emetteur</label>
                     <select class="form-control" id="field_emetteur" name="emetteur" formControlName="emetteur">
                         <option [ngValue]="null"></option>
-                        <option [ngValue]="leServiceOption.id === editForm.get('emetteur').value?.id ? editForm.get('emetteur').value : leServiceOption" *ngFor="let leServiceOption of leservices; trackBy: trackLeServiceById">{{leServiceOption.id}}</option>
+                        <option [ngValue]="leServiceOption.id === editForm.get('emetteur')!.value?.id ? editForm.get('emetteur')!.value : leServiceOption" *ngFor="let leServiceOption of leservices; trackBy: trackById">{{ leServiceOption.id }}</option>
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.evaluation" for="field_evaluation">Evaluation</label>
                     <select class="form-control" id="field_evaluation" name="evaluation" formControlName="evaluation">
                         <option [ngValue]="null"></option>
-                        <option [ngValue]="evaluationOption.id === editForm.get('evaluation').value?.id ? editForm.get('evaluation').value : evaluationOption" *ngFor="let evaluationOption of evaluations; trackBy: trackEvaluationById">{{evaluationOption.id}}</option>
+                        <option [ngValue]="evaluationOption.id === editForm.get('evaluation')!.value?.id ? editForm.get('evaluation')!.value : evaluationOption" *ngFor="let evaluationOption of evaluations; trackBy: trackById">{{ evaluationOption.id }}</option>
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.courrierObject" for="field_courrierObject">Courrier Object</label>
                     <select class="form-control" id="field_courrierObject" name="courrierObject" formControlName="courrierObject">
                         <option [ngValue]="null"></option>
-                        <option [ngValue]="courrierObjectOption.id === editForm.get('courrierObject').value?.id ? editForm.get('courrierObject').value : courrierObjectOption" *ngFor="let courrierObjectOption of courrierobjects; trackBy: trackCourrierObjectById">{{courrierObjectOption.id}}</option>
+                        <option [ngValue]="courrierObjectOption.id === editForm.get('courrierObject')!.value?.id ? editForm.get('courrierObject')!.value : courrierObjectOption" *ngFor="let courrierObjectOption of courrierobjects; trackBy: trackById">{{ courrierObjectOption.id }}</option>
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.expeditorType" for="field_expeditorType">Expeditor Type</label>
                     <select class="form-control" id="field_expeditorType" name="expeditorType" formControlName="expeditorType">
                         <option [ngValue]="null"></option>
-                        <option [ngValue]="expeditorTypeOption.id === editForm.get('expeditorType').value?.id ? editForm.get('expeditorType').value : expeditorTypeOption" *ngFor="let expeditorTypeOption of expeditortypes; trackBy: trackExpeditorTypeById">{{expeditorTypeOption.id}}</option>
+                        <option [ngValue]="expeditorTypeOption.id === editForm.get('expeditorType')!.value?.id ? editForm.get('expeditorType')!.value : expeditorTypeOption" *ngFor="let expeditorTypeOption of expeditortypes; trackBy: trackById">{{ expeditorTypeOption.id }}</option>
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.subdivision" for="field_subdivision">Subdivision</label>
                     <select class="form-control" id="field_subdivision" name="subdivision" formControlName="subdivision">
                         <option [ngValue]="null"></option>
-                        <option [ngValue]="subdivisionOption.id === editForm.get('subdivision').value?.id ? editForm.get('subdivision').value : subdivisionOption" *ngFor="let subdivisionOption of subdivisions; trackBy: trackSubdivisionById">{{subdivisionOption.id}}</option>
+                        <option [ngValue]="subdivisionOption.id === editForm.get('subdivision')!.value?.id ? editForm.get('subdivision')!.value : subdivisionOption" *ngFor="let subdivisionOption of subdivisions; trackBy: trackById">{{ subdivisionOption.id }}</option>
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label jhiTranslate="ormvahApp.courrier.services" for="field_services">Services</label>
                     <select class="form-control" id="field_services" multiple name="services" formControlName="services">
-                        <option [ngValue]="getSelected(editForm.get('services').value, leServiceOption)" *ngFor="let leServiceOption of leservices; trackBy: trackLeServiceById">{{leServiceOption.id}}</option>
+                        <option [ngValue]="getSelected(editForm.get('services')!.value, leServiceOption)" *ngFor="let leServiceOption of leservices; trackBy: trackById">{{ leServiceOption.id }}</option>
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.courrier.bordereau" for="field_bordereau">Bordereau</label>
                     <select class="form-control" id="field_bordereau" name="bordereau" formControlName="bordereau">
                         <option [ngValue]="null"></option>
-                        <option [ngValue]="bordereauOption.id === editForm.get('bordereau').value?.id ? editForm.get('bordereau').value : bordereauOption" *ngFor="let bordereauOption of bordereaus; trackBy: trackBordereauById">{{bordereauOption.id}}</option>
+                        <option [ngValue]="bordereauOption.id === editForm.get('bordereau')!.value?.id ? editForm.get('bordereau')!.value : bordereauOption" *ngFor="let bordereauOption of bordereaus; trackBy: trackById">{{ bordereauOption.id }}</option>
                     </select>
                 </div>
             </div>
+
             <div>
-                <button type="button" id="cancel-save" class="btn btn-secondary"  (click)="previousState()">
-                    <fa-icon [icon]="'ban'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+                <button type="button" id="cancel-save" class="btn btn-secondary" (click)="previousState()">
+                    <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
                 </button>
+
                 <button type="submit" id="save-entity" [disabled]="editForm.invalid || isSaving" class="btn btn-primary">
-                    <fa-icon [icon]="'save'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+                    <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
                 </button>
             </div>
         </form>

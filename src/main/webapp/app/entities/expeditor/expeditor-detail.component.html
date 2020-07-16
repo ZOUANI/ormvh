@@ -1,66 +1,69 @@
 <div class="row justify-content-center">
     <div class="col-8">
         <div *ngIf="expeditor">
-            <h2><span jhiTranslate="ormvahApp.expeditor.detail.title">Expeditor</span> {{expeditor.id}}</h2>
+            <h2><span jhiTranslate="ormvahApp.expeditor.detail.title">Expeditor</span> {{ expeditor.id }}</h2>
+
             <hr>
+
             <jhi-alert-error></jhi-alert-error>
+
             <dl class="row-md jh-entity-details">
                 <dt><span jhiTranslate="ormvahApp.expeditor.title">Title</span></dt>
                 <dd>
-                    <span>{{expeditor.title}}</span>
+                    <span>{{ expeditor.title }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.expeditor.description">Description</span></dt>
                 <dd>
-                    <span>{{expeditor.description}}</span>
+                    <span>{{ expeditor.description }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.expeditor.nature">Nature</span></dt>
                 <dd>
-                    <span>{{expeditor.nature}}</span>
+                    <span>{{ expeditor.nature }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.expeditor.sexe">Sexe</span></dt>
                 <dd>
-                    <span jhiTranslate="{{'ormvahApp.Sexe.' + expeditor.sexe}}">{{expeditor.sexe}}</span>
+                    <span jhiTranslate="{{ 'ormvahApp.Sexe.' + expeditor.sexe }}">{{ expeditor.sexe }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.expeditor.age">Age</span></dt>
                 <dd>
-                    <span>{{expeditor.age}}</span>
+                    <span>{{ expeditor.age }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.expeditor.nationality">Nationality</span></dt>
                 <dd>
-                    <span>{{expeditor.nationality}}</span>
+                    <span>{{ expeditor.nationality }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.expeditor.adress">Adress</span></dt>
                 <dd>
-                    <span>{{expeditor.adress}}</span>
+                    <span>{{ expeditor.adress }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.expeditor.createdAt">Created At</span></dt>
                 <dd>
-                    <span>{{expeditor.createdAt}}</span>
+                    <span>{{ expeditor.createdAt }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.expeditor.updatedAt">Updated At</span></dt>
                 <dd>
-                    <span>{{expeditor.updatedAt}}</span>
+                    <span>{{ expeditor.updatedAt }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.expeditor.createdBy">Created By</span></dt>
                 <dd>
-                    <span>{{expeditor.createdBy}}</span>
+                    <span>{{ expeditor.createdBy }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.expeditor.updatedBy">Updated By</span></dt>
                 <dd>
-                    <span>{{expeditor.updatedBy}}</span>
+                    <span>{{ expeditor.updatedBy }}</span>
                 </dd>
             </dl>
 
             <button type="submit"
                     (click)="previousState()"
                     class="btn btn-info">
-                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+                <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
             </button>
 
             <button type="button"
                     [routerLink]="['/expeditor', expeditor.id, 'edit']"
                     class="btn btn-primary">
-                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+                <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
             </button>
         </div>
     </div>

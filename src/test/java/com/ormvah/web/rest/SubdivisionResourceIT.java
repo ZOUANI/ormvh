@@ -4,36 +4,33 @@ import com.ormvah.OrmvahApp;
 import com.ormvah.domain.Subdivision;
 import com.ormvah.repository.SubdivisionRepository;
 import com.ormvah.service.SubdivisionService;
-import com.ormvah.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static com.ormvah.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link SubdivisionResource} REST controller.
+ * Integration tests for the {@link SubdivisionResource} REST controller.
  */
 @SpringBootTest(classes = OrmvahApp.class)
+@AutoConfigureMockMvc
+@WithMockUser
 public class SubdivisionResourceIT {
 
     private static final String DEFAULT_TITLE = "AAAAAAAAAA";
@@ -58,35 +55,12 @@ public class SubdivisionResourceIT {
     private SubdivisionService subdivisionService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restSubdivisionMockMvc;
 
     private Subdivision subdivision;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final SubdivisionResource subdivisionResource = new SubdivisionResource(subdivisionService);
-        this.restSubdivisionMockMvc = MockMvcBuilders.standaloneSetup(subdivisionResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -128,10 +102,9 @@ public class SubdivisionResourceIT {
     @Transactional
     public void createSubdivision() throws Exception {
         int databaseSizeBeforeCreate = subdivisionRepository.findAll().size();
-
         // Create the Subdivision
-        restSubdivisionMockMvc.perform(post("/api/subdivisions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restSubdivisionMockMvc.perform(post("/api/subdivisions").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(subdivision)))
             .andExpect(status().isCreated());
 
@@ -155,8 +128,8 @@ public class SubdivisionResourceIT {
         subdivision.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restSubdivisionMockMvc.perform(post("/api/subdivisions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restSubdivisionMockMvc.perform(post("/api/subdivisions").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(subdivision)))
             .andExpect(status().isBadRequest());
 
@@ -175,13 +148,13 @@ public class SubdivisionResourceIT {
         // Get all the subdivisionList
         restSubdivisionMockMvc.perform(get("/api/subdivisions?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(subdivision.getId().intValue())))
-            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
             .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())))
-            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(DEFAULT_CREATED_BY.toString())))
-            .andExpect(jsonPath("$.[*].updatedBy").value(hasItem(DEFAULT_UPDATED_BY.toString())));
+            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(DEFAULT_CREATED_BY)))
+            .andExpect(jsonPath("$.[*].updatedBy").value(hasItem(DEFAULT_UPDATED_BY)));
     }
     
     @Test
@@ -193,15 +166,14 @@ public class SubdivisionResourceIT {
         // Get the subdivision
         restSubdivisionMockMvc.perform(get("/api/subdivisions/{id}", subdivision.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(subdivision.getId().intValue()))
-            .andExpect(jsonPath("$.title").value(DEFAULT_TITLE.toString()))
+            .andExpect(jsonPath("$.title").value(DEFAULT_TITLE))
             .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
             .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()))
-            .andExpect(jsonPath("$.createdBy").value(DEFAULT_CREATED_BY.toString()))
-            .andExpect(jsonPath("$.updatedBy").value(DEFAULT_UPDATED_BY.toString()));
+            .andExpect(jsonPath("$.createdBy").value(DEFAULT_CREATED_BY))
+            .andExpect(jsonPath("$.updatedBy").value(DEFAULT_UPDATED_BY));
     }
-
     @Test
     @Transactional
     public void getNonExistingSubdivision() throws Exception {
@@ -229,8 +201,8 @@ public class SubdivisionResourceIT {
             .createdBy(UPDATED_CREATED_BY)
             .updatedBy(UPDATED_UPDATED_BY);
 
-        restSubdivisionMockMvc.perform(put("/api/subdivisions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restSubdivisionMockMvc.perform(put("/api/subdivisions").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedSubdivision)))
             .andExpect(status().isOk());
 
@@ -250,11 +222,9 @@ public class SubdivisionResourceIT {
     public void updateNonExistingSubdivision() throws Exception {
         int databaseSizeBeforeUpdate = subdivisionRepository.findAll().size();
 
-        // Create the Subdivision
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restSubdivisionMockMvc.perform(put("/api/subdivisions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restSubdivisionMockMvc.perform(put("/api/subdivisions").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(subdivision)))
             .andExpect(status().isBadRequest());
 
@@ -272,27 +242,12 @@ public class SubdivisionResourceIT {
         int databaseSizeBeforeDelete = subdivisionRepository.findAll().size();
 
         // Delete the subdivision
-        restSubdivisionMockMvc.perform(delete("/api/subdivisions/{id}", subdivision.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+        restSubdivisionMockMvc.perform(delete("/api/subdivisions/{id}", subdivision.getId()).with(csrf())
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
         List<Subdivision> subdivisionList = subdivisionRepository.findAll();
         assertThat(subdivisionList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Subdivision.class);
-        Subdivision subdivision1 = new Subdivision();
-        subdivision1.setId(1L);
-        Subdivision subdivision2 = new Subdivision();
-        subdivision2.setId(subdivision1.getId());
-        assertThat(subdivision1).isEqualTo(subdivision2);
-        subdivision2.setId(2L);
-        assertThat(subdivision1).isNotEqualTo(subdivision2);
-        subdivision1.setId(null);
-        assertThat(subdivision1).isNotEqualTo(subdivision2);
     }
 }

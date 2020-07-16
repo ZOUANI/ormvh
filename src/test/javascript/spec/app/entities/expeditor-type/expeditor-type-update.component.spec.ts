@@ -1,8 +1,7 @@
-/* tslint:disable max-line-length */
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HttpResponse } from '@angular/common/http';
 import { FormBuilder } from '@angular/forms';
-import { Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 
 import { OrmvahTestModule } from '../../../test.module';
 import { ExpeditorTypeUpdateComponent } from 'app/entities/expeditor-type/expeditor-type-update.component';
@@ -19,7 +18,7 @@ describe('Component Tests', () => {
       TestBed.configureTestingModule({
         imports: [OrmvahTestModule],
         declarations: [ExpeditorTypeUpdateComponent],
-        providers: [FormBuilder]
+        providers: [FormBuilder],
       })
         .overrideTemplate(ExpeditorTypeUpdateComponent, '')
         .compileComponents();

@@ -1,28 +1,33 @@
 import { Injectable } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Routes } from '@angular/router';
-import { JhiPaginationUtil, JhiResolvePagingParams } from 'ng-jhipster';
-import { UserRouteAccessService } from 'app/core';
-import { Observable, of } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { Task } from 'app/shared/model/task.model';
+import { Resolve, ActivatedRouteSnapshot, Routes, Router } from '@angular/router';
+import { Observable, of, EMPTY } from 'rxjs';
+import { flatMap } from 'rxjs/operators';
+
+import { Authority } from 'app/shared/constants/authority.constants';
+import { UserRouteAccessService } from 'app/core/auth/user-route-access-service';
+import { ITask, Task } from 'app/shared/model/task.model';
 import { TaskService } from './task.service';
 import { TaskComponent } from './task.component';
 import { TaskDetailComponent } from './task-detail.component';
 import { TaskUpdateComponent } from './task-update.component';
-import { TaskDeletePopupComponent } from './task-delete-dialog.component';
-import { ITask } from 'app/shared/model/task.model';
 
 @Injectable({ providedIn: 'root' })
 export class TaskResolve implements Resolve<ITask> {
-  constructor(private service: TaskService) {}
+  constructor(private service: TaskService, private router: Router) {}
 
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<ITask> {
-    const id = route.params['id'] ? route.params['id'] : null;
+  resolve(route: ActivatedRouteSnapshot): Observable<ITask> | Observable<never> {
+    const id = route.params['id'];
     if (id) {
       return this.service.find(id).pipe(
-        filter((response: HttpResponse<Task>) => response.ok),
-        map((task: HttpResponse<Task>) => task.body)
+        flatMap((task: HttpResponse<Task>) => {
+          if (task.body) {
+            return of(task.body);
+          } else {
+            this.router.navigate(['404']);
+            return EMPTY;
+          }
+        })
       );
     }
     return of(new Task());
@@ -33,66 +38,47 @@ export const taskRoute: Routes = [
   {
     path: '',
     component: TaskComponent,
-    resolve: {
-      pagingParams: JhiResolvePagingParams
-    },
     data: {
-      authorities: ['ROLE_USER'],
+      authorities: [Authority.USER],
       defaultSort: 'id,asc',
-      pageTitle: 'ormvahApp.task.home.title'
+      pageTitle: 'ormvahApp.task.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/view',
     component: TaskDetailComponent,
     resolve: {
-      task: TaskResolve
+      task: TaskResolve,
     },
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'ormvahApp.task.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'ormvahApp.task.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: 'new',
     component: TaskUpdateComponent,
     resolve: {
-      task: TaskResolve
+      task: TaskResolve,
     },
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'ormvahApp.task.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'ormvahApp.task.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/edit',
     component: TaskUpdateComponent,
     resolve: {
-      task: TaskResolve
+      task: TaskResolve,
     },
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'ormvahApp.task.home.title'
-    },
-    canActivate: [UserRouteAccessService]
-  }
-];
-
-export const taskPopupRoute: Routes = [
-  {
-    path: ':id/delete',
-    component: TaskDeletePopupComponent,
-    resolve: {
-      task: TaskResolve
-    },
-    data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'ormvahApp.task.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'ormvahApp.task.home.title',
     },
     canActivate: [UserRouteAccessService],
-    outlet: 'popup'
-  }
+  },
 ];

@@ -1,64 +1,68 @@
 <div>
     <h2 id="page-heading">
         <span jhiTranslate="ormvahApp.expeditorType.home.title">Expeditor Types</span>
+
         <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-expeditor-type" [routerLink]="['/expeditor-type/new']">
-            <fa-icon [icon]="'plus'"></fa-icon>
+            <fa-icon icon="plus"></fa-icon>
             <span  jhiTranslate="ormvahApp.expeditorType.home.createLabel">
-            Create new Expeditor Type
+            Create a new Expeditor Type
             </span>
         </button>
     </h2>
+
+    <jhi-alert-error></jhi-alert-error>
+
     <jhi-alert></jhi-alert>
-    <br/>
-    <div class="alert alert-warning" *ngIf="expeditorTypes?.length === 0">
+
+    <div class="alert alert-warning" id="no-result" *ngIf="expeditorTypes?.length === 0">
         <span jhiTranslate="ormvahApp.expeditorType.home.notFound">No expeditorTypes found</span>
     </div>
-    <div class="table-responsive" *ngIf="expeditorTypes?.length > 0">
-        <table class="table table-striped">
+
+    <div class="table-responsive" id="entities" *ngIf="expeditorTypes && expeditorTypes.length > 0">
+        <table class="table table-striped" aria-describedby="page-heading">
             <thead>
-            <tr>
-            <th><span jhiTranslate="global.field.id">ID</span></th>
-            <th><span jhiTranslate="ormvahApp.expeditorType.title">Title</span></th>
-            <th><span jhiTranslate="ormvahApp.expeditorType.createdAt">Created At</span></th>
-            <th><span jhiTranslate="ormvahApp.expeditorType.updatedAt">Updated At</span></th>
-            <th><span jhiTranslate="ormvahApp.expeditorType.createdBy">Created By</span></th>
-            <th><span jhiTranslate="ormvahApp.expeditorType.updatedBy">Updated By</span></th>
-            <th></th>
-            </tr>
+                <tr>
+                    <th scope="col" ><span jhiTranslate="global.field.id">ID</span></th>
+                    <th scope="col" ><span jhiTranslate="ormvahApp.expeditorType.title">Title</span></th>
+                    <th scope="col" ><span jhiTranslate="ormvahApp.expeditorType.createdAt">Created At</span></th>
+                    <th scope="col" ><span jhiTranslate="ormvahApp.expeditorType.updatedAt">Updated At</span></th>
+                    <th scope="col" ><span jhiTranslate="ormvahApp.expeditorType.createdBy">Created By</span></th>
+                    <th scope="col" ><span jhiTranslate="ormvahApp.expeditorType.updatedBy">Updated By</span></th>
+                    <th scope="col"></th>
+                </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let expeditorType of expeditorTypes ;trackBy: trackId">
-                <td><a [routerLink]="['/expeditor-type', expeditorType.id, 'view' ]">{{expeditorType.id}}</a></td>
-                <td>{{expeditorType.title}}</td>
-                <td>{{expeditorType.createdAt | date:'medium'}}</td>
-                <td>{{expeditorType.updatedAt | date:'medium'}}</td>
-                <td>{{expeditorType.createdBy}}</td>
-                <td>{{expeditorType.updatedBy}}</td>
-                <td class="text-right">
-                    <div class="btn-group">
-                        <button type="submit"
-                                [routerLink]="['/expeditor-type', expeditorType.id, 'view' ]"
-                                class="btn btn-info btn-sm">
-                            <fa-icon [icon]="'eye'"></fa-icon>
-                            <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
-                        </button>
-                        <button type="submit"
-                                [routerLink]="['/expeditor-type', expeditorType.id, 'edit']"
-                                class="btn btn-primary btn-sm">
-                            <fa-icon [icon]="'pencil-alt'"></fa-icon>
-                            <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
-                        </button>
-                        <button type="submit"
-                                [routerLink]="['/', 'expeditor-type', { outlets: { popup: expeditorType.id + '/delete'} }]"
-                                replaceUrl="true"
-                                queryParamsHandling="merge"
-                                class="btn btn-danger btn-sm">
-                            <fa-icon [icon]="'times'"></fa-icon>
-                            <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
-                        </button>
-                    </div>
-                </td>
-            </tr>
+                <tr *ngFor="let expeditorType of expeditorTypes ;trackBy: trackId">
+                    <td><a [routerLink]="['/expeditor-type', expeditorType.id, 'view']">{{ expeditorType.id }}</a></td>
+                    <td>{{ expeditorType.title }}</td>
+                    <td>{{ expeditorType.createdAt | date:'medium' }}</td>
+                    <td>{{ expeditorType.updatedAt | date:'medium' }}</td>
+                    <td>{{ expeditorType.createdBy }}</td>
+                    <td>{{ expeditorType.updatedBy }}</td>
+                    <td class="text-right">
+                        <div class="btn-group">
+                            <button type="submit"
+                                    [routerLink]="['/expeditor-type', expeditorType.id, 'view']"
+                                    class="btn btn-info btn-sm">
+                                <fa-icon icon="eye"></fa-icon>
+                                <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
+                            </button>
+
+                            <button type="submit"
+                                    [routerLink]="['/expeditor-type', expeditorType.id, 'edit']"
+                                    class="btn btn-primary btn-sm">
+                                <fa-icon icon="pencil-alt"></fa-icon>
+                                <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+                            </button>
+
+                            <button type="submit" (click)="delete(expeditorType)"
+                                    class="btn btn-danger btn-sm">
+                                <fa-icon icon="times"></fa-icon>
+                                <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>

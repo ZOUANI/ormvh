@@ -5,7 +5,7 @@
         "title": "Nature Courriers",
         "createLabel": "Create a new Nature Courrier",
         "createOrEditLabel": "Create or edit a Nature Courrier",
-        "notFound": "No Nature Courrier found"
+        "notFound": "No Nature Courriers found"
       },
       "created": "A new Nature Courrier is created with identifier {{ param }}",
       "updated": "A Nature Courrier is updated with identifier {{ param }}",

@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import * as moment from 'moment';
-import { DATE_FORMAT } from 'app/shared/constants/input.constants';
 import { map } from 'rxjs/operators';
+import * as moment from 'moment';
 
 import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOption } from 'app/shared';
+import { createRequestOption } from 'app/shared/util/request-util';
 import { IEmployee } from 'app/shared/model/employee.model';
 
 type EntityResponseType = HttpResponse<IEmployee>;
@@ -45,22 +44,22 @@ export class EmployeeService {
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
-  delete(id: number): Observable<HttpResponse<any>> {
-    return this.http.delete<any>(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  delete(id: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
   protected convertDateFromClient(employee: IEmployee): IEmployee {
     const copy: IEmployee = Object.assign({}, employee, {
-      createdAt: employee.createdAt != null && employee.createdAt.isValid() ? employee.createdAt.toJSON() : null,
-      updatedAt: employee.updatedAt != null && employee.updatedAt.isValid() ? employee.updatedAt.toJSON() : null
+      createdAt: employee.createdAt && employee.createdAt.isValid() ? employee.createdAt.toJSON() : undefined,
+      updatedAt: employee.updatedAt && employee.updatedAt.isValid() ? employee.updatedAt.toJSON() : undefined,
     });
     return copy;
   }
 
   protected convertDateFromServer(res: EntityResponseType): EntityResponseType {
     if (res.body) {
-      res.body.createdAt = res.body.createdAt != null ? moment(res.body.createdAt) : null;
-      res.body.updatedAt = res.body.updatedAt != null ? moment(res.body.updatedAt) : null;
+      res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
+      res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;
     }
     return res;
   }
@@ -68,8 +67,8 @@ export class EmployeeService {
   protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
     if (res.body) {
       res.body.forEach((employee: IEmployee) => {
-        employee.createdAt = employee.createdAt != null ? moment(employee.createdAt) : null;
-        employee.updatedAt = employee.updatedAt != null ? moment(employee.updatedAt) : null;
+        employee.createdAt = employee.createdAt ? moment(employee.createdAt) : undefined;
+        employee.updatedAt = employee.updatedAt ? moment(employee.updatedAt) : undefined;
       });
     }
     return res;

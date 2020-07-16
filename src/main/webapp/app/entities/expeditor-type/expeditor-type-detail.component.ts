@@ -5,20 +5,18 @@ import { IExpeditorType } from 'app/shared/model/expeditor-type.model';
 
 @Component({
   selector: 'jhi-expeditor-type-detail',
-  templateUrl: './expeditor-type-detail.component.html'
+  templateUrl: './expeditor-type-detail.component.html',
 })
 export class ExpeditorTypeDetailComponent implements OnInit {
-  expeditorType: IExpeditorType;
+  expeditorType: IExpeditorType | null = null;
 
   constructor(protected activatedRoute: ActivatedRoute) {}
 
-  ngOnInit() {
-    this.activatedRoute.data.subscribe(({ expeditorType }) => {
-      this.expeditorType = expeditorType;
-    });
+  ngOnInit(): void {
+    this.activatedRoute.data.subscribe(({ expeditorType }) => (this.expeditorType = expeditorType));
   }
 
-  previousState() {
+  previousState(): void {
     window.history.back();
   }
 }

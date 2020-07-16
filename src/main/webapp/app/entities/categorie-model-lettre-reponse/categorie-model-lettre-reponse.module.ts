@@ -1,45 +1,21 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { JhiLanguageService } from 'ng-jhipster';
-import { JhiLanguageHelper } from 'app/core';
 
-import { OrmvahSharedModule } from 'app/shared';
-import {
-  CategorieModelLettreReponseComponent,
-  CategorieModelLettreReponseDetailComponent,
-  CategorieModelLettreReponseUpdateComponent,
-  CategorieModelLettreReponseDeletePopupComponent,
-  CategorieModelLettreReponseDeleteDialogComponent,
-  categorieModelLettreReponseRoute,
-  categorieModelLettreReponsePopupRoute
-} from './';
-
-const ENTITY_STATES = [...categorieModelLettreReponseRoute, ...categorieModelLettreReponsePopupRoute];
+import { OrmvahSharedModule } from 'app/shared/shared.module';
+import { CategorieModelLettreReponseComponent } from './categorie-model-lettre-reponse.component';
+import { CategorieModelLettreReponseDetailComponent } from './categorie-model-lettre-reponse-detail.component';
+import { CategorieModelLettreReponseUpdateComponent } from './categorie-model-lettre-reponse-update.component';
+import { CategorieModelLettreReponseDeleteDialogComponent } from './categorie-model-lettre-reponse-delete-dialog.component';
+import { categorieModelLettreReponseRoute } from './categorie-model-lettre-reponse.route';
 
 @NgModule({
-  imports: [OrmvahSharedModule, RouterModule.forChild(ENTITY_STATES)],
+  imports: [OrmvahSharedModule, RouterModule.forChild(categorieModelLettreReponseRoute)],
   declarations: [
     CategorieModelLettreReponseComponent,
     CategorieModelLettreReponseDetailComponent,
     CategorieModelLettreReponseUpdateComponent,
     CategorieModelLettreReponseDeleteDialogComponent,
-    CategorieModelLettreReponseDeletePopupComponent
   ],
-  entryComponents: [
-    CategorieModelLettreReponseComponent,
-    CategorieModelLettreReponseUpdateComponent,
-    CategorieModelLettreReponseDeleteDialogComponent,
-    CategorieModelLettreReponseDeletePopupComponent
-  ],
-  providers: [{ provide: JhiLanguageService, useClass: JhiLanguageService }],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  entryComponents: [CategorieModelLettreReponseDeleteDialogComponent],
 })
-export class OrmvahCategorieModelLettreReponseModule {
-  constructor(private languageService: JhiLanguageService, private languageHelper: JhiLanguageHelper) {
-    this.languageHelper.language.subscribe((languageKey: string) => {
-      if (languageKey !== undefined) {
-        this.languageService.changeLanguage(languageKey);
-      }
-    });
-  }
-}
+export class OrmvahCategorieModelLettreReponseModule {}

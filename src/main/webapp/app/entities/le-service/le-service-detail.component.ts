@@ -5,20 +5,18 @@ import { ILeService } from 'app/shared/model/le-service.model';
 
 @Component({
   selector: 'jhi-le-service-detail',
-  templateUrl: './le-service-detail.component.html'
+  templateUrl: './le-service-detail.component.html',
 })
 export class LeServiceDetailComponent implements OnInit {
-  leService: ILeService;
+  leService: ILeService | null = null;
 
   constructor(protected activatedRoute: ActivatedRoute) {}
 
-  ngOnInit() {
-    this.activatedRoute.data.subscribe(({ leService }) => {
-      this.leService = leService;
-    });
+  ngOnInit(): void {
+    this.activatedRoute.data.subscribe(({ leService }) => (this.leService = leService));
   }
 
-  previousState() {
+  previousState(): void {
     window.history.back();
   }
 }

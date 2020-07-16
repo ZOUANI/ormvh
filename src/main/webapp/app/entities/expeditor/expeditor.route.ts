@@ -1,28 +1,33 @@
 import { Injectable } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Routes } from '@angular/router';
-import { JhiPaginationUtil, JhiResolvePagingParams } from 'ng-jhipster';
-import { UserRouteAccessService } from 'app/core';
-import { Observable, of } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { Expeditor } from 'app/shared/model/expeditor.model';
+import { Resolve, ActivatedRouteSnapshot, Routes, Router } from '@angular/router';
+import { Observable, of, EMPTY } from 'rxjs';
+import { flatMap } from 'rxjs/operators';
+
+import { Authority } from 'app/shared/constants/authority.constants';
+import { UserRouteAccessService } from 'app/core/auth/user-route-access-service';
+import { IExpeditor, Expeditor } from 'app/shared/model/expeditor.model';
 import { ExpeditorService } from './expeditor.service';
 import { ExpeditorComponent } from './expeditor.component';
 import { ExpeditorDetailComponent } from './expeditor-detail.component';
 import { ExpeditorUpdateComponent } from './expeditor-update.component';
-import { ExpeditorDeletePopupComponent } from './expeditor-delete-dialog.component';
-import { IExpeditor } from 'app/shared/model/expeditor.model';
 
 @Injectable({ providedIn: 'root' })
 export class ExpeditorResolve implements Resolve<IExpeditor> {
-  constructor(private service: ExpeditorService) {}
+  constructor(private service: ExpeditorService, private router: Router) {}
 
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<IExpeditor> {
-    const id = route.params['id'] ? route.params['id'] : null;
+  resolve(route: ActivatedRouteSnapshot): Observable<IExpeditor> | Observable<never> {
+    const id = route.params['id'];
     if (id) {
       return this.service.find(id).pipe(
-        filter((response: HttpResponse<Expeditor>) => response.ok),
-        map((expeditor: HttpResponse<Expeditor>) => expeditor.body)
+        flatMap((expeditor: HttpResponse<Expeditor>) => {
+          if (expeditor.body) {
+            return of(expeditor.body);
+          } else {
+            this.router.navigate(['404']);
+            return EMPTY;
+          }
+        })
       );
     }
     return of(new Expeditor());
@@ -33,66 +38,47 @@ export const expeditorRoute: Routes = [
   {
     path: '',
     component: ExpeditorComponent,
-    resolve: {
-      pagingParams: JhiResolvePagingParams
-    },
     data: {
-      authorities: ['ROLE_USER'],
+      authorities: [Authority.USER],
       defaultSort: 'id,asc',
-      pageTitle: 'ormvahApp.expeditor.home.title'
+      pageTitle: 'ormvahApp.expeditor.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/view',
     component: ExpeditorDetailComponent,
     resolve: {
-      expeditor: ExpeditorResolve
+      expeditor: ExpeditorResolve,
     },
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'ormvahApp.expeditor.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'ormvahApp.expeditor.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: 'new',
     component: ExpeditorUpdateComponent,
     resolve: {
-      expeditor: ExpeditorResolve
+      expeditor: ExpeditorResolve,
     },
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'ormvahApp.expeditor.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'ormvahApp.expeditor.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/edit',
     component: ExpeditorUpdateComponent,
     resolve: {
-      expeditor: ExpeditorResolve
+      expeditor: ExpeditorResolve,
     },
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'ormvahApp.expeditor.home.title'
-    },
-    canActivate: [UserRouteAccessService]
-  }
-];
-
-export const expeditorPopupRoute: Routes = [
-  {
-    path: ':id/delete',
-    component: ExpeditorDeletePopupComponent,
-    resolve: {
-      expeditor: ExpeditorResolve
-    },
-    data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'ormvahApp.expeditor.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'ormvahApp.expeditor.home.title',
     },
     canActivate: [UserRouteAccessService],
-    outlet: 'popup'
-  }
+  },
 ];

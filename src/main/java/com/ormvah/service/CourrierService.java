@@ -34,7 +34,8 @@ public interface CourrierService {
      * @return the list of entities.
      */
     Page<Courrier> findAllWithEagerRelationships(Pageable pageable);
-    
+
+
     /**
      * Get the "id" courrier.
      *

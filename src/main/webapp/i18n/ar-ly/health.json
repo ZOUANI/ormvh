@@ -13,6 +13,7 @@
     "indicator": {
       "diskSpace": "مساحة القرص",
       "mail": "البريد الإلكتروني",
+      "ping": "Application",
       "db": "قاعدة البيانات"
     },
     "table": {

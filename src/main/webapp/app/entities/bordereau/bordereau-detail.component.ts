@@ -5,20 +5,18 @@ import { IBordereau } from 'app/shared/model/bordereau.model';
 
 @Component({
   selector: 'jhi-bordereau-detail',
-  templateUrl: './bordereau-detail.component.html'
+  templateUrl: './bordereau-detail.component.html',
 })
 export class BordereauDetailComponent implements OnInit {
-  bordereau: IBordereau;
+  bordereau: IBordereau | null = null;
 
   constructor(protected activatedRoute: ActivatedRoute) {}
 
-  ngOnInit() {
-    this.activatedRoute.data.subscribe(({ bordereau }) => {
-      this.bordereau = bordereau;
-    });
+  ngOnInit(): void {
+    this.activatedRoute.data.subscribe(({ bordereau }) => (this.bordereau = bordereau));
   }
 
-  previousState() {
+  previousState(): void {
     window.history.back();
   }
 }

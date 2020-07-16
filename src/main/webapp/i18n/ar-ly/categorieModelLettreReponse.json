@@ -5,7 +5,7 @@
         "title": "Categorie Model Lettre Reponses",
         "createLabel": "Create a new Categorie Model Lettre Reponse",
         "createOrEditLabel": "Create or edit a Categorie Model Lettre Reponse",
-        "notFound": "No Categorie Model Lettre Reponse found"
+        "notFound": "No Categorie Model Lettre Reponses found"
       },
       "created": "A new Categorie Model Lettre Reponse is created with identifier {{ param }}",
       "updated": "A Categorie Model Lettre Reponse is updated with identifier {{ param }}",

@@ -4,36 +4,33 @@ import com.ormvah.OrmvahApp;
 import com.ormvah.domain.Evaluation;
 import com.ormvah.repository.EvaluationRepository;
 import com.ormvah.service.EvaluationService;
-import com.ormvah.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static com.ormvah.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link EvaluationResource} REST controller.
+ * Integration tests for the {@link EvaluationResource} REST controller.
  */
 @SpringBootTest(classes = OrmvahApp.class)
+@AutoConfigureMockMvc
+@WithMockUser
 public class EvaluationResourceIT {
 
     private static final String DEFAULT_TITLE = "AAAAAAAAAA";
@@ -58,35 +55,12 @@ public class EvaluationResourceIT {
     private EvaluationService evaluationService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restEvaluationMockMvc;
 
     private Evaluation evaluation;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final EvaluationResource evaluationResource = new EvaluationResource(evaluationService);
-        this.restEvaluationMockMvc = MockMvcBuilders.standaloneSetup(evaluationResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -128,10 +102,9 @@ public class EvaluationResourceIT {
     @Transactional
     public void createEvaluation() throws Exception {
         int databaseSizeBeforeCreate = evaluationRepository.findAll().size();
-
         // Create the Evaluation
-        restEvaluationMockMvc.perform(post("/api/evaluations")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restEvaluationMockMvc.perform(post("/api/evaluations").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(evaluation)))
             .andExpect(status().isCreated());
 
@@ -155,8 +128,8 @@ public class EvaluationResourceIT {
         evaluation.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restEvaluationMockMvc.perform(post("/api/evaluations")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restEvaluationMockMvc.perform(post("/api/evaluations").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(evaluation)))
             .andExpect(status().isBadRequest());
 
@@ -175,13 +148,13 @@ public class EvaluationResourceIT {
         // Get all the evaluationList
         restEvaluationMockMvc.perform(get("/api/evaluations?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(evaluation.getId().intValue())))
-            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
             .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())))
-            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(DEFAULT_CREATED_BY.toString())))
-            .andExpect(jsonPath("$.[*].updatedBy").value(hasItem(DEFAULT_UPDATED_BY.toString())));
+            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(DEFAULT_CREATED_BY)))
+            .andExpect(jsonPath("$.[*].updatedBy").value(hasItem(DEFAULT_UPDATED_BY)));
     }
     
     @Test
@@ -193,15 +166,14 @@ public class EvaluationResourceIT {
         // Get the evaluation
         restEvaluationMockMvc.perform(get("/api/evaluations/{id}", evaluation.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(evaluation.getId().intValue()))
-            .andExpect(jsonPath("$.title").value(DEFAULT_TITLE.toString()))
+            .andExpect(jsonPath("$.title").value(DEFAULT_TITLE))
             .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
             .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()))
-            .andExpect(jsonPath("$.createdBy").value(DEFAULT_CREATED_BY.toString()))
-            .andExpect(jsonPath("$.updatedBy").value(DEFAULT_UPDATED_BY.toString()));
+            .andExpect(jsonPath("$.createdBy").value(DEFAULT_CREATED_BY))
+            .andExpect(jsonPath("$.updatedBy").value(DEFAULT_UPDATED_BY));
     }
-
     @Test
     @Transactional
     public void getNonExistingEvaluation() throws Exception {
@@ -229,8 +201,8 @@ public class EvaluationResourceIT {
             .createdBy(UPDATED_CREATED_BY)
             .updatedBy(UPDATED_UPDATED_BY);
 
-        restEvaluationMockMvc.perform(put("/api/evaluations")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restEvaluationMockMvc.perform(put("/api/evaluations").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedEvaluation)))
             .andExpect(status().isOk());
 
@@ -250,11 +222,9 @@ public class EvaluationResourceIT {
     public void updateNonExistingEvaluation() throws Exception {
         int databaseSizeBeforeUpdate = evaluationRepository.findAll().size();
 
-        // Create the Evaluation
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restEvaluationMockMvc.perform(put("/api/evaluations")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restEvaluationMockMvc.perform(put("/api/evaluations").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(evaluation)))
             .andExpect(status().isBadRequest());
 
@@ -272,27 +242,12 @@ public class EvaluationResourceIT {
         int databaseSizeBeforeDelete = evaluationRepository.findAll().size();
 
         // Delete the evaluation
-        restEvaluationMockMvc.perform(delete("/api/evaluations/{id}", evaluation.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+        restEvaluationMockMvc.perform(delete("/api/evaluations/{id}", evaluation.getId()).with(csrf())
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
         List<Evaluation> evaluationList = evaluationRepository.findAll();
         assertThat(evaluationList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Evaluation.class);
-        Evaluation evaluation1 = new Evaluation();
-        evaluation1.setId(1L);
-        Evaluation evaluation2 = new Evaluation();
-        evaluation2.setId(evaluation1.getId());
-        assertThat(evaluation1).isEqualTo(evaluation2);
-        evaluation2.setId(2L);
-        assertThat(evaluation1).isNotEqualTo(evaluation2);
-        evaluation1.setId(null);
-        assertThat(evaluation1).isNotEqualTo(evaluation2);
     }
 }

@@ -1,19 +1,21 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import * as moment from 'moment';
 import { DATE_TIME_FORMAT } from 'app/shared/constants/input.constants';
+
 import { INatureCourrier, NatureCourrier } from 'app/shared/model/nature-courrier.model';
 import { NatureCourrierService } from './nature-courrier.service';
 
 @Component({
   selector: 'jhi-nature-courrier-update',
-  templateUrl: './nature-courrier-update.component.html'
+  templateUrl: './nature-courrier-update.component.html',
 })
 export class NatureCourrierUpdateComponent implements OnInit {
-  isSaving: boolean;
+  isSaving = false;
 
   editForm = this.fb.group({
     id: [],
@@ -23,36 +25,41 @@ export class NatureCourrierUpdateComponent implements OnInit {
     createdAt: [],
     updatedAt: [],
     createdBy: [],
-    updatedBy: []
+    updatedBy: [],
   });
 
   constructor(protected natureCourrierService: NatureCourrierService, protected activatedRoute: ActivatedRoute, private fb: FormBuilder) {}
 
-  ngOnInit() {
-    this.isSaving = false;
+  ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ natureCourrier }) => {
+      if (!natureCourrier.id) {
+        const today = moment().startOf('day');
+        natureCourrier.createdAt = today;
+        natureCourrier.updatedAt = today;
+      }
+
       this.updateForm(natureCourrier);
     });
   }
 
-  updateForm(natureCourrier: INatureCourrier) {
+  updateForm(natureCourrier: INatureCourrier): void {
     this.editForm.patchValue({
       id: natureCourrier.id,
       libelle: natureCourrier.libelle,
       delai: natureCourrier.delai,
       relance: natureCourrier.relance,
-      createdAt: natureCourrier.createdAt != null ? natureCourrier.createdAt.format(DATE_TIME_FORMAT) : null,
-      updatedAt: natureCourrier.updatedAt != null ? natureCourrier.updatedAt.format(DATE_TIME_FORMAT) : null,
+      createdAt: natureCourrier.createdAt ? natureCourrier.createdAt.format(DATE_TIME_FORMAT) : null,
+      updatedAt: natureCourrier.updatedAt ? natureCourrier.updatedAt.format(DATE_TIME_FORMAT) : null,
       createdBy: natureCourrier.createdBy,
-      updatedBy: natureCourrier.updatedBy
+      updatedBy: natureCourrier.updatedBy,
     });
   }
 
-  previousState() {
+  previousState(): void {
     window.history.back();
   }
 
-  save() {
+  save(): void {
     this.isSaving = true;
     const natureCourrier = this.createFromForm();
     if (natureCourrier.id !== undefined) {
@@ -65,29 +72,30 @@ export class NatureCourrierUpdateComponent implements OnInit {
   private createFromForm(): INatureCourrier {
     return {
       ...new NatureCourrier(),
-      id: this.editForm.get(['id']).value,
-      libelle: this.editForm.get(['libelle']).value,
-      delai: this.editForm.get(['delai']).value,
-      relance: this.editForm.get(['relance']).value,
-      createdAt:
-        this.editForm.get(['createdAt']).value != null ? moment(this.editForm.get(['createdAt']).value, DATE_TIME_FORMAT) : undefined,
-      updatedAt:
-        this.editForm.get(['updatedAt']).value != null ? moment(this.editForm.get(['updatedAt']).value, DATE_TIME_FORMAT) : undefined,
-      createdBy: this.editForm.get(['createdBy']).value,
-      updatedBy: this.editForm.get(['updatedBy']).value
+      id: this.editForm.get(['id'])!.value,
+      libelle: this.editForm.get(['libelle'])!.value,
+      delai: this.editForm.get(['delai'])!.value,
+      relance: this.editForm.get(['relance'])!.value,
+      createdAt: this.editForm.get(['createdAt'])!.value ? moment(this.editForm.get(['createdAt'])!.value, DATE_TIME_FORMAT) : undefined,
+      updatedAt: this.editForm.get(['updatedAt'])!.value ? moment(this.editForm.get(['updatedAt'])!.value, DATE_TIME_FORMAT) : undefined,
+      createdBy: this.editForm.get(['createdBy'])!.value,
+      updatedBy: this.editForm.get(['updatedBy'])!.value,
     };
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<INatureCourrier>>) {
-    result.subscribe(() => this.onSaveSuccess(), () => this.onSaveError());
+  protected subscribeToSaveResponse(result: Observable<HttpResponse<INatureCourrier>>): void {
+    result.subscribe(
+      () => this.onSaveSuccess(),
+      () => this.onSaveError()
+    );
   }
 
-  protected onSaveSuccess() {
+  protected onSaveSuccess(): void {
     this.isSaving = false;
     this.previousState();
   }
 
-  protected onSaveError() {
+  protected onSaveError(): void {
     this.isSaving = false;
   }
 }

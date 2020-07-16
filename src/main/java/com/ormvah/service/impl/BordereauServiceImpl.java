@@ -27,23 +27,12 @@ public class BordereauServiceImpl implements BordereauService {
         this.bordereauRepository = bordereauRepository;
     }
 
-    /**
-     * Save a bordereau.
-     *
-     * @param bordereau the entity to save.
-     * @return the persisted entity.
-     */
     @Override
     public Bordereau save(Bordereau bordereau) {
         log.debug("Request to save Bordereau : {}", bordereau);
         return bordereauRepository.save(bordereau);
     }
 
-    /**
-     * Get all the bordereaus.
-     *
-     * @return the list of entities.
-     */
     @Override
     @Transactional(readOnly = true)
     public List<Bordereau> findAll() {
@@ -52,12 +41,6 @@ public class BordereauServiceImpl implements BordereauService {
     }
 
 
-    /**
-     * Get one bordereau by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<Bordereau> findOne(Long id) {
@@ -65,11 +48,6 @@ public class BordereauServiceImpl implements BordereauService {
         return bordereauRepository.findById(id);
     }
 
-    /**
-     * Delete the bordereau by id.
-     *
-     * @param id the id of the entity.
-     */
     @Override
     public void delete(Long id) {
         log.debug("Request to delete Bordereau : {}", id);

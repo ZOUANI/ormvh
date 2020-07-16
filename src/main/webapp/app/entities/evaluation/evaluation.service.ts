@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import * as moment from 'moment';
-import { DATE_FORMAT } from 'app/shared/constants/input.constants';
 import { map } from 'rxjs/operators';
+import * as moment from 'moment';
 
 import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOption } from 'app/shared';
+import { createRequestOption } from 'app/shared/util/request-util';
 import { IEvaluation } from 'app/shared/model/evaluation.model';
 
 type EntityResponseType = HttpResponse<IEvaluation>;
@@ -45,22 +44,22 @@ export class EvaluationService {
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
-  delete(id: number): Observable<HttpResponse<any>> {
-    return this.http.delete<any>(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  delete(id: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
   protected convertDateFromClient(evaluation: IEvaluation): IEvaluation {
     const copy: IEvaluation = Object.assign({}, evaluation, {
-      createdAt: evaluation.createdAt != null && evaluation.createdAt.isValid() ? evaluation.createdAt.toJSON() : null,
-      updatedAt: evaluation.updatedAt != null && evaluation.updatedAt.isValid() ? evaluation.updatedAt.toJSON() : null
+      createdAt: evaluation.createdAt && evaluation.createdAt.isValid() ? evaluation.createdAt.toJSON() : undefined,
+      updatedAt: evaluation.updatedAt && evaluation.updatedAt.isValid() ? evaluation.updatedAt.toJSON() : undefined,
     });
     return copy;
   }
 
   protected convertDateFromServer(res: EntityResponseType): EntityResponseType {
     if (res.body) {
-      res.body.createdAt = res.body.createdAt != null ? moment(res.body.createdAt) : null;
-      res.body.updatedAt = res.body.updatedAt != null ? moment(res.body.updatedAt) : null;
+      res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
+      res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;
     }
     return res;
   }
@@ -68,8 +67,8 @@ export class EvaluationService {
   protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
     if (res.body) {
       res.body.forEach((evaluation: IEvaluation) => {
-        evaluation.createdAt = evaluation.createdAt != null ? moment(evaluation.createdAt) : null;
-        evaluation.updatedAt = evaluation.updatedAt != null ? moment(evaluation.updatedAt) : null;
+        evaluation.createdAt = evaluation.createdAt ? moment(evaluation.createdAt) : undefined;
+        evaluation.updatedAt = evaluation.updatedAt ? moment(evaluation.updatedAt) : undefined;
       });
     }
     return res;

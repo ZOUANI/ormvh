@@ -1,40 +1,16 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { JhiLanguageService } from 'ng-jhipster';
-import { JhiLanguageHelper } from 'app/core';
 
-import { OrmvahSharedModule } from 'app/shared';
-import {
-  ExpeditorComponent,
-  ExpeditorDetailComponent,
-  ExpeditorUpdateComponent,
-  ExpeditorDeletePopupComponent,
-  ExpeditorDeleteDialogComponent,
-  expeditorRoute,
-  expeditorPopupRoute
-} from './';
-
-const ENTITY_STATES = [...expeditorRoute, ...expeditorPopupRoute];
+import { OrmvahSharedModule } from 'app/shared/shared.module';
+import { ExpeditorComponent } from './expeditor.component';
+import { ExpeditorDetailComponent } from './expeditor-detail.component';
+import { ExpeditorUpdateComponent } from './expeditor-update.component';
+import { ExpeditorDeleteDialogComponent } from './expeditor-delete-dialog.component';
+import { expeditorRoute } from './expeditor.route';
 
 @NgModule({
-  imports: [OrmvahSharedModule, RouterModule.forChild(ENTITY_STATES)],
-  declarations: [
-    ExpeditorComponent,
-    ExpeditorDetailComponent,
-    ExpeditorUpdateComponent,
-    ExpeditorDeleteDialogComponent,
-    ExpeditorDeletePopupComponent
-  ],
-  entryComponents: [ExpeditorComponent, ExpeditorUpdateComponent, ExpeditorDeleteDialogComponent, ExpeditorDeletePopupComponent],
-  providers: [{ provide: JhiLanguageService, useClass: JhiLanguageService }],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  imports: [OrmvahSharedModule, RouterModule.forChild(expeditorRoute)],
+  declarations: [ExpeditorComponent, ExpeditorDetailComponent, ExpeditorUpdateComponent, ExpeditorDeleteDialogComponent],
+  entryComponents: [ExpeditorDeleteDialogComponent],
 })
-export class OrmvahExpeditorModule {
-  constructor(private languageService: JhiLanguageService, private languageHelper: JhiLanguageHelper) {
-    this.languageHelper.language.subscribe((languageKey: string) => {
-      if (languageKey !== undefined) {
-        this.languageService.changeLanguage(languageKey);
-      }
-    });
-  }
-}
+export class OrmvahExpeditorModule {}

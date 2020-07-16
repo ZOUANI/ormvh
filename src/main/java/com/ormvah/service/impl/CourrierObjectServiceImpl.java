@@ -27,23 +27,12 @@ public class CourrierObjectServiceImpl implements CourrierObjectService {
         this.courrierObjectRepository = courrierObjectRepository;
     }
 
-    /**
-     * Save a courrierObject.
-     *
-     * @param courrierObject the entity to save.
-     * @return the persisted entity.
-     */
     @Override
     public CourrierObject save(CourrierObject courrierObject) {
         log.debug("Request to save CourrierObject : {}", courrierObject);
         return courrierObjectRepository.save(courrierObject);
     }
 
-    /**
-     * Get all the courrierObjects.
-     *
-     * @return the list of entities.
-     */
     @Override
     @Transactional(readOnly = true)
     public List<CourrierObject> findAll() {
@@ -52,12 +41,6 @@ public class CourrierObjectServiceImpl implements CourrierObjectService {
     }
 
 
-    /**
-     * Get one courrierObject by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<CourrierObject> findOne(Long id) {
@@ -65,11 +48,6 @@ public class CourrierObjectServiceImpl implements CourrierObjectService {
         return courrierObjectRepository.findById(id);
     }
 
-    /**
-     * Delete the courrierObject by id.
-     *
-     * @param id the id of the entity.
-     */
     @Override
     public void delete(Long id) {
         log.debug("Request to delete CourrierObject : {}", id);

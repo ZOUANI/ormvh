@@ -1,26 +1,29 @@
 <div class="row justify-content-center">
     <div class="col-8">
         <div *ngIf="modelLettreReponse">
-            <h2><span jhiTranslate="ormvahApp.modelLettreReponse.detail.title">Model Lettre Reponse</span> {{modelLettreReponse.id}}</h2>
+            <h2><span jhiTranslate="ormvahApp.modelLettreReponse.detail.title">Model Lettre Reponse</span> {{ modelLettreReponse.id }}</h2>
+
             <hr>
+
             <jhi-alert-error></jhi-alert-error>
+
             <dl class="row-md jh-entity-details">
                 <dt><span jhiTranslate="ormvahApp.modelLettreReponse.libelle">Libelle</span></dt>
                 <dd>
-                    <span>{{modelLettreReponse.libelle}}</span>
+                    <span>{{ modelLettreReponse.libelle }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.modelLettreReponse.code">Code</span></dt>
                 <dd>
-                    <span>{{modelLettreReponse.code}}</span>
+                    <span>{{ modelLettreReponse.code }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.modelLettreReponse.chemin">Chemin</span></dt>
                 <dd>
-                    <span>{{modelLettreReponse.chemin}}</span>
+                    <span>{{ modelLettreReponse.chemin }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.modelLettreReponse.categorieModelLettreReponse">Categorie Model Lettre Reponse</span></dt>
                 <dd>
                     <div *ngIf="modelLettreReponse.categorieModelLettreReponse">
-                        <a [routerLink]="['/categorie-model-lettre-reponse', modelLettreReponse.categorieModelLettreReponse?.id, 'view']">{{modelLettreReponse.categorieModelLettreReponse?.id}}</a>
+                        <a [routerLink]="['/categorie-model-lettre-reponse', modelLettreReponse.categorieModelLettreReponse?.id, 'view']">{{ modelLettreReponse.categorieModelLettreReponse?.id }}</a>
                     </div>
                 </dd>
             </dl>
@@ -28,13 +31,13 @@
             <button type="submit"
                     (click)="previousState()"
                     class="btn btn-info">
-                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+                <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
             </button>
 
             <button type="button"
                     [routerLink]="['/model-lettre-reponse', modelLettreReponse.id, 'edit']"
                     class="btn btn-primary">
-                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+                <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
             </button>
         </div>
     </div>

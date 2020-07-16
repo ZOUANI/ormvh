@@ -5,20 +5,18 @@ import { IModelLettreReponse } from 'app/shared/model/model-lettre-reponse.model
 
 @Component({
   selector: 'jhi-model-lettre-reponse-detail',
-  templateUrl: './model-lettre-reponse-detail.component.html'
+  templateUrl: './model-lettre-reponse-detail.component.html',
 })
 export class ModelLettreReponseDetailComponent implements OnInit {
-  modelLettreReponse: IModelLettreReponse;
+  modelLettreReponse: IModelLettreReponse | null = null;
 
   constructor(protected activatedRoute: ActivatedRoute) {}
 
-  ngOnInit() {
-    this.activatedRoute.data.subscribe(({ modelLettreReponse }) => {
-      this.modelLettreReponse = modelLettreReponse;
-    });
+  ngOnInit(): void {
+    this.activatedRoute.data.subscribe(({ modelLettreReponse }) => (this.modelLettreReponse = modelLettreReponse));
   }
 
-  previousState() {
+  previousState(): void {
     window.history.back();
   }
 }

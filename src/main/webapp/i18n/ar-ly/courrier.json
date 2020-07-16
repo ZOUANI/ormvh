@@ -5,7 +5,7 @@
         "title": "Courriers",
         "createLabel": "Create a new Courrier",
         "createOrEditLabel": "Create or edit a Courrier",
-        "notFound": "No Courrier found"
+        "notFound": "No Courriers found"
       },
       "created": "A new Courrier is created with identifier {{ param }}",
       "updated": "A Courrier is updated with identifier {{ param }}",

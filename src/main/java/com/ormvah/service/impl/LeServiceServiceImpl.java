@@ -28,24 +28,12 @@ public class LeServiceServiceImpl implements LeServiceService {
         this.leServiceRepository = leServiceRepository;
     }
 
-    /**
-     * Save a leService.
-     *
-     * @param leService the entity to save.
-     * @return the persisted entity.
-     */
     @Override
     public LeService save(LeService leService) {
         log.debug("Request to save LeService : {}", leService);
         return leServiceRepository.save(leService);
     }
 
-    /**
-     * Get all the leServices.
-     *
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
     @Override
     @Transactional(readOnly = true)
     public Page<LeService> findAll(Pageable pageable) {
@@ -54,12 +42,6 @@ public class LeServiceServiceImpl implements LeServiceService {
     }
 
 
-    /**
-     * Get one leService by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<LeService> findOne(Long id) {
@@ -67,11 +49,6 @@ public class LeServiceServiceImpl implements LeServiceService {
         return leServiceRepository.findById(id);
     }
 
-    /**
-     * Delete the leService by id.
-     *
-     * @param id the id of the entity.
-     */
     @Override
     public void delete(Long id) {
         log.debug("Request to delete LeService : {}", id);

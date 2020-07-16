@@ -4,36 +4,33 @@ import com.ormvah.OrmvahApp;
 import com.ormvah.domain.NatureCourrier;
 import com.ormvah.repository.NatureCourrierRepository;
 import com.ormvah.service.NatureCourrierService;
-import com.ormvah.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static com.ormvah.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link NatureCourrierResource} REST controller.
+ * Integration tests for the {@link NatureCourrierResource} REST controller.
  */
 @SpringBootTest(classes = OrmvahApp.class)
+@AutoConfigureMockMvc
+@WithMockUser
 public class NatureCourrierResourceIT {
 
     private static final String DEFAULT_LIBELLE = "AAAAAAAAAA";
@@ -64,35 +61,12 @@ public class NatureCourrierResourceIT {
     private NatureCourrierService natureCourrierService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restNatureCourrierMockMvc;
 
     private NatureCourrier natureCourrier;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final NatureCourrierResource natureCourrierResource = new NatureCourrierResource(natureCourrierService);
-        this.restNatureCourrierMockMvc = MockMvcBuilders.standaloneSetup(natureCourrierResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -138,10 +112,9 @@ public class NatureCourrierResourceIT {
     @Transactional
     public void createNatureCourrier() throws Exception {
         int databaseSizeBeforeCreate = natureCourrierRepository.findAll().size();
-
         // Create the NatureCourrier
-        restNatureCourrierMockMvc.perform(post("/api/nature-courriers")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restNatureCourrierMockMvc.perform(post("/api/nature-courriers").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(natureCourrier)))
             .andExpect(status().isCreated());
 
@@ -167,8 +140,8 @@ public class NatureCourrierResourceIT {
         natureCourrier.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restNatureCourrierMockMvc.perform(post("/api/nature-courriers")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restNatureCourrierMockMvc.perform(post("/api/nature-courriers").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(natureCourrier)))
             .andExpect(status().isBadRequest());
 
@@ -187,8 +160,9 @@ public class NatureCourrierResourceIT {
 
         // Create the NatureCourrier, which fails.
 
-        restNatureCourrierMockMvc.perform(post("/api/nature-courriers")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+
+        restNatureCourrierMockMvc.perform(post("/api/nature-courriers").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(natureCourrier)))
             .andExpect(status().isBadRequest());
 
@@ -205,15 +179,15 @@ public class NatureCourrierResourceIT {
         // Get all the natureCourrierList
         restNatureCourrierMockMvc.perform(get("/api/nature-courriers?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(natureCourrier.getId().intValue())))
-            .andExpect(jsonPath("$.[*].libelle").value(hasItem(DEFAULT_LIBELLE.toString())))
+            .andExpect(jsonPath("$.[*].libelle").value(hasItem(DEFAULT_LIBELLE)))
             .andExpect(jsonPath("$.[*].delai").value(hasItem(DEFAULT_DELAI.doubleValue())))
             .andExpect(jsonPath("$.[*].relance").value(hasItem(DEFAULT_RELANCE.doubleValue())))
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
             .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())))
-            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(DEFAULT_CREATED_BY.toString())))
-            .andExpect(jsonPath("$.[*].updatedBy").value(hasItem(DEFAULT_UPDATED_BY.toString())));
+            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(DEFAULT_CREATED_BY)))
+            .andExpect(jsonPath("$.[*].updatedBy").value(hasItem(DEFAULT_UPDATED_BY)));
     }
     
     @Test
@@ -225,17 +199,16 @@ public class NatureCourrierResourceIT {
         // Get the natureCourrier
         restNatureCourrierMockMvc.perform(get("/api/nature-courriers/{id}", natureCourrier.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(natureCourrier.getId().intValue()))
-            .andExpect(jsonPath("$.libelle").value(DEFAULT_LIBELLE.toString()))
+            .andExpect(jsonPath("$.libelle").value(DEFAULT_LIBELLE))
             .andExpect(jsonPath("$.delai").value(DEFAULT_DELAI.doubleValue()))
             .andExpect(jsonPath("$.relance").value(DEFAULT_RELANCE.doubleValue()))
             .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
             .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()))
-            .andExpect(jsonPath("$.createdBy").value(DEFAULT_CREATED_BY.toString()))
-            .andExpect(jsonPath("$.updatedBy").value(DEFAULT_UPDATED_BY.toString()));
+            .andExpect(jsonPath("$.createdBy").value(DEFAULT_CREATED_BY))
+            .andExpect(jsonPath("$.updatedBy").value(DEFAULT_UPDATED_BY));
     }
-
     @Test
     @Transactional
     public void getNonExistingNatureCourrier() throws Exception {
@@ -265,8 +238,8 @@ public class NatureCourrierResourceIT {
             .createdBy(UPDATED_CREATED_BY)
             .updatedBy(UPDATED_UPDATED_BY);
 
-        restNatureCourrierMockMvc.perform(put("/api/nature-courriers")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restNatureCourrierMockMvc.perform(put("/api/nature-courriers").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedNatureCourrier)))
             .andExpect(status().isOk());
 
@@ -288,11 +261,9 @@ public class NatureCourrierResourceIT {
     public void updateNonExistingNatureCourrier() throws Exception {
         int databaseSizeBeforeUpdate = natureCourrierRepository.findAll().size();
 
-        // Create the NatureCourrier
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restNatureCourrierMockMvc.perform(put("/api/nature-courriers")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restNatureCourrierMockMvc.perform(put("/api/nature-courriers").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(natureCourrier)))
             .andExpect(status().isBadRequest());
 
@@ -310,27 +281,12 @@ public class NatureCourrierResourceIT {
         int databaseSizeBeforeDelete = natureCourrierRepository.findAll().size();
 
         // Delete the natureCourrier
-        restNatureCourrierMockMvc.perform(delete("/api/nature-courriers/{id}", natureCourrier.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+        restNatureCourrierMockMvc.perform(delete("/api/nature-courriers/{id}", natureCourrier.getId()).with(csrf())
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
         List<NatureCourrier> natureCourrierList = natureCourrierRepository.findAll();
         assertThat(natureCourrierList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(NatureCourrier.class);
-        NatureCourrier natureCourrier1 = new NatureCourrier();
-        natureCourrier1.setId(1L);
-        NatureCourrier natureCourrier2 = new NatureCourrier();
-        natureCourrier2.setId(natureCourrier1.getId());
-        assertThat(natureCourrier1).isEqualTo(natureCourrier2);
-        natureCourrier2.setId(2L);
-        assertThat(natureCourrier1).isNotEqualTo(natureCourrier2);
-        natureCourrier1.setId(null);
-        assertThat(natureCourrier1).isNotEqualTo(natureCourrier2);
     }
 }

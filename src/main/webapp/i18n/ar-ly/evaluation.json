@@ -5,7 +5,7 @@
         "title": "Evaluations",
         "createLabel": "Create a new Evaluation",
         "createOrEditLabel": "Create or edit a Evaluation",
-        "notFound": "No Evaluation found"
+        "notFound": "No Evaluations found"
       },
       "created": "A new Evaluation is created with identifier {{ param }}",
       "updated": "A Evaluation is updated with identifier {{ param }}",

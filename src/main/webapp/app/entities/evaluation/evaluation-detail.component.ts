@@ -5,20 +5,18 @@ import { IEvaluation } from 'app/shared/model/evaluation.model';
 
 @Component({
   selector: 'jhi-evaluation-detail',
-  templateUrl: './evaluation-detail.component.html'
+  templateUrl: './evaluation-detail.component.html',
 })
 export class EvaluationDetailComponent implements OnInit {
-  evaluation: IEvaluation;
+  evaluation: IEvaluation | null = null;
 
   constructor(protected activatedRoute: ActivatedRoute) {}
 
-  ngOnInit() {
-    this.activatedRoute.data.subscribe(({ evaluation }) => {
-      this.evaluation = evaluation;
-    });
+  ngOnInit(): void {
+    this.activatedRoute.data.subscribe(({ evaluation }) => (this.evaluation = evaluation));
   }
 
-  previousState() {
+  previousState(): void {
     window.history.back();
   }
 }

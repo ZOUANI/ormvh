@@ -1,177 +1,180 @@
 <div class="row justify-content-center">
     <div class="col-8">
         <div *ngIf="courrier">
-            <h2><span jhiTranslate="ormvahApp.courrier.detail.title">Courrier</span> {{courrier.id}}</h2>
+            <h2><span jhiTranslate="ormvahApp.courrier.detail.title">Courrier</span> {{ courrier.id }}</h2>
+
             <hr>
+
             <jhi-alert-error></jhi-alert-error>
+
             <dl class="row-md jh-entity-details">
                 <dt><span jhiTranslate="ormvahApp.courrier.idCourrier" [ngbTooltip]="'ormvahApp.courrier.help.idCourrier' | translate">Id Courrier</span></dt>
                 <dd>
-                    <span>{{courrier.idCourrier}}</span>
+                    <span>{{ courrier.idCourrier }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.subject" [ngbTooltip]="'ormvahApp.courrier.help.subject' | translate">Subject</span></dt>
                 <dd>
-                    <span>{{courrier.subject}}</span>
+                    <span>{{ courrier.subject }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.description">Description</span></dt>
                 <dd>
-                    <span>{{courrier.description}}</span>
+                    <span>{{ courrier.description }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.typeCourrier" [ngbTooltip]="'ormvahApp.courrier.help.typeCourrier' | translate">Type Courrier</span></dt>
                 <dd>
-                    <span jhiTranslate="{{'ormvahApp.TypeCourrier.' + courrier.typeCourrier}}">{{courrier.typeCourrier}}</span>
+                    <span jhiTranslate="{{ 'ormvahApp.TypeCourrier.' + courrier.typeCourrier }}">{{ courrier.typeCourrier }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.createdAt">Created At</span></dt>
                 <dd>
-                    <span>{{courrier.createdAt}}</span>
+                    <span>{{ courrier.createdAt }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.updatedAt">Updated At</span></dt>
                 <dd>
-                    <span>{{courrier.updatedAt}}</span>
+                    <span>{{ courrier.updatedAt }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.createdBy">Created By</span></dt>
                 <dd>
-                    <span>{{courrier.createdBy}}</span>
+                    <span>{{ courrier.createdBy }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.updatedBy">Updated By</span></dt>
                 <dd>
-                    <span>{{courrier.updatedBy}}</span>
+                    <span>{{ courrier.updatedBy }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.delai">Delai</span></dt>
                 <dd>
-                    <span>{{courrier.delai}}</span>
+                    <span>{{ courrier.delai }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.relance">Relance</span></dt>
                 <dd>
-                    <span>{{courrier.relance}}</span>
+                    <span>{{ courrier.relance }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.accuse">Accuse</span></dt>
                 <dd>
-                    <span>{{courrier.accuse}}</span>
+                    <span>{{ courrier.accuse }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.reponse">Reponse</span></dt>
                 <dd>
-                    <span>{{courrier.reponse}}</span>
+                    <span>{{ courrier.reponse }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.dateAccuse">Date Accuse</span></dt>
                 <dd>
-                    <span>{{courrier.dateAccuse}}</span>
+                    <span>{{ courrier.dateAccuse }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.dateReponse">Date Reponse</span></dt>
                 <dd>
-                    <span>{{courrier.dateReponse}}</span>
+                    <span>{{ courrier.dateReponse }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.status" [ngbTooltip]="'ormvahApp.courrier.help.status' | translate">Status</span></dt>
                 <dd>
-                    <span jhiTranslate="{{'ormvahApp.Status.' + courrier.status}}">{{courrier.status}}</span>
+                    <span jhiTranslate="{{ 'ormvahApp.Status.' + courrier.status }}">{{ courrier.status }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.data">Data</span></dt>
                 <dd>
                     <div *ngIf="courrier.data">
                         <a (click)="openFile(courrier.dataContentType, courrier.data)" jhiTranslate="entity.action.open">open</a>
-                        {{courrier.dataContentType}}, {{byteSize(courrier.data)}}
+                        {{ courrier.dataContentType }}, {{ byteSize(courrier.data) }}
                     </div>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.receivedAt" [ngbTooltip]="'ormvahApp.courrier.help.receivedAt' | translate">Received At</span></dt>
                 <dd>
-                    <span>{{courrier.receivedAt}}</span>
+                    <span>{{ courrier.receivedAt }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.instruction">Instruction</span></dt>
                 <dd>
-                    <span>{{courrier.instruction}}</span>
+                    <span>{{ courrier.instruction }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.expediteurDesc" [ngbTooltip]="'ormvahApp.courrier.help.expediteurDesc' | translate">Expediteur Desc</span></dt>
                 <dd>
-                    <span>{{courrier.expediteurDesc}}</span>
+                    <span>{{ courrier.expediteurDesc }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.sentAt" [ngbTooltip]="'ormvahApp.courrier.help.sentAt' | translate">Sent At</span></dt>
                 <dd>
-                    <span>{{courrier.sentAt}}</span>
+                    <span>{{ courrier.sentAt }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.destinataireDesc" [ngbTooltip]="'ormvahApp.courrier.help.destinataireDesc' | translate">Destinataire Desc</span></dt>
                 <dd>
-                    <span>{{courrier.destinataireDesc}}</span>
+                    <span>{{ courrier.destinataireDesc }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.destinataireVille" [ngbTooltip]="'ormvahApp.courrier.help.destinataireVille' | translate">Destinataire Ville</span></dt>
                 <dd>
-                    <span>{{courrier.destinataireVille}}</span>
+                    <span>{{ courrier.destinataireVille }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.voie">Voie</span></dt>
                 <dd>
                     <div *ngIf="courrier.voie">
-                        <a [routerLink]="['/voie', courrier.voie?.id, 'view']">{{courrier.voie?.id}}</a>
+                        <a [routerLink]="['/voie', courrier.voie?.id, 'view']">{{ courrier.voie?.id }}</a>
                     </div>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.natureCourrier">Nature Courrier</span></dt>
                 <dd>
                     <div *ngIf="courrier.natureCourrier">
-                        <a [routerLink]="['/nature-courrier', courrier.natureCourrier?.id, 'view']">{{courrier.natureCourrier?.id}}</a>
+                        <a [routerLink]="['/nature-courrier', courrier.natureCourrier?.id, 'view']">{{ courrier.natureCourrier?.id }}</a>
                     </div>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.linkedTo">Linked To</span></dt>
                 <dd>
                     <div *ngIf="courrier.linkedTo">
-                        <a [routerLink]="['/courrier', courrier.linkedTo?.id, 'view']">{{courrier.linkedTo?.id}}</a>
+                        <a [routerLink]="['/courrier', courrier.linkedTo?.id, 'view']">{{ courrier.linkedTo?.id }}</a>
                     </div>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.expeditor">Expeditor</span></dt>
                 <dd>
                     <div *ngIf="courrier.expeditor">
-                        <a [routerLink]="['/expeditor', courrier.expeditor?.id, 'view']">{{courrier.expeditor?.id}}</a>
+                        <a [routerLink]="['/expeditor', courrier.expeditor?.id, 'view']">{{ courrier.expeditor?.id }}</a>
                     </div>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.destinator">Destinator</span></dt>
                 <dd>
                     <div *ngIf="courrier.destinator">
-                        <a [routerLink]="['/expeditor', courrier.destinator?.id, 'view']">{{courrier.destinator?.id}}</a>
+                        <a [routerLink]="['/expeditor', courrier.destinator?.id, 'view']">{{ courrier.destinator?.id }}</a>
                     </div>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.coordinator">Coordinator</span></dt>
                 <dd>
                     <div *ngIf="courrier.coordinator">
-                        <a [routerLink]="['/le-service', courrier.coordinator?.id, 'view']">{{courrier.coordinator?.id}}</a>
+                        <a [routerLink]="['/le-service', courrier.coordinator?.id, 'view']">{{ courrier.coordinator?.id }}</a>
                     </div>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.emetteur">Emetteur</span></dt>
                 <dd>
                     <div *ngIf="courrier.emetteur">
-                        <a [routerLink]="['/le-service', courrier.emetteur?.id, 'view']">{{courrier.emetteur?.id}}</a>
+                        <a [routerLink]="['/le-service', courrier.emetteur?.id, 'view']">{{ courrier.emetteur?.id }}</a>
                     </div>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.evaluation">Evaluation</span></dt>
                 <dd>
                     <div *ngIf="courrier.evaluation">
-                        <a [routerLink]="['/evaluation', courrier.evaluation?.id, 'view']">{{courrier.evaluation?.id}}</a>
+                        <a [routerLink]="['/evaluation', courrier.evaluation?.id, 'view']">{{ courrier.evaluation?.id }}</a>
                     </div>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.courrierObject">Courrier Object</span></dt>
                 <dd>
                     <div *ngIf="courrier.courrierObject">
-                        <a [routerLink]="['/courrier-object', courrier.courrierObject?.id, 'view']">{{courrier.courrierObject?.id}}</a>
+                        <a [routerLink]="['/courrier-object', courrier.courrierObject?.id, 'view']">{{ courrier.courrierObject?.id }}</a>
                     </div>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.expeditorType">Expeditor Type</span></dt>
                 <dd>
                     <div *ngIf="courrier.expeditorType">
-                        <a [routerLink]="['/expeditor-type', courrier.expeditorType?.id, 'view']">{{courrier.expeditorType?.id}}</a>
+                        <a [routerLink]="['/expeditor-type', courrier.expeditorType?.id, 'view']">{{ courrier.expeditorType?.id }}</a>
                     </div>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.subdivision">Subdivision</span></dt>
                 <dd>
                     <div *ngIf="courrier.subdivision">
-                        <a [routerLink]="['/subdivision', courrier.subdivision?.id, 'view']">{{courrier.subdivision?.id}}</a>
+                        <a [routerLink]="['/subdivision', courrier.subdivision?.id, 'view']">{{ courrier.subdivision?.id }}</a>
                     </div>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.services">Services</span></dt>
                 <dd>
                     <span *ngFor="let services of courrier.services; let last = last">
-                        <a [routerLink]="['/le-service', services?.id, 'view' ]">{{services.id}}</a>{{last ? '' : ', '}}
+                        <a [routerLink]="['/le-service', services?.id, 'view']">{{ services.id }}</a>{{ last ? '' : ', ' }}
                     </span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.courrier.bordereau">Bordereau</span></dt>
                 <dd>
                     <div *ngIf="courrier.bordereau">
-                        <a [routerLink]="['/bordereau', courrier.bordereau?.id, 'view']">{{courrier.bordereau?.id}}</a>
+                        <a [routerLink]="['/bordereau', courrier.bordereau?.id, 'view']">{{ courrier.bordereau?.id }}</a>
                     </div>
                 </dd>
             </dl>
@@ -179,13 +182,13 @@
             <button type="submit"
                     (click)="previousState()"
                     class="btn btn-info">
-                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+                <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
             </button>
 
             <button type="button"
                     [routerLink]="['/courrier', courrier.id, 'edit']"
                     class="btn btn-primary">
-                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+                <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
             </button>
         </div>
     </div>

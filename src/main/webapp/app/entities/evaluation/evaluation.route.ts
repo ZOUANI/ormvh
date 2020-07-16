@@ -1,27 +1,33 @@
 import { Injectable } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Routes } from '@angular/router';
-import { UserRouteAccessService } from 'app/core';
-import { Observable, of } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { Evaluation } from 'app/shared/model/evaluation.model';
+import { Resolve, ActivatedRouteSnapshot, Routes, Router } from '@angular/router';
+import { Observable, of, EMPTY } from 'rxjs';
+import { flatMap } from 'rxjs/operators';
+
+import { Authority } from 'app/shared/constants/authority.constants';
+import { UserRouteAccessService } from 'app/core/auth/user-route-access-service';
+import { IEvaluation, Evaluation } from 'app/shared/model/evaluation.model';
 import { EvaluationService } from './evaluation.service';
 import { EvaluationComponent } from './evaluation.component';
 import { EvaluationDetailComponent } from './evaluation-detail.component';
 import { EvaluationUpdateComponent } from './evaluation-update.component';
-import { EvaluationDeletePopupComponent } from './evaluation-delete-dialog.component';
-import { IEvaluation } from 'app/shared/model/evaluation.model';
 
 @Injectable({ providedIn: 'root' })
 export class EvaluationResolve implements Resolve<IEvaluation> {
-  constructor(private service: EvaluationService) {}
+  constructor(private service: EvaluationService, private router: Router) {}
 
-  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<IEvaluation> {
-    const id = route.params['id'] ? route.params['id'] : null;
+  resolve(route: ActivatedRouteSnapshot): Observable<IEvaluation> | Observable<never> {
+    const id = route.params['id'];
     if (id) {
       return this.service.find(id).pipe(
-        filter((response: HttpResponse<Evaluation>) => response.ok),
-        map((evaluation: HttpResponse<Evaluation>) => evaluation.body)
+        flatMap((evaluation: HttpResponse<Evaluation>) => {
+          if (evaluation.body) {
+            return of(evaluation.body);
+          } else {
+            this.router.navigate(['404']);
+            return EMPTY;
+          }
+        })
       );
     }
     return of(new Evaluation());
@@ -33,61 +39,45 @@ export const evaluationRoute: Routes = [
     path: '',
     component: EvaluationComponent,
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'ormvahApp.evaluation.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'ormvahApp.evaluation.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/view',
     component: EvaluationDetailComponent,
     resolve: {
-      evaluation: EvaluationResolve
+      evaluation: EvaluationResolve,
     },
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'ormvahApp.evaluation.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'ormvahApp.evaluation.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: 'new',
     component: EvaluationUpdateComponent,
     resolve: {
-      evaluation: EvaluationResolve
+      evaluation: EvaluationResolve,
     },
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'ormvahApp.evaluation.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'ormvahApp.evaluation.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/edit',
     component: EvaluationUpdateComponent,
     resolve: {
-      evaluation: EvaluationResolve
+      evaluation: EvaluationResolve,
     },
     data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'ormvahApp.evaluation.home.title'
-    },
-    canActivate: [UserRouteAccessService]
-  }
-];
-
-export const evaluationPopupRoute: Routes = [
-  {
-    path: ':id/delete',
-    component: EvaluationDeletePopupComponent,
-    resolve: {
-      evaluation: EvaluationResolve
-    },
-    data: {
-      authorities: ['ROLE_USER'],
-      pageTitle: 'ormvahApp.evaluation.home.title'
+      authorities: [Authority.USER],
+      pageTitle: 'ormvahApp.evaluation.home.title',
     },
     canActivate: [UserRouteAccessService],
-    outlet: 'popup'
-  }
+  },
 ];

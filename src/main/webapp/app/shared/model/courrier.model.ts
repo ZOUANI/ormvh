@@ -1,7 +1,6 @@
 import { Moment } from 'moment';
 import { IVoie } from 'app/shared/model/voie.model';
 import { INatureCourrier } from 'app/shared/model/nature-courrier.model';
-import { ICourrier } from 'app/shared/model/courrier.model';
 import { ITask } from 'app/shared/model/task.model';
 import { IExpeditor } from 'app/shared/model/expeditor.model';
 import { ILeService } from 'app/shared/model/le-service.model';
@@ -10,17 +9,8 @@ import { ICourrierObject } from 'app/shared/model/courrier-object.model';
 import { IExpeditorType } from 'app/shared/model/expeditor-type.model';
 import { ISubdivision } from 'app/shared/model/subdivision.model';
 import { IBordereau } from 'app/shared/model/bordereau.model';
-
-export const enum TypeCourrier {
-  Arrivee = 'Arrivee',
-  Sortie = 'Sortie'
-}
-
-export const enum Status {
-  Ouvert = 'Ouvert',
-  Encours = 'Encours',
-  Traite = 'Traite'
-}
+import { TypeCourrier } from 'app/shared/model/enumerations/type-courrier.model';
+import { Status } from 'app/shared/model/enumerations/status.model';
 
 export interface ICourrier {
   id?: number;

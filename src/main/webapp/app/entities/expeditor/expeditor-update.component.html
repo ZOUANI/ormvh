@@ -2,81 +2,94 @@
     <div class="col-8">
         <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
             <h2 id="jhi-expeditor-heading" jhiTranslate="ormvahApp.expeditor.home.createOrEditLabel">Create or edit a Expeditor</h2>
+
             <div>
                 <jhi-alert-error></jhi-alert-error>
-                <div class="form-group" [hidden]="!editForm.get('id').value">
+
+                <div class="form-group" [hidden]="!editForm.get('id')!.value">
                     <label for="id" jhiTranslate="global.field.id">ID</label>
-                    <input type="text" class="form-control" id="id" name="id" formControlName="id"
-                        readonly />
+                    <input type="text" class="form-control" id="id" name="id" formControlName="id" readonly />
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.expeditor.title" for="field_title">Title</label>
                     <input type="text" class="form-control" name="title" id="field_title"
                            formControlName="title"/>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.expeditor.description" for="field_description">Description</label>
                     <input type="text" class="form-control" name="description" id="field_description"
                            formControlName="description"/>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.expeditor.nature" for="field_nature">Nature</label>
                     <input type="text" class="form-control" name="nature" id="field_nature"
                            formControlName="nature"/>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.expeditor.sexe" for="field_sexe">Sexe</label>
                     <select class="form-control" name="sexe" formControlName="sexe" id="field_sexe">
-                        <option value="Homme">{{'ormvahApp.Sexe.Homme' | translate}}</option>
-                        <option value="Femme">{{'ormvahApp.Sexe.Femme' | translate}}</option>
-                        <option value="Unknown">{{'ormvahApp.Sexe.Unknown' | translate}}</option>
+                        <option value="Homme">{{ 'ormvahApp.Sexe.Homme' | translate }}</option>
+                        <option value="Femme">{{ 'ormvahApp.Sexe.Femme' | translate }}</option>
+                        <option value="Unknown">{{ 'ormvahApp.Sexe.Unknown' | translate }}</option>
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.expeditor.age" for="field_age">Age</label>
                     <input type="number" class="form-control" name="age" id="field_age"
                            formControlName="age"/>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.expeditor.nationality" for="field_nationality">Nationality</label>
                     <input type="text" class="form-control" name="nationality" id="field_nationality"
                            formControlName="nationality"/>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.expeditor.adress" for="field_adress">Adress</label>
                     <input type="text" class="form-control" name="adress" id="field_adress"
                            formControlName="adress"/>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.expeditor.createdAt" for="field_createdAt">Created At</label>
                     <div class="d-flex">
                         <input id="field_createdAt" type="datetime-local" class="form-control" name="createdAt" formControlName="createdAt" placeholder="YYYY-MM-DD HH:mm"/>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.expeditor.updatedAt" for="field_updatedAt">Updated At</label>
                     <div class="d-flex">
                         <input id="field_updatedAt" type="datetime-local" class="form-control" name="updatedAt" formControlName="updatedAt" placeholder="YYYY-MM-DD HH:mm"/>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.expeditor.createdBy" for="field_createdBy">Created By</label>
                     <input type="text" class="form-control" name="createdBy" id="field_createdBy"
                            formControlName="createdBy"/>
                 </div>
+
                 <div class="form-group">
                     <label class="form-control-label" jhiTranslate="ormvahApp.expeditor.updatedBy" for="field_updatedBy">Updated By</label>
                     <input type="text" class="form-control" name="updatedBy" id="field_updatedBy"
                            formControlName="updatedBy"/>
                 </div>
-
             </div>
+
             <div>
-                <button type="button" id="cancel-save" class="btn btn-secondary"  (click)="previousState()">
-                    <fa-icon [icon]="'ban'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+                <button type="button" id="cancel-save" class="btn btn-secondary" (click)="previousState()">
+                    <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
                 </button>
+
                 <button type="submit" id="save-entity" [disabled]="editForm.invalid || isSaving" class="btn btn-primary">
-                    <fa-icon [icon]="'save'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+                    <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
                 </button>
             </div>
         </form>

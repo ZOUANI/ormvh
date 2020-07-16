@@ -3,10 +3,10 @@
     xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
     xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.6.xsd
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.9.xsd
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
-    <property name="autoIncrement" value="true"/>
+        <property name="autoIncrement" value="true"/>
 
     <!--
         Added the entity Courrier.
@@ -19,139 +19,110 @@
             <column name="id_courrier" type="varchar(255)" remarks="Identifiant du courrier">
                 <constraints nullable="true" />
             </column>
-
             <column name="subject" type="varchar(255)" remarks="Objet">
                 <constraints nullable="true" />
             </column>
-
             <column name="description" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-
             <column name="type_courrier" type="varchar(255)" remarks="Arrivée / Sortie">
                 <constraints nullable="true" />
             </column>
-
             <column name="created_at" type="datetime">
                 <constraints nullable="true" />
             </column>
-
             <column name="updated_at" type="datetime">
                 <constraints nullable="true" />
             </column>
-
             <column name="created_by" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-
             <column name="updated_by" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-
             <column name="delai" type="double">
                 <constraints nullable="true" />
             </column>
-
             <column name="relance" type="double">
                 <constraints nullable="true" />
             </column>
-
             <column name="accuse" type="boolean">
                 <constraints nullable="true" />
             </column>
-
             <column name="reponse" type="boolean">
                 <constraints nullable="true" />
             </column>
-
             <column name="date_accuse" type="date">
                 <constraints nullable="true" />
             </column>
-
             <column name="date_reponse" type="date">
                 <constraints nullable="true" />
             </column>
-
             <column name="status" type="varchar(255)" remarks="status">
                 <constraints nullable="true" />
             </column>
-
             <column name="data" type="longblob">
                 <constraints nullable="true" />
             </column>
             <column name="data_content_type" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-
             <column name="received_at" type="datetime" remarks="Date d&apos;arrivée">
                 <constraints nullable="true" />
             </column>
-
             <column name="instruction" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-
             <column name="expediteur_desc" type="varchar(255)" remarks="Expediteur description">
                 <constraints nullable="true" />
             </column>
-
             <column name="sent_at" type="datetime" remarks="Date d&apos;envoie">
                 <constraints nullable="true" />
             </column>
-
             <column name="destinataire_desc" type="varchar(255)" remarks="destinataire description">
                 <constraints nullable="true" />
             </column>
-
             <column name="destinataire_ville" type="varchar(255)" remarks="destinataire ville">
                 <constraints nullable="true" />
             </column>
             <column name="voie_id" type="bigint">
                 <constraints unique="true" nullable="true" uniqueConstraintName="ux_courrier_voie_id" />
-            </column>            <column name="nature_courrier_id" type="bigint">
+            </column>
+            <column name="nature_courrier_id" type="bigint">
                 <constraints unique="true" nullable="true" uniqueConstraintName="ux_courrier_nature_courrier_id" />
-            </column>            <column name="linked_to_id" type="bigint">
+            </column>
+            <column name="linked_to_id" type="bigint">
                 <constraints unique="true" nullable="true" uniqueConstraintName="ux_courrier_linked_to_id" />
             </column>
             <column name="expeditor_id" type="bigint">
                 <constraints nullable="true" />
             </column>
-
             <column name="destinator_id" type="bigint">
                 <constraints nullable="true" />
             </column>
-
             <column name="coordinator_id" type="bigint">
                 <constraints nullable="true" />
             </column>
-
             <column name="emetteur_id" type="bigint">
                 <constraints nullable="true" />
             </column>
-
             <column name="evaluation_id" type="bigint">
                 <constraints nullable="true" />
             </column>
-
             <column name="courrier_object_id" type="bigint">
                 <constraints nullable="true" />
             </column>
-
             <column name="expeditor_type_id" type="bigint">
                 <constraints nullable="true" />
             </column>
-
             <column name="subdivision_id" type="bigint">
                 <constraints nullable="true" />
             </column>
-
             <column name="bordereau_id" type="bigint">
                 <constraints nullable="true" />
             </column>
-
-            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-
         <dropDefaultValue tableName="courrier" columnName="created_at" columnDataType="datetime"/>
         <dropDefaultValue tableName="courrier" columnName="updated_at" columnDataType="datetime"/>
         <dropDefaultValue tableName="courrier" columnName="received_at" columnDataType="datetime"/>
@@ -172,19 +143,19 @@
         <addPrimaryKey columnNames="courrier_id, services_id" tableName="courrier_services"/>
         
     </changeSet>
-    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
 
     <!--
         Load sample data generated with Faker.js
         - This data can be easily edited using a CSV editor (or even MS Excel) and
-          is located in the 'src/main/resources/config/liquibase/data' directory
+          is located in the 'src/main/resources/config/liquibase/fake-data' directory
         - By default this data is applied when running with the JHipster 'dev' profile.
           This can be customized by adding or removing 'faker' in the 'spring.liquibase.contexts'
           Spring Boot configuration key.
     -->
     <changeSet id="20200713001202-1-data" author="jhipster" context="faker">
         <loadData
-                  file="config/liquibase/data/courrier.csv"
+                  file="config/liquibase/fake-data/courrier.csv"
                   separator=";"
                   tableName="courrier">
             <column name="id" type="numeric"/>
@@ -211,7 +182,7 @@
             <column name="sent_at" type="datetime"/>
             <column name="destinataire_desc" type="string"/>
             <column name="destinataire_ville" type="string"/>
-            <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here, do not remove-->
+            <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>
 

@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import * as moment from 'moment';
-import { DATE_FORMAT } from 'app/shared/constants/input.constants';
 import { map } from 'rxjs/operators';
+import * as moment from 'moment';
 
+import { DATE_FORMAT } from 'app/shared/constants/input.constants';
 import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOption } from 'app/shared';
+import { createRequestOption } from 'app/shared/util/request-util';
 import { IBordereau } from 'app/shared/model/bordereau.model';
 
 type EntityResponseType = HttpResponse<IBordereau>;
@@ -45,21 +45,21 @@ export class BordereauService {
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
-  delete(id: number): Observable<HttpResponse<any>> {
-    return this.http.delete<any>(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  delete(id: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
   protected convertDateFromClient(bordereau: IBordereau): IBordereau {
     const copy: IBordereau = Object.assign({}, bordereau, {
       dateBordereaux:
-        bordereau.dateBordereaux != null && bordereau.dateBordereaux.isValid() ? bordereau.dateBordereaux.format(DATE_FORMAT) : null
+        bordereau.dateBordereaux && bordereau.dateBordereaux.isValid() ? bordereau.dateBordereaux.format(DATE_FORMAT) : undefined,
     });
     return copy;
   }
 
   protected convertDateFromServer(res: EntityResponseType): EntityResponseType {
     if (res.body) {
-      res.body.dateBordereaux = res.body.dateBordereaux != null ? moment(res.body.dateBordereaux) : null;
+      res.body.dateBordereaux = res.body.dateBordereaux ? moment(res.body.dateBordereaux) : undefined;
     }
     return res;
   }
@@ -67,7 +67,7 @@ export class BordereauService {
   protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
     if (res.body) {
       res.body.forEach((bordereau: IBordereau) => {
-        bordereau.dateBordereaux = bordereau.dateBordereaux != null ? moment(bordereau.dateBordereaux) : null;
+        bordereau.dateBordereaux = bordereau.dateBordereaux ? moment(bordereau.dateBordereaux) : undefined;
       });
     }
     return res;

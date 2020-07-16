@@ -5,38 +5,35 @@ import com.ormvah.domain.LeService;
 import com.ormvah.domain.Courrier;
 import com.ormvah.repository.LeServiceRepository;
 import com.ormvah.service.LeServiceService;
-import com.ormvah.web.rest.errors.ExceptionTranslator;
 import com.ormvah.service.dto.LeServiceCriteria;
 import com.ormvah.service.LeServiceQueryService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static com.ormvah.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link LeServiceResource} REST controller.
+ * Integration tests for the {@link LeServiceResource} REST controller.
  */
 @SpringBootTest(classes = OrmvahApp.class)
+@AutoConfigureMockMvc
+@WithMockUser
 public class LeServiceResourceIT {
 
     private static final String DEFAULT_TITLE = "AAAAAAAAAA";
@@ -67,35 +64,12 @@ public class LeServiceResourceIT {
     private LeServiceQueryService leServiceQueryService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restLeServiceMockMvc;
 
     private LeService leService;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final LeServiceResource leServiceResource = new LeServiceResource(leServiceService, leServiceQueryService);
-        this.restLeServiceMockMvc = MockMvcBuilders.standaloneSetup(leServiceResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -139,10 +113,9 @@ public class LeServiceResourceIT {
     @Transactional
     public void createLeService() throws Exception {
         int databaseSizeBeforeCreate = leServiceRepository.findAll().size();
-
         // Create the LeService
-        restLeServiceMockMvc.perform(post("/api/le-services")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restLeServiceMockMvc.perform(post("/api/le-services").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(leService)))
             .andExpect(status().isCreated());
 
@@ -167,8 +140,8 @@ public class LeServiceResourceIT {
         leService.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restLeServiceMockMvc.perform(post("/api/le-services")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restLeServiceMockMvc.perform(post("/api/le-services").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(leService)))
             .andExpect(status().isBadRequest());
 
@@ -187,14 +160,14 @@ public class LeServiceResourceIT {
         // Get all the leServiceList
         restLeServiceMockMvc.perform(get("/api/le-services?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(leService.getId().intValue())))
-            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
             .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())))
-            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(DEFAULT_CREATED_BY.toString())))
-            .andExpect(jsonPath("$.[*].updatedBy").value(hasItem(DEFAULT_UPDATED_BY.toString())));
+            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(DEFAULT_CREATED_BY)))
+            .andExpect(jsonPath("$.[*].updatedBy").value(hasItem(DEFAULT_UPDATED_BY)));
     }
     
     @Test
@@ -206,15 +179,35 @@ public class LeServiceResourceIT {
         // Get the leService
         restLeServiceMockMvc.perform(get("/api/le-services/{id}", leService.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(leService.getId().intValue()))
-            .andExpect(jsonPath("$.title").value(DEFAULT_TITLE.toString()))
-            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
+            .andExpect(jsonPath("$.title").value(DEFAULT_TITLE))
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
             .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
             .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()))
-            .andExpect(jsonPath("$.createdBy").value(DEFAULT_CREATED_BY.toString()))
-            .andExpect(jsonPath("$.updatedBy").value(DEFAULT_UPDATED_BY.toString()));
+            .andExpect(jsonPath("$.createdBy").value(DEFAULT_CREATED_BY))
+            .andExpect(jsonPath("$.updatedBy").value(DEFAULT_UPDATED_BY));
     }
+
+
+    @Test
+    @Transactional
+    public void getLeServicesByIdFiltering() throws Exception {
+        // Initialize the database
+        leServiceRepository.saveAndFlush(leService);
+
+        Long id = leService.getId();
+
+        defaultLeServiceShouldBeFound("id.equals=" + id);
+        defaultLeServiceShouldNotBeFound("id.notEquals=" + id);
+
+        defaultLeServiceShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultLeServiceShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultLeServiceShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultLeServiceShouldNotBeFound("id.lessThan=" + id);
+    }
+
 
     @Test
     @Transactional
@@ -227,6 +220,19 @@ public class LeServiceResourceIT {
 
         // Get all the leServiceList where title equals to UPDATED_TITLE
         defaultLeServiceShouldNotBeFound("title.equals=" + UPDATED_TITLE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllLeServicesByTitleIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        leServiceRepository.saveAndFlush(leService);
+
+        // Get all the leServiceList where title not equals to DEFAULT_TITLE
+        defaultLeServiceShouldNotBeFound("title.notEquals=" + DEFAULT_TITLE);
+
+        // Get all the leServiceList where title not equals to UPDATED_TITLE
+        defaultLeServiceShouldBeFound("title.notEquals=" + UPDATED_TITLE);
     }
 
     @Test
@@ -254,6 +260,32 @@ public class LeServiceResourceIT {
         // Get all the leServiceList where title is null
         defaultLeServiceShouldNotBeFound("title.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllLeServicesByTitleContainsSomething() throws Exception {
+        // Initialize the database
+        leServiceRepository.saveAndFlush(leService);
+
+        // Get all the leServiceList where title contains DEFAULT_TITLE
+        defaultLeServiceShouldBeFound("title.contains=" + DEFAULT_TITLE);
+
+        // Get all the leServiceList where title contains UPDATED_TITLE
+        defaultLeServiceShouldNotBeFound("title.contains=" + UPDATED_TITLE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllLeServicesByTitleNotContainsSomething() throws Exception {
+        // Initialize the database
+        leServiceRepository.saveAndFlush(leService);
+
+        // Get all the leServiceList where title does not contain DEFAULT_TITLE
+        defaultLeServiceShouldNotBeFound("title.doesNotContain=" + DEFAULT_TITLE);
+
+        // Get all the leServiceList where title does not contain UPDATED_TITLE
+        defaultLeServiceShouldBeFound("title.doesNotContain=" + UPDATED_TITLE);
+    }
+
 
     @Test
     @Transactional
@@ -266,6 +298,19 @@ public class LeServiceResourceIT {
 
         // Get all the leServiceList where description equals to UPDATED_DESCRIPTION
         defaultLeServiceShouldNotBeFound("description.equals=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllLeServicesByDescriptionIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        leServiceRepository.saveAndFlush(leService);
+
+        // Get all the leServiceList where description not equals to DEFAULT_DESCRIPTION
+        defaultLeServiceShouldNotBeFound("description.notEquals=" + DEFAULT_DESCRIPTION);
+
+        // Get all the leServiceList where description not equals to UPDATED_DESCRIPTION
+        defaultLeServiceShouldBeFound("description.notEquals=" + UPDATED_DESCRIPTION);
     }
 
     @Test
@@ -293,6 +338,32 @@ public class LeServiceResourceIT {
         // Get all the leServiceList where description is null
         defaultLeServiceShouldNotBeFound("description.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllLeServicesByDescriptionContainsSomething() throws Exception {
+        // Initialize the database
+        leServiceRepository.saveAndFlush(leService);
+
+        // Get all the leServiceList where description contains DEFAULT_DESCRIPTION
+        defaultLeServiceShouldBeFound("description.contains=" + DEFAULT_DESCRIPTION);
+
+        // Get all the leServiceList where description contains UPDATED_DESCRIPTION
+        defaultLeServiceShouldNotBeFound("description.contains=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllLeServicesByDescriptionNotContainsSomething() throws Exception {
+        // Initialize the database
+        leServiceRepository.saveAndFlush(leService);
+
+        // Get all the leServiceList where description does not contain DEFAULT_DESCRIPTION
+        defaultLeServiceShouldNotBeFound("description.doesNotContain=" + DEFAULT_DESCRIPTION);
+
+        // Get all the leServiceList where description does not contain UPDATED_DESCRIPTION
+        defaultLeServiceShouldBeFound("description.doesNotContain=" + UPDATED_DESCRIPTION);
+    }
+
 
     @Test
     @Transactional
@@ -305,6 +376,19 @@ public class LeServiceResourceIT {
 
         // Get all the leServiceList where createdAt equals to UPDATED_CREATED_AT
         defaultLeServiceShouldNotBeFound("createdAt.equals=" + UPDATED_CREATED_AT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllLeServicesByCreatedAtIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        leServiceRepository.saveAndFlush(leService);
+
+        // Get all the leServiceList where createdAt not equals to DEFAULT_CREATED_AT
+        defaultLeServiceShouldNotBeFound("createdAt.notEquals=" + DEFAULT_CREATED_AT);
+
+        // Get all the leServiceList where createdAt not equals to UPDATED_CREATED_AT
+        defaultLeServiceShouldBeFound("createdAt.notEquals=" + UPDATED_CREATED_AT);
     }
 
     @Test
@@ -348,6 +432,19 @@ public class LeServiceResourceIT {
 
     @Test
     @Transactional
+    public void getAllLeServicesByUpdatedAtIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        leServiceRepository.saveAndFlush(leService);
+
+        // Get all the leServiceList where updatedAt not equals to DEFAULT_UPDATED_AT
+        defaultLeServiceShouldNotBeFound("updatedAt.notEquals=" + DEFAULT_UPDATED_AT);
+
+        // Get all the leServiceList where updatedAt not equals to UPDATED_UPDATED_AT
+        defaultLeServiceShouldBeFound("updatedAt.notEquals=" + UPDATED_UPDATED_AT);
+    }
+
+    @Test
+    @Transactional
     public void getAllLeServicesByUpdatedAtIsInShouldWork() throws Exception {
         // Initialize the database
         leServiceRepository.saveAndFlush(leService);
@@ -387,6 +484,19 @@ public class LeServiceResourceIT {
 
     @Test
     @Transactional
+    public void getAllLeServicesByCreatedByIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        leServiceRepository.saveAndFlush(leService);
+
+        // Get all the leServiceList where createdBy not equals to DEFAULT_CREATED_BY
+        defaultLeServiceShouldNotBeFound("createdBy.notEquals=" + DEFAULT_CREATED_BY);
+
+        // Get all the leServiceList where createdBy not equals to UPDATED_CREATED_BY
+        defaultLeServiceShouldBeFound("createdBy.notEquals=" + UPDATED_CREATED_BY);
+    }
+
+    @Test
+    @Transactional
     public void getAllLeServicesByCreatedByIsInShouldWork() throws Exception {
         // Initialize the database
         leServiceRepository.saveAndFlush(leService);
@@ -410,6 +520,32 @@ public class LeServiceResourceIT {
         // Get all the leServiceList where createdBy is null
         defaultLeServiceShouldNotBeFound("createdBy.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllLeServicesByCreatedByContainsSomething() throws Exception {
+        // Initialize the database
+        leServiceRepository.saveAndFlush(leService);
+
+        // Get all the leServiceList where createdBy contains DEFAULT_CREATED_BY
+        defaultLeServiceShouldBeFound("createdBy.contains=" + DEFAULT_CREATED_BY);
+
+        // Get all the leServiceList where createdBy contains UPDATED_CREATED_BY
+        defaultLeServiceShouldNotBeFound("createdBy.contains=" + UPDATED_CREATED_BY);
+    }
+
+    @Test
+    @Transactional
+    public void getAllLeServicesByCreatedByNotContainsSomething() throws Exception {
+        // Initialize the database
+        leServiceRepository.saveAndFlush(leService);
+
+        // Get all the leServiceList where createdBy does not contain DEFAULT_CREATED_BY
+        defaultLeServiceShouldNotBeFound("createdBy.doesNotContain=" + DEFAULT_CREATED_BY);
+
+        // Get all the leServiceList where createdBy does not contain UPDATED_CREATED_BY
+        defaultLeServiceShouldBeFound("createdBy.doesNotContain=" + UPDATED_CREATED_BY);
+    }
+
 
     @Test
     @Transactional
@@ -422,6 +558,19 @@ public class LeServiceResourceIT {
 
         // Get all the leServiceList where updatedBy equals to UPDATED_UPDATED_BY
         defaultLeServiceShouldNotBeFound("updatedBy.equals=" + UPDATED_UPDATED_BY);
+    }
+
+    @Test
+    @Transactional
+    public void getAllLeServicesByUpdatedByIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        leServiceRepository.saveAndFlush(leService);
+
+        // Get all the leServiceList where updatedBy not equals to DEFAULT_UPDATED_BY
+        defaultLeServiceShouldNotBeFound("updatedBy.notEquals=" + DEFAULT_UPDATED_BY);
+
+        // Get all the leServiceList where updatedBy not equals to UPDATED_UPDATED_BY
+        defaultLeServiceShouldBeFound("updatedBy.notEquals=" + UPDATED_UPDATED_BY);
     }
 
     @Test
@@ -449,11 +598,38 @@ public class LeServiceResourceIT {
         // Get all the leServiceList where updatedBy is null
         defaultLeServiceShouldNotBeFound("updatedBy.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllLeServicesByUpdatedByContainsSomething() throws Exception {
+        // Initialize the database
+        leServiceRepository.saveAndFlush(leService);
+
+        // Get all the leServiceList where updatedBy contains DEFAULT_UPDATED_BY
+        defaultLeServiceShouldBeFound("updatedBy.contains=" + DEFAULT_UPDATED_BY);
+
+        // Get all the leServiceList where updatedBy contains UPDATED_UPDATED_BY
+        defaultLeServiceShouldNotBeFound("updatedBy.contains=" + UPDATED_UPDATED_BY);
+    }
+
+    @Test
+    @Transactional
+    public void getAllLeServicesByUpdatedByNotContainsSomething() throws Exception {
+        // Initialize the database
+        leServiceRepository.saveAndFlush(leService);
+
+        // Get all the leServiceList where updatedBy does not contain DEFAULT_UPDATED_BY
+        defaultLeServiceShouldNotBeFound("updatedBy.doesNotContain=" + DEFAULT_UPDATED_BY);
+
+        // Get all the leServiceList where updatedBy does not contain UPDATED_UPDATED_BY
+        defaultLeServiceShouldBeFound("updatedBy.doesNotContain=" + UPDATED_UPDATED_BY);
+    }
+
 
     @Test
     @Transactional
     public void getAllLeServicesByCourrierIsEqualToSomething() throws Exception {
         // Initialize the database
+        leServiceRepository.saveAndFlush(leService);
         Courrier courrier = CourrierResourceIT.createEntity(em);
         em.persist(courrier);
         em.flush();
@@ -474,7 +650,7 @@ public class LeServiceResourceIT {
     private void defaultLeServiceShouldBeFound(String filter) throws Exception {
         restLeServiceMockMvc.perform(get("/api/le-services?sort=id,desc&" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(leService.getId().intValue())))
             .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
@@ -486,7 +662,7 @@ public class LeServiceResourceIT {
         // Check, that the count call also returns 1
         restLeServiceMockMvc.perform(get("/api/le-services/count?sort=id,desc&" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(content().string("1"));
     }
 
@@ -496,17 +672,16 @@ public class LeServiceResourceIT {
     private void defaultLeServiceShouldNotBeFound(String filter) throws Exception {
         restLeServiceMockMvc.perform(get("/api/le-services?sort=id,desc&" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$").isEmpty());
 
         // Check, that the count call also returns 0
         restLeServiceMockMvc.perform(get("/api/le-services/count?sort=id,desc&" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(content().string("0"));
     }
-
 
     @Test
     @Transactional
@@ -536,8 +711,8 @@ public class LeServiceResourceIT {
             .createdBy(UPDATED_CREATED_BY)
             .updatedBy(UPDATED_UPDATED_BY);
 
-        restLeServiceMockMvc.perform(put("/api/le-services")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restLeServiceMockMvc.perform(put("/api/le-services").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedLeService)))
             .andExpect(status().isOk());
 
@@ -558,11 +733,9 @@ public class LeServiceResourceIT {
     public void updateNonExistingLeService() throws Exception {
         int databaseSizeBeforeUpdate = leServiceRepository.findAll().size();
 
-        // Create the LeService
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restLeServiceMockMvc.perform(put("/api/le-services")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restLeServiceMockMvc.perform(put("/api/le-services").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(leService)))
             .andExpect(status().isBadRequest());
 
@@ -580,27 +753,12 @@ public class LeServiceResourceIT {
         int databaseSizeBeforeDelete = leServiceRepository.findAll().size();
 
         // Delete the leService
-        restLeServiceMockMvc.perform(delete("/api/le-services/{id}", leService.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+        restLeServiceMockMvc.perform(delete("/api/le-services/{id}", leService.getId()).with(csrf())
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
         List<LeService> leServiceList = leServiceRepository.findAll();
         assertThat(leServiceList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(LeService.class);
-        LeService leService1 = new LeService();
-        leService1.setId(1L);
-        LeService leService2 = new LeService();
-        leService2.setId(leService1.getId());
-        assertThat(leService1).isEqualTo(leService2);
-        leService2.setId(2L);
-        assertThat(leService1).isNotEqualTo(leService2);
-        leService1.setId(null);
-        assertThat(leService1).isNotEqualTo(leService2);
     }
 }

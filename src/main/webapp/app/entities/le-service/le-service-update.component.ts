@@ -1,25 +1,21 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
 import * as moment from 'moment';
 import { DATE_TIME_FORMAT } from 'app/shared/constants/input.constants';
-import { JhiAlertService } from 'ng-jhipster';
+
 import { ILeService, LeService } from 'app/shared/model/le-service.model';
 import { LeServiceService } from './le-service.service';
-import { ICourrier } from 'app/shared/model/courrier.model';
-import { CourrierService } from 'app/entities/courrier';
 
 @Component({
   selector: 'jhi-le-service-update',
-  templateUrl: './le-service-update.component.html'
+  templateUrl: './le-service-update.component.html',
 })
 export class LeServiceUpdateComponent implements OnInit {
-  isSaving: boolean;
-
-  courriers: ICourrier[];
+  isSaving = false;
 
   editForm = this.fb.group({
     id: [],
@@ -28,48 +24,40 @@ export class LeServiceUpdateComponent implements OnInit {
     createdAt: [],
     updatedAt: [],
     createdBy: [],
-    updatedBy: []
+    updatedBy: [],
   });
 
-  constructor(
-    protected jhiAlertService: JhiAlertService,
-    protected leServiceService: LeServiceService,
-    protected courrierService: CourrierService,
-    protected activatedRoute: ActivatedRoute,
-    private fb: FormBuilder
-  ) {}
+  constructor(protected leServiceService: LeServiceService, protected activatedRoute: ActivatedRoute, private fb: FormBuilder) {}
 
-  ngOnInit() {
-    this.isSaving = false;
+  ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ leService }) => {
+      if (!leService.id) {
+        const today = moment().startOf('day');
+        leService.createdAt = today;
+        leService.updatedAt = today;
+      }
+
       this.updateForm(leService);
     });
-    this.courrierService
-      .query()
-      .pipe(
-        filter((mayBeOk: HttpResponse<ICourrier[]>) => mayBeOk.ok),
-        map((response: HttpResponse<ICourrier[]>) => response.body)
-      )
-      .subscribe((res: ICourrier[]) => (this.courriers = res), (res: HttpErrorResponse) => this.onError(res.message));
   }
 
-  updateForm(leService: ILeService) {
+  updateForm(leService: ILeService): void {
     this.editForm.patchValue({
       id: leService.id,
       title: leService.title,
       description: leService.description,
-      createdAt: leService.createdAt != null ? leService.createdAt.format(DATE_TIME_FORMAT) : null,
-      updatedAt: leService.updatedAt != null ? leService.updatedAt.format(DATE_TIME_FORMAT) : null,
+      createdAt: leService.createdAt ? leService.createdAt.format(DATE_TIME_FORMAT) : null,
+      updatedAt: leService.updatedAt ? leService.updatedAt.format(DATE_TIME_FORMAT) : null,
       createdBy: leService.createdBy,
-      updatedBy: leService.updatedBy
+      updatedBy: leService.updatedBy,
     });
   }
 
-  previousState() {
+  previousState(): void {
     window.history.back();
   }
 
-  save() {
+  save(): void {
     this.isSaving = true;
     const leService = this.createFromForm();
     if (leService.id !== undefined) {
@@ -82,46 +70,29 @@ export class LeServiceUpdateComponent implements OnInit {
   private createFromForm(): ILeService {
     return {
       ...new LeService(),
-      id: this.editForm.get(['id']).value,
-      title: this.editForm.get(['title']).value,
-      description: this.editForm.get(['description']).value,
-      createdAt:
-        this.editForm.get(['createdAt']).value != null ? moment(this.editForm.get(['createdAt']).value, DATE_TIME_FORMAT) : undefined,
-      updatedAt:
-        this.editForm.get(['updatedAt']).value != null ? moment(this.editForm.get(['updatedAt']).value, DATE_TIME_FORMAT) : undefined,
-      createdBy: this.editForm.get(['createdBy']).value,
-      updatedBy: this.editForm.get(['updatedBy']).value
+      id: this.editForm.get(['id'])!.value,
+      title: this.editForm.get(['title'])!.value,
+      description: this.editForm.get(['description'])!.value,
+      createdAt: this.editForm.get(['createdAt'])!.value ? moment(this.editForm.get(['createdAt'])!.value, DATE_TIME_FORMAT) : undefined,
+      updatedAt: this.editForm.get(['updatedAt'])!.value ? moment(this.editForm.get(['updatedAt'])!.value, DATE_TIME_FORMAT) : undefined,
+      createdBy: this.editForm.get(['createdBy'])!.value,
+      updatedBy: this.editForm.get(['updatedBy'])!.value,
     };
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<ILeService>>) {
-    result.subscribe(() => this.onSaveSuccess(), () => this.onSaveError());
+  protected subscribeToSaveResponse(result: Observable<HttpResponse<ILeService>>): void {
+    result.subscribe(
+      () => this.onSaveSuccess(),
+      () => this.onSaveError()
+    );
   }
 
-  protected onSaveSuccess() {
+  protected onSaveSuccess(): void {
     this.isSaving = false;
     this.previousState();
   }
 
-  protected onSaveError() {
+  protected onSaveError(): void {
     this.isSaving = false;
-  }
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
-  }
-
-  trackCourrierById(index: number, item: ICourrier) {
-    return item.id;
-  }
-
-  getSelected(selectedVals: Array<any>, option: any) {
-    if (selectedVals) {
-      for (let i = 0; i < selectedVals.length; i++) {
-        if (option.id === selectedVals[i].id) {
-          return selectedVals[i];
-        }
-      }
-    }
-    return option;
   }
 }

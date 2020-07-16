@@ -1,45 +1,21 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { JhiLanguageService } from 'ng-jhipster';
-import { JhiLanguageHelper } from 'app/core';
 
-import { OrmvahSharedModule } from 'app/shared';
-import {
-  CourrierObjectComponent,
-  CourrierObjectDetailComponent,
-  CourrierObjectUpdateComponent,
-  CourrierObjectDeletePopupComponent,
-  CourrierObjectDeleteDialogComponent,
-  courrierObjectRoute,
-  courrierObjectPopupRoute
-} from './';
-
-const ENTITY_STATES = [...courrierObjectRoute, ...courrierObjectPopupRoute];
+import { OrmvahSharedModule } from 'app/shared/shared.module';
+import { CourrierObjectComponent } from './courrier-object.component';
+import { CourrierObjectDetailComponent } from './courrier-object-detail.component';
+import { CourrierObjectUpdateComponent } from './courrier-object-update.component';
+import { CourrierObjectDeleteDialogComponent } from './courrier-object-delete-dialog.component';
+import { courrierObjectRoute } from './courrier-object.route';
 
 @NgModule({
-  imports: [OrmvahSharedModule, RouterModule.forChild(ENTITY_STATES)],
+  imports: [OrmvahSharedModule, RouterModule.forChild(courrierObjectRoute)],
   declarations: [
     CourrierObjectComponent,
     CourrierObjectDetailComponent,
     CourrierObjectUpdateComponent,
     CourrierObjectDeleteDialogComponent,
-    CourrierObjectDeletePopupComponent
   ],
-  entryComponents: [
-    CourrierObjectComponent,
-    CourrierObjectUpdateComponent,
-    CourrierObjectDeleteDialogComponent,
-    CourrierObjectDeletePopupComponent
-  ],
-  providers: [{ provide: JhiLanguageService, useClass: JhiLanguageService }],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  entryComponents: [CourrierObjectDeleteDialogComponent],
 })
-export class OrmvahCourrierObjectModule {
-  constructor(private languageService: JhiLanguageService, private languageHelper: JhiLanguageHelper) {
-    this.languageHelper.language.subscribe((languageKey: string) => {
-      if (languageKey !== undefined) {
-        this.languageService.changeLanguage(languageKey);
-      }
-    });
-  }
-}
+export class OrmvahCourrierObjectModule {}

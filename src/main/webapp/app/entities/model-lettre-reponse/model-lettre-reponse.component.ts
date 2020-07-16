@@ -1,65 +1,55 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
+import { JhiEventManager } from 'ng-jhipster';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { IModelLettreReponse } from 'app/shared/model/model-lettre-reponse.model';
-import { AccountService } from 'app/core';
 import { ModelLettreReponseService } from './model-lettre-reponse.service';
+import { ModelLettreReponseDeleteDialogComponent } from './model-lettre-reponse-delete-dialog.component';
 
 @Component({
   selector: 'jhi-model-lettre-reponse',
-  templateUrl: './model-lettre-reponse.component.html'
+  templateUrl: './model-lettre-reponse.component.html',
 })
 export class ModelLettreReponseComponent implements OnInit, OnDestroy {
-  modelLettreReponses: IModelLettreReponse[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+  modelLettreReponses?: IModelLettreReponse[];
+  eventSubscriber?: Subscription;
 
   constructor(
     protected modelLettreReponseService: ModelLettreReponseService,
-    protected jhiAlertService: JhiAlertService,
     protected eventManager: JhiEventManager,
-    protected accountService: AccountService
+    protected modalService: NgbModal
   ) {}
 
-  loadAll() {
+  loadAll(): void {
     this.modelLettreReponseService
       .query()
-      .pipe(
-        filter((res: HttpResponse<IModelLettreReponse[]>) => res.ok),
-        map((res: HttpResponse<IModelLettreReponse[]>) => res.body)
-      )
-      .subscribe(
-        (res: IModelLettreReponse[]) => {
-          this.modelLettreReponses = res;
-        },
-        (res: HttpErrorResponse) => this.onError(res.message)
-      );
+      .subscribe((res: HttpResponse<IModelLettreReponse[]>) => (this.modelLettreReponses = res.body || []));
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
     this.registerChangeInModelLettreReponses();
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  ngOnDestroy(): void {
+    if (this.eventSubscriber) {
+      this.eventManager.destroy(this.eventSubscriber);
+    }
   }
 
-  trackId(index: number, item: IModelLettreReponse) {
-    return item.id;
+  trackId(index: number, item: IModelLettreReponse): number {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    return item.id!;
   }
 
-  registerChangeInModelLettreReponses() {
-    this.eventSubscriber = this.eventManager.subscribe('modelLettreReponseListModification', response => this.loadAll());
+  registerChangeInModelLettreReponses(): void {
+    this.eventSubscriber = this.eventManager.subscribe('modelLettreReponseListModification', () => this.loadAll());
   }
 
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  delete(modelLettreReponse: IModelLettreReponse): void {
+    const modalRef = this.modalService.open(ModelLettreReponseDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
+    modalRef.componentInstance.modelLettreReponse = modelLettreReponse;
   }
 }

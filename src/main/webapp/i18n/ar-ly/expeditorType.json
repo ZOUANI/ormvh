@@ -5,7 +5,7 @@
         "title": "Expeditor Types",
         "createLabel": "Create a new Expeditor Type",
         "createOrEditLabel": "Create or edit a Expeditor Type",
-        "notFound": "No Expeditor Type found"
+        "notFound": "No Expeditor Types found"
       },
       "created": "A new Expeditor Type is created with identifier {{ param }}",
       "updated": "A Expeditor Type is updated with identifier {{ param }}",

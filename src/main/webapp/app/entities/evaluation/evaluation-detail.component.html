@@ -1,42 +1,45 @@
 <div class="row justify-content-center">
     <div class="col-8">
         <div *ngIf="evaluation">
-            <h2><span jhiTranslate="ormvahApp.evaluation.detail.title">Evaluation</span> {{evaluation.id}}</h2>
+            <h2><span jhiTranslate="ormvahApp.evaluation.detail.title">Evaluation</span> {{ evaluation.id }}</h2>
+
             <hr>
+
             <jhi-alert-error></jhi-alert-error>
+
             <dl class="row-md jh-entity-details">
                 <dt><span jhiTranslate="ormvahApp.evaluation.title">Title</span></dt>
                 <dd>
-                    <span>{{evaluation.title}}</span>
+                    <span>{{ evaluation.title }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.evaluation.createdAt">Created At</span></dt>
                 <dd>
-                    <span>{{evaluation.createdAt}}</span>
+                    <span>{{ evaluation.createdAt }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.evaluation.updatedAt">Updated At</span></dt>
                 <dd>
-                    <span>{{evaluation.updatedAt}}</span>
+                    <span>{{ evaluation.updatedAt }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.evaluation.createdBy">Created By</span></dt>
                 <dd>
-                    <span>{{evaluation.createdBy}}</span>
+                    <span>{{ evaluation.createdBy }}</span>
                 </dd>
                 <dt><span jhiTranslate="ormvahApp.evaluation.updatedBy">Updated By</span></dt>
                 <dd>
-                    <span>{{evaluation.updatedBy}}</span>
+                    <span>{{ evaluation.updatedBy }}</span>
                 </dd>
             </dl>
 
             <button type="submit"
                     (click)="previousState()"
                     class="btn btn-info">
-                <fa-icon [icon]="'arrow-left'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back"> Back</span>
+                <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
             </button>
 
             <button type="button"
                     [routerLink]="['/evaluation', evaluation.id, 'edit']"
                     class="btn btn-primary">
-                <fa-icon [icon]="'pencil-alt'"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit"> Edit</span>
+                <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
             </button>
         </div>
     </div>

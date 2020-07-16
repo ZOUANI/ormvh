@@ -1,182 +1,188 @@
 <div>
     <h2 id="page-heading">
         <span jhiTranslate="ormvahApp.courrier.home.title">Courriers</span>
+
         <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-courrier" [routerLink]="['/courrier/new']">
-            <fa-icon [icon]="'plus'"></fa-icon>
+            <fa-icon icon="plus"></fa-icon>
             <span  jhiTranslate="ormvahApp.courrier.home.createLabel">
-            Create new Courrier
+            Create a new Courrier
             </span>
         </button>
     </h2>
+
+    <jhi-alert-error></jhi-alert-error>
+
     <jhi-alert></jhi-alert>
-    <br/>
-    <div class="alert alert-warning" *ngIf="courriers?.length === 0">
+
+    <div class="alert alert-warning" id="no-result" *ngIf="courriers?.length === 0">
         <span jhiTranslate="ormvahApp.courrier.home.notFound">No courriers found</span>
     </div>
-    <div class="table-responsive" *ngIf="courriers?.length > 0">
-        <table class="table table-striped">
+
+    <div class="table-responsive" id="entities" *ngIf="courriers && courriers.length > 0">
+        <table class="table table-striped" aria-describedby="page-heading">
             <thead>
-            <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
-            <th jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="idCourrier"><span jhiTranslate="ormvahApp.courrier.idCourrier">Id Courrier</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="subject"><span jhiTranslate="ormvahApp.courrier.subject">Subject</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="description"><span jhiTranslate="ormvahApp.courrier.description">Description</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="typeCourrier"><span jhiTranslate="ormvahApp.courrier.typeCourrier">Type Courrier</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="createdAt"><span jhiTranslate="ormvahApp.courrier.createdAt">Created At</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="updatedAt"><span jhiTranslate="ormvahApp.courrier.updatedAt">Updated At</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="createdBy"><span jhiTranslate="ormvahApp.courrier.createdBy">Created By</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="updatedBy"><span jhiTranslate="ormvahApp.courrier.updatedBy">Updated By</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="delai"><span jhiTranslate="ormvahApp.courrier.delai">Delai</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="relance"><span jhiTranslate="ormvahApp.courrier.relance">Relance</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="accuse"><span jhiTranslate="ormvahApp.courrier.accuse">Accuse</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="reponse"><span jhiTranslate="ormvahApp.courrier.reponse">Reponse</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="dateAccuse"><span jhiTranslate="ormvahApp.courrier.dateAccuse">Date Accuse</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="dateReponse"><span jhiTranslate="ormvahApp.courrier.dateReponse">Date Reponse</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="status"><span jhiTranslate="ormvahApp.courrier.status">Status</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="data"><span jhiTranslate="ormvahApp.courrier.data">Data</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="receivedAt"><span jhiTranslate="ormvahApp.courrier.receivedAt">Received At</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="instruction"><span jhiTranslate="ormvahApp.courrier.instruction">Instruction</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="expediteurDesc"><span jhiTranslate="ormvahApp.courrier.expediteurDesc">Expediteur Desc</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="sentAt"><span jhiTranslate="ormvahApp.courrier.sentAt">Sent At</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="destinataireDesc"><span jhiTranslate="ormvahApp.courrier.destinataireDesc">Destinataire Desc</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="destinataireVille"><span jhiTranslate="ormvahApp.courrier.destinataireVille">Destinataire Ville</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="voie.id"><span jhiTranslate="ormvahApp.courrier.voie">Voie</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="natureCourrier.id"><span jhiTranslate="ormvahApp.courrier.natureCourrier">Nature Courrier</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="linkedTo.id"><span jhiTranslate="ormvahApp.courrier.linkedTo">Linked To</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="expeditor.id"><span jhiTranslate="ormvahApp.courrier.expeditor">Expeditor</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="destinator.id"><span jhiTranslate="ormvahApp.courrier.destinator">Destinator</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="coordinator.id"><span jhiTranslate="ormvahApp.courrier.coordinator">Coordinator</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="emetteur.id"><span jhiTranslate="ormvahApp.courrier.emetteur">Emetteur</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="evaluation.id"><span jhiTranslate="ormvahApp.courrier.evaluation">Evaluation</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="courrierObject.id"><span jhiTranslate="ormvahApp.courrier.courrierObject">Courrier Object</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="expeditorType.id"><span jhiTranslate="ormvahApp.courrier.expeditorType">Expeditor Type</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="subdivision.id"><span jhiTranslate="ormvahApp.courrier.subdivision">Subdivision</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="bordereau.id"><span jhiTranslate="ormvahApp.courrier.bordereau">Bordereau</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th></th>
-            </tr>
+                <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="loadPage.bind(this)">
+                    <th scope="col"  jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="idCourrier"><span jhiTranslate="ormvahApp.courrier.idCourrier">Id Courrier</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="subject"><span jhiTranslate="ormvahApp.courrier.subject">Subject</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="description"><span jhiTranslate="ormvahApp.courrier.description">Description</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="typeCourrier"><span jhiTranslate="ormvahApp.courrier.typeCourrier">Type Courrier</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="createdAt"><span jhiTranslate="ormvahApp.courrier.createdAt">Created At</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="updatedAt"><span jhiTranslate="ormvahApp.courrier.updatedAt">Updated At</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="createdBy"><span jhiTranslate="ormvahApp.courrier.createdBy">Created By</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="updatedBy"><span jhiTranslate="ormvahApp.courrier.updatedBy">Updated By</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="delai"><span jhiTranslate="ormvahApp.courrier.delai">Delai</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="relance"><span jhiTranslate="ormvahApp.courrier.relance">Relance</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="accuse"><span jhiTranslate="ormvahApp.courrier.accuse">Accuse</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="reponse"><span jhiTranslate="ormvahApp.courrier.reponse">Reponse</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="dateAccuse"><span jhiTranslate="ormvahApp.courrier.dateAccuse">Date Accuse</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="dateReponse"><span jhiTranslate="ormvahApp.courrier.dateReponse">Date Reponse</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="status"><span jhiTranslate="ormvahApp.courrier.status">Status</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="data"><span jhiTranslate="ormvahApp.courrier.data">Data</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="receivedAt"><span jhiTranslate="ormvahApp.courrier.receivedAt">Received At</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="instruction"><span jhiTranslate="ormvahApp.courrier.instruction">Instruction</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="expediteurDesc"><span jhiTranslate="ormvahApp.courrier.expediteurDesc">Expediteur Desc</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="sentAt"><span jhiTranslate="ormvahApp.courrier.sentAt">Sent At</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="destinataireDesc"><span jhiTranslate="ormvahApp.courrier.destinataireDesc">Destinataire Desc</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="destinataireVille"><span jhiTranslate="ormvahApp.courrier.destinataireVille">Destinataire Ville</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="voie.id"><span jhiTranslate="ormvahApp.courrier.voie">Voie</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="natureCourrier.id"><span jhiTranslate="ormvahApp.courrier.natureCourrier">Nature Courrier</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="linkedTo.id"><span jhiTranslate="ormvahApp.courrier.linkedTo">Linked To</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="expeditor.id"><span jhiTranslate="ormvahApp.courrier.expeditor">Expeditor</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="destinator.id"><span jhiTranslate="ormvahApp.courrier.destinator">Destinator</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="coordinator.id"><span jhiTranslate="ormvahApp.courrier.coordinator">Coordinator</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="emetteur.id"><span jhiTranslate="ormvahApp.courrier.emetteur">Emetteur</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="evaluation.id"><span jhiTranslate="ormvahApp.courrier.evaluation">Evaluation</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="courrierObject.id"><span jhiTranslate="ormvahApp.courrier.courrierObject">Courrier Object</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="expeditorType.id"><span jhiTranslate="ormvahApp.courrier.expeditorType">Expeditor Type</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="subdivision.id"><span jhiTranslate="ormvahApp.courrier.subdivision">Subdivision</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="bordereau.id"><span jhiTranslate="ormvahApp.courrier.bordereau">Bordereau</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"></th>
+                </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let courrier of courriers ;trackBy: trackId">
-                <td><a [routerLink]="['/courrier', courrier.id, 'view' ]">{{courrier.id}}</a></td>
-                <td>{{courrier.idCourrier}}</td>
-                <td>{{courrier.subject}}</td>
-                <td>{{courrier.description}}</td>
-                <td jhiTranslate="{{'ormvahApp.TypeCourrier.' + courrier.typeCourrier}}">{{courrier.typeCourrier}}</td>
-                <td>{{courrier.createdAt | date:'medium'}}</td>
-                <td>{{courrier.updatedAt | date:'medium'}}</td>
-                <td>{{courrier.createdBy}}</td>
-                <td>{{courrier.updatedBy}}</td>
-                <td>{{courrier.delai}}</td>
-                <td>{{courrier.relance}}</td>
-                <td>{{courrier.accuse}}</td>
-                <td>{{courrier.reponse}}</td>
-                <td>{{courrier.dateAccuse | date:'mediumDate'}}</td>
-                <td>{{courrier.dateReponse | date:'mediumDate'}}</td>
-                <td jhiTranslate="{{'ormvahApp.Status.' + courrier.status}}">{{courrier.status}}</td>
-                <td>
-                    <a *ngIf="courrier.data" (click)="openFile(courrier.dataContentType, courrier.data)" jhiTranslate="entity.action.open">open</a>
-                    <span *ngIf="courrier.data">{{courrier.dataContentType}}, {{byteSize(courrier.data)}}</span>
-                </td>
-                <td>{{courrier.receivedAt | date:'medium'}}</td>
-                <td>{{courrier.instruction}}</td>
-                <td>{{courrier.expediteurDesc}}</td>
-                <td>{{courrier.sentAt | date:'medium'}}</td>
-                <td>{{courrier.destinataireDesc}}</td>
-                <td>{{courrier.destinataireVille}}</td>
-                <td>
-                    <div *ngIf="courrier.voie">
-                        <a [routerLink]="['../voie', courrier.voie?.id, 'view' ]" >{{courrier.voie?.id}}</a>
-                    </div>
-                </td>
-                <td>
-                    <div *ngIf="courrier.natureCourrier">
-                        <a [routerLink]="['../nature-courrier', courrier.natureCourrier?.id, 'view' ]" >{{courrier.natureCourrier?.id}}</a>
-                    </div>
-                </td>
-                <td>
-                    <div *ngIf="courrier.linkedTo">
-                        <a [routerLink]="['../courrier', courrier.linkedTo?.id, 'view' ]" >{{courrier.linkedTo?.id}}</a>
-                    </div>
-                </td>
-                <td>
-                    <div *ngIf="courrier.expeditor">
-                        <a [routerLink]="['../expeditor', courrier.expeditor?.id, 'view' ]" >{{courrier.expeditor?.id}}</a>
-                    </div>
-                </td>
-                <td>
-                    <div *ngIf="courrier.destinator">
-                        <a [routerLink]="['../expeditor', courrier.destinator?.id, 'view' ]" >{{courrier.destinator?.id}}</a>
-                    </div>
-                </td>
-                <td>
-                    <div *ngIf="courrier.coordinator">
-                        <a [routerLink]="['../le-service', courrier.coordinator?.id, 'view' ]" >{{courrier.coordinator?.id}}</a>
-                    </div>
-                </td>
-                <td>
-                    <div *ngIf="courrier.emetteur">
-                        <a [routerLink]="['../le-service', courrier.emetteur?.id, 'view' ]" >{{courrier.emetteur?.id}}</a>
-                    </div>
-                </td>
-                <td>
-                    <div *ngIf="courrier.evaluation">
-                        <a [routerLink]="['../evaluation', courrier.evaluation?.id, 'view' ]" >{{courrier.evaluation?.id}}</a>
-                    </div>
-                </td>
-                <td>
-                    <div *ngIf="courrier.courrierObject">
-                        <a [routerLink]="['../courrier-object', courrier.courrierObject?.id, 'view' ]" >{{courrier.courrierObject?.id}}</a>
-                    </div>
-                </td>
-                <td>
-                    <div *ngIf="courrier.expeditorType">
-                        <a [routerLink]="['../expeditor-type', courrier.expeditorType?.id, 'view' ]" >{{courrier.expeditorType?.id}}</a>
-                    </div>
-                </td>
-                <td>
-                    <div *ngIf="courrier.subdivision">
-                        <a [routerLink]="['../subdivision', courrier.subdivision?.id, 'view' ]" >{{courrier.subdivision?.id}}</a>
-                    </div>
-                </td>
-                <td>
-                    <div *ngIf="courrier.bordereau">
-                        <a [routerLink]="['../bordereau', courrier.bordereau?.id, 'view' ]" >{{courrier.bordereau?.id}}</a>
-                    </div>
-                </td>
-                <td class="text-right">
-                    <div class="btn-group">
-                        <button type="submit"
-                                [routerLink]="['/courrier', courrier.id, 'view' ]"
-                                class="btn btn-info btn-sm">
-                            <fa-icon [icon]="'eye'"></fa-icon>
-                            <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
-                        </button>
-                        <button type="submit"
-                                [routerLink]="['/courrier', courrier.id, 'edit']"
-                                class="btn btn-primary btn-sm">
-                            <fa-icon [icon]="'pencil-alt'"></fa-icon>
-                            <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
-                        </button>
-                        <button type="submit"
-                                [routerLink]="['/', 'courrier', { outlets: { popup: courrier.id + '/delete'} }]"
-                                replaceUrl="true"
-                                queryParamsHandling="merge"
-                                class="btn btn-danger btn-sm">
-                            <fa-icon [icon]="'times'"></fa-icon>
-                            <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
-                        </button>
-                    </div>
-                </td>
-            </tr>
+                <tr *ngFor="let courrier of courriers ;trackBy: trackId">
+                    <td><a [routerLink]="['/courrier', courrier.id, 'view']">{{ courrier.id }}</a></td>
+                    <td>{{ courrier.idCourrier }}</td>
+                    <td>{{ courrier.subject }}</td>
+                    <td>{{ courrier.description }}</td>
+                    <td jhiTranslate="{{ 'ormvahApp.TypeCourrier.' + courrier.typeCourrier }}">{{ courrier.typeCourrier }}</td>
+                    <td>{{ courrier.createdAt | date:'medium' }}</td>
+                    <td>{{ courrier.updatedAt | date:'medium' }}</td>
+                    <td>{{ courrier.createdBy }}</td>
+                    <td>{{ courrier.updatedBy }}</td>
+                    <td>{{ courrier.delai }}</td>
+                    <td>{{ courrier.relance }}</td>
+                    <td>{{ courrier.accuse }}</td>
+                    <td>{{ courrier.reponse }}</td>
+                    <td>{{ courrier.dateAccuse | date:'mediumDate' }}</td>
+                    <td>{{ courrier.dateReponse | date:'mediumDate' }}</td>
+                    <td jhiTranslate="{{ 'ormvahApp.Status.' + courrier.status }}">{{ courrier.status }}</td>
+                    <td>
+                        <a *ngIf="courrier.data" (click)="openFile(courrier.dataContentType, courrier.data)" jhiTranslate="entity.action.open">open</a>
+                        <span *ngIf="courrier.data">{{ courrier.dataContentType }}, {{ byteSize(courrier.data) }}</span>
+                    </td>
+                    <td>{{ courrier.receivedAt | date:'medium' }}</td>
+                    <td>{{ courrier.instruction }}</td>
+                    <td>{{ courrier.expediteurDesc }}</td>
+                    <td>{{ courrier.sentAt | date:'medium' }}</td>
+                    <td>{{ courrier.destinataireDesc }}</td>
+                    <td>{{ courrier.destinataireVille }}</td>
+                    <td>
+                        <div *ngIf="courrier.voie">
+                            <a [routerLink]="['/voie', courrier.voie?.id, 'view']" >{{ courrier.voie?.id }}</a>
+                        </div>
+                    </td>
+                    <td>
+                        <div *ngIf="courrier.natureCourrier">
+                            <a [routerLink]="['/nature-courrier', courrier.natureCourrier?.id, 'view']" >{{ courrier.natureCourrier?.id }}</a>
+                        </div>
+                    </td>
+                    <td>
+                        <div *ngIf="courrier.linkedTo">
+                            <a [routerLink]="['/courrier', courrier.linkedTo?.id, 'view']" >{{ courrier.linkedTo?.id }}</a>
+                        </div>
+                    </td>
+                    <td>
+                        <div *ngIf="courrier.expeditor">
+                            <a [routerLink]="['/expeditor', courrier.expeditor?.id, 'view']" >{{ courrier.expeditor?.id }}</a>
+                        </div>
+                    </td>
+                    <td>
+                        <div *ngIf="courrier.destinator">
+                            <a [routerLink]="['/expeditor', courrier.destinator?.id, 'view']" >{{ courrier.destinator?.id }}</a>
+                        </div>
+                    </td>
+                    <td>
+                        <div *ngIf="courrier.coordinator">
+                            <a [routerLink]="['/le-service', courrier.coordinator?.id, 'view']" >{{ courrier.coordinator?.id }}</a>
+                        </div>
+                    </td>
+                    <td>
+                        <div *ngIf="courrier.emetteur">
+                            <a [routerLink]="['/le-service', courrier.emetteur?.id, 'view']" >{{ courrier.emetteur?.id }}</a>
+                        </div>
+                    </td>
+                    <td>
+                        <div *ngIf="courrier.evaluation">
+                            <a [routerLink]="['/evaluation', courrier.evaluation?.id, 'view']" >{{ courrier.evaluation?.id }}</a>
+                        </div>
+                    </td>
+                    <td>
+                        <div *ngIf="courrier.courrierObject">
+                            <a [routerLink]="['/courrier-object', courrier.courrierObject?.id, 'view']" >{{ courrier.courrierObject?.id }}</a>
+                        </div>
+                    </td>
+                    <td>
+                        <div *ngIf="courrier.expeditorType">
+                            <a [routerLink]="['/expeditor-type', courrier.expeditorType?.id, 'view']" >{{ courrier.expeditorType?.id }}</a>
+                        </div>
+                    </td>
+                    <td>
+                        <div *ngIf="courrier.subdivision">
+                            <a [routerLink]="['/subdivision', courrier.subdivision?.id, 'view']" >{{ courrier.subdivision?.id }}</a>
+                        </div>
+                    </td>
+                    <td>
+                        <div *ngIf="courrier.bordereau">
+                            <a [routerLink]="['/bordereau', courrier.bordereau?.id, 'view']" >{{ courrier.bordereau?.id }}</a>
+                        </div>
+                    </td>
+                    <td class="text-right">
+                        <div class="btn-group">
+                            <button type="submit"
+                                    [routerLink]="['/courrier', courrier.id, 'view']"
+                                    class="btn btn-info btn-sm">
+                                <fa-icon icon="eye"></fa-icon>
+                                <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
+                            </button>
+
+                            <button type="submit"
+                                    [routerLink]="['/courrier', courrier.id, 'edit']"
+                                    class="btn btn-primary btn-sm">
+                                <fa-icon icon="pencil-alt"></fa-icon>
+                                <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+                            </button>
+
+                            <button type="submit" (click)="delete(courrier)"
+                                    class="btn btn-danger btn-sm">
+                                <fa-icon icon="times"></fa-icon>
+                                <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
-    <div [hidden]="courriers?.length === 0">
+
+    <div *ngIf="courriers && courriers.length > 0">
         <div class="row justify-content-center">
-            <jhi-item-count [page]="page" [total]="totalItems" [maxSize]="5" [itemsPerPage]="itemsPerPage"></jhi-item-count>
+            <jhi-item-count [page]="page" [total]="totalItems" [itemsPerPage]="itemsPerPage"></jhi-item-count>
         </div>
+
         <div class="row justify-content-center">
-            <ngb-pagination [collectionSize]="totalItems" [(page)]="page" [pageSize]="itemsPerPage" [maxSize]="5" [rotate]="true" [boundaryLinks]="true" (pageChange)="loadPage(page)"></ngb-pagination>
+            <ngb-pagination [collectionSize]="totalItems" [(page)]="ngbPaginationPage" [pageSize]="itemsPerPage" [maxSize]="5" [rotate]="true" [boundaryLinks]="true" (pageChange)="loadPage($event)"></ngb-pagination>
         </div>
     </div>
 </div>

@@ -41,10 +41,10 @@ public class LeServiceCriteria implements Serializable, Criteria {
 
     private LongFilter courrierId;
 
-    public LeServiceCriteria(){
+    public LeServiceCriteria() {
     }
 
-    public LeServiceCriteria(LeServiceCriteria other){
+    public LeServiceCriteria(LeServiceCriteria other) {
         this.id = other.id == null ? null : other.id.copy();
         this.title = other.title == null ? null : other.title.copy();
         this.description = other.description == null ? null : other.description.copy();
@@ -159,6 +159,7 @@ public class LeServiceCriteria implements Serializable, Criteria {
         );
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "LeServiceCriteria{" +

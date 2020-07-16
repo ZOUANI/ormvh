@@ -1,65 +1,49 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
+import { JhiEventManager } from 'ng-jhipster';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { IEvaluation } from 'app/shared/model/evaluation.model';
-import { AccountService } from 'app/core';
 import { EvaluationService } from './evaluation.service';
+import { EvaluationDeleteDialogComponent } from './evaluation-delete-dialog.component';
 
 @Component({
   selector: 'jhi-evaluation',
-  templateUrl: './evaluation.component.html'
+  templateUrl: './evaluation.component.html',
 })
 export class EvaluationComponent implements OnInit, OnDestroy {
-  evaluations: IEvaluation[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+  evaluations?: IEvaluation[];
+  eventSubscriber?: Subscription;
 
-  constructor(
-    protected evaluationService: EvaluationService,
-    protected jhiAlertService: JhiAlertService,
-    protected eventManager: JhiEventManager,
-    protected accountService: AccountService
-  ) {}
+  constructor(protected evaluationService: EvaluationService, protected eventManager: JhiEventManager, protected modalService: NgbModal) {}
 
-  loadAll() {
-    this.evaluationService
-      .query()
-      .pipe(
-        filter((res: HttpResponse<IEvaluation[]>) => res.ok),
-        map((res: HttpResponse<IEvaluation[]>) => res.body)
-      )
-      .subscribe(
-        (res: IEvaluation[]) => {
-          this.evaluations = res;
-        },
-        (res: HttpErrorResponse) => this.onError(res.message)
-      );
+  loadAll(): void {
+    this.evaluationService.query().subscribe((res: HttpResponse<IEvaluation[]>) => (this.evaluations = res.body || []));
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
     this.registerChangeInEvaluations();
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  ngOnDestroy(): void {
+    if (this.eventSubscriber) {
+      this.eventManager.destroy(this.eventSubscriber);
+    }
   }
 
-  trackId(index: number, item: IEvaluation) {
-    return item.id;
+  trackId(index: number, item: IEvaluation): number {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    return item.id!;
   }
 
-  registerChangeInEvaluations() {
-    this.eventSubscriber = this.eventManager.subscribe('evaluationListModification', response => this.loadAll());
+  registerChangeInEvaluations(): void {
+    this.eventSubscriber = this.eventManager.subscribe('evaluationListModification', () => this.loadAll());
   }
 
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  delete(evaluation: IEvaluation): void {
+    const modalRef = this.modalService.open(EvaluationDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
+    modalRef.componentInstance.evaluation = evaluation;
   }
 }

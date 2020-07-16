@@ -1,34 +1,16 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { JhiLanguageService } from 'ng-jhipster';
-import { JhiLanguageHelper } from 'app/core';
 
-import { OrmvahSharedModule } from 'app/shared';
-import {
-  VoieComponent,
-  VoieDetailComponent,
-  VoieUpdateComponent,
-  VoieDeletePopupComponent,
-  VoieDeleteDialogComponent,
-  voieRoute,
-  voiePopupRoute
-} from './';
-
-const ENTITY_STATES = [...voieRoute, ...voiePopupRoute];
+import { OrmvahSharedModule } from 'app/shared/shared.module';
+import { VoieComponent } from './voie.component';
+import { VoieDetailComponent } from './voie-detail.component';
+import { VoieUpdateComponent } from './voie-update.component';
+import { VoieDeleteDialogComponent } from './voie-delete-dialog.component';
+import { voieRoute } from './voie.route';
 
 @NgModule({
-  imports: [OrmvahSharedModule, RouterModule.forChild(ENTITY_STATES)],
-  declarations: [VoieComponent, VoieDetailComponent, VoieUpdateComponent, VoieDeleteDialogComponent, VoieDeletePopupComponent],
-  entryComponents: [VoieComponent, VoieUpdateComponent, VoieDeleteDialogComponent, VoieDeletePopupComponent],
-  providers: [{ provide: JhiLanguageService, useClass: JhiLanguageService }],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  imports: [OrmvahSharedModule, RouterModule.forChild(voieRoute)],
+  declarations: [VoieComponent, VoieDetailComponent, VoieUpdateComponent, VoieDeleteDialogComponent],
+  entryComponents: [VoieDeleteDialogComponent],
 })
-export class OrmvahVoieModule {
-  constructor(private languageService: JhiLanguageService, private languageHelper: JhiLanguageHelper) {
-    this.languageHelper.language.subscribe((languageKey: string) => {
-      if (languageKey !== undefined) {
-        this.languageService.changeLanguage(languageKey);
-      }
-    });
-  }
-}
+export class OrmvahVoieModule {}

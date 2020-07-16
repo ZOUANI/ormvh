@@ -1,40 +1,16 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { JhiLanguageService } from 'ng-jhipster';
-import { JhiLanguageHelper } from 'app/core';
 
-import { OrmvahSharedModule } from 'app/shared';
-import {
-  CourrierComponent,
-  CourrierDetailComponent,
-  CourrierUpdateComponent,
-  CourrierDeletePopupComponent,
-  CourrierDeleteDialogComponent,
-  courrierRoute,
-  courrierPopupRoute
-} from './';
-
-const ENTITY_STATES = [...courrierRoute, ...courrierPopupRoute];
+import { OrmvahSharedModule } from 'app/shared/shared.module';
+import { CourrierComponent } from './courrier.component';
+import { CourrierDetailComponent } from './courrier-detail.component';
+import { CourrierUpdateComponent } from './courrier-update.component';
+import { CourrierDeleteDialogComponent } from './courrier-delete-dialog.component';
+import { courrierRoute } from './courrier.route';
 
 @NgModule({
-  imports: [OrmvahSharedModule, RouterModule.forChild(ENTITY_STATES)],
-  declarations: [
-    CourrierComponent,
-    CourrierDetailComponent,
-    CourrierUpdateComponent,
-    CourrierDeleteDialogComponent,
-    CourrierDeletePopupComponent
-  ],
-  entryComponents: [CourrierComponent, CourrierUpdateComponent, CourrierDeleteDialogComponent, CourrierDeletePopupComponent],
-  providers: [{ provide: JhiLanguageService, useClass: JhiLanguageService }],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  imports: [OrmvahSharedModule, RouterModule.forChild(courrierRoute)],
+  declarations: [CourrierComponent, CourrierDetailComponent, CourrierUpdateComponent, CourrierDeleteDialogComponent],
+  entryComponents: [CourrierDeleteDialogComponent],
 })
-export class OrmvahCourrierModule {
-  constructor(private languageService: JhiLanguageService, private languageHelper: JhiLanguageHelper) {
-    this.languageHelper.language.subscribe((languageKey: string) => {
-      if (languageKey !== undefined) {
-        this.languageService.changeLanguage(languageKey);
-      }
-    });
-  }
-}
+export class OrmvahCourrierModule {}

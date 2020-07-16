@@ -27,23 +27,12 @@ public class EvaluationServiceImpl implements EvaluationService {
         this.evaluationRepository = evaluationRepository;
     }
 
-    /**
-     * Save a evaluation.
-     *
-     * @param evaluation the entity to save.
-     * @return the persisted entity.
-     */
     @Override
     public Evaluation save(Evaluation evaluation) {
         log.debug("Request to save Evaluation : {}", evaluation);
         return evaluationRepository.save(evaluation);
     }
 
-    /**
-     * Get all the evaluations.
-     *
-     * @return the list of entities.
-     */
     @Override
     @Transactional(readOnly = true)
     public List<Evaluation> findAll() {
@@ -52,12 +41,6 @@ public class EvaluationServiceImpl implements EvaluationService {
     }
 
 
-    /**
-     * Get one evaluation by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<Evaluation> findOne(Long id) {
@@ -65,11 +48,6 @@ public class EvaluationServiceImpl implements EvaluationService {
         return evaluationRepository.findById(id);
     }
 
-    /**
-     * Delete the evaluation by id.
-     *
-     * @param id the id of the entity.
-     */
     @Override
     public void delete(Long id) {
         log.debug("Request to delete Evaluation : {}", id);

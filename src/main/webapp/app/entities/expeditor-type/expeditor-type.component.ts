@@ -1,65 +1,53 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
+import { JhiEventManager } from 'ng-jhipster';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { IExpeditorType } from 'app/shared/model/expeditor-type.model';
-import { AccountService } from 'app/core';
 import { ExpeditorTypeService } from './expeditor-type.service';
+import { ExpeditorTypeDeleteDialogComponent } from './expeditor-type-delete-dialog.component';
 
 @Component({
   selector: 'jhi-expeditor-type',
-  templateUrl: './expeditor-type.component.html'
+  templateUrl: './expeditor-type.component.html',
 })
 export class ExpeditorTypeComponent implements OnInit, OnDestroy {
-  expeditorTypes: IExpeditorType[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+  expeditorTypes?: IExpeditorType[];
+  eventSubscriber?: Subscription;
 
   constructor(
     protected expeditorTypeService: ExpeditorTypeService,
-    protected jhiAlertService: JhiAlertService,
     protected eventManager: JhiEventManager,
-    protected accountService: AccountService
+    protected modalService: NgbModal
   ) {}
 
-  loadAll() {
-    this.expeditorTypeService
-      .query()
-      .pipe(
-        filter((res: HttpResponse<IExpeditorType[]>) => res.ok),
-        map((res: HttpResponse<IExpeditorType[]>) => res.body)
-      )
-      .subscribe(
-        (res: IExpeditorType[]) => {
-          this.expeditorTypes = res;
-        },
-        (res: HttpErrorResponse) => this.onError(res.message)
-      );
+  loadAll(): void {
+    this.expeditorTypeService.query().subscribe((res: HttpResponse<IExpeditorType[]>) => (this.expeditorTypes = res.body || []));
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
     this.registerChangeInExpeditorTypes();
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  ngOnDestroy(): void {
+    if (this.eventSubscriber) {
+      this.eventManager.destroy(this.eventSubscriber);
+    }
   }
 
-  trackId(index: number, item: IExpeditorType) {
-    return item.id;
+  trackId(index: number, item: IExpeditorType): number {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    return item.id!;
   }
 
-  registerChangeInExpeditorTypes() {
-    this.eventSubscriber = this.eventManager.subscribe('expeditorTypeListModification', response => this.loadAll());
+  registerChangeInExpeditorTypes(): void {
+    this.eventSubscriber = this.eventManager.subscribe('expeditorTypeListModification', () => this.loadAll());
   }
 
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  delete(expeditorType: IExpeditorType): void {
+    const modalRef = this.modalService.open(ExpeditorTypeDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
+    modalRef.componentInstance.expeditorType = expeditorType;
   }
 }

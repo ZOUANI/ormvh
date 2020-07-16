@@ -5,20 +5,18 @@ import { INatureCourrier } from 'app/shared/model/nature-courrier.model';
 
 @Component({
   selector: 'jhi-nature-courrier-detail',
-  templateUrl: './nature-courrier-detail.component.html'
+  templateUrl: './nature-courrier-detail.component.html',
 })
 export class NatureCourrierDetailComponent implements OnInit {
-  natureCourrier: INatureCourrier;
+  natureCourrier: INatureCourrier | null = null;
 
   constructor(protected activatedRoute: ActivatedRoute) {}
 
-  ngOnInit() {
-    this.activatedRoute.data.subscribe(({ natureCourrier }) => {
-      this.natureCourrier = natureCourrier;
-    });
+  ngOnInit(): void {
+    this.activatedRoute.data.subscribe(({ natureCourrier }) => (this.natureCourrier = natureCourrier));
   }
 
-  previousState() {
+  previousState(): void {
     window.history.back();
   }
 }

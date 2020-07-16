@@ -1,65 +1,53 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
-import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
+import { JhiEventManager } from 'ng-jhipster';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { INatureCourrier } from 'app/shared/model/nature-courrier.model';
-import { AccountService } from 'app/core';
 import { NatureCourrierService } from './nature-courrier.service';
+import { NatureCourrierDeleteDialogComponent } from './nature-courrier-delete-dialog.component';
 
 @Component({
   selector: 'jhi-nature-courrier',
-  templateUrl: './nature-courrier.component.html'
+  templateUrl: './nature-courrier.component.html',
 })
 export class NatureCourrierComponent implements OnInit, OnDestroy {
-  natureCourriers: INatureCourrier[];
-  currentAccount: any;
-  eventSubscriber: Subscription;
+  natureCourriers?: INatureCourrier[];
+  eventSubscriber?: Subscription;
 
   constructor(
     protected natureCourrierService: NatureCourrierService,
-    protected jhiAlertService: JhiAlertService,
     protected eventManager: JhiEventManager,
-    protected accountService: AccountService
+    protected modalService: NgbModal
   ) {}
 
-  loadAll() {
-    this.natureCourrierService
-      .query()
-      .pipe(
-        filter((res: HttpResponse<INatureCourrier[]>) => res.ok),
-        map((res: HttpResponse<INatureCourrier[]>) => res.body)
-      )
-      .subscribe(
-        (res: INatureCourrier[]) => {
-          this.natureCourriers = res;
-        },
-        (res: HttpErrorResponse) => this.onError(res.message)
-      );
+  loadAll(): void {
+    this.natureCourrierService.query().subscribe((res: HttpResponse<INatureCourrier[]>) => (this.natureCourriers = res.body || []));
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadAll();
-    this.accountService.identity().then(account => {
-      this.currentAccount = account;
-    });
     this.registerChangeInNatureCourriers();
   }
 
-  ngOnDestroy() {
-    this.eventManager.destroy(this.eventSubscriber);
+  ngOnDestroy(): void {
+    if (this.eventSubscriber) {
+      this.eventManager.destroy(this.eventSubscriber);
+    }
   }
 
-  trackId(index: number, item: INatureCourrier) {
-    return item.id;
+  trackId(index: number, item: INatureCourrier): number {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    return item.id!;
   }
 
-  registerChangeInNatureCourriers() {
-    this.eventSubscriber = this.eventManager.subscribe('natureCourrierListModification', response => this.loadAll());
+  registerChangeInNatureCourriers(): void {
+    this.eventSubscriber = this.eventManager.subscribe('natureCourrierListModification', () => this.loadAll());
   }
 
-  protected onError(errorMessage: string) {
-    this.jhiAlertService.error(errorMessage, null, null);
+  delete(natureCourrier: INatureCourrier): void {
+    const modalRef = this.modalService.open(NatureCourrierDeleteDialogComponent, { size: 'lg', backdrop: 'static' });
+    modalRef.componentInstance.natureCourrier = natureCourrier;
   }
 }

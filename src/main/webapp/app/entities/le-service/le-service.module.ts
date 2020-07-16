@@ -1,40 +1,16 @@
-import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { JhiLanguageService } from 'ng-jhipster';
-import { JhiLanguageHelper } from 'app/core';
 
-import { OrmvahSharedModule } from 'app/shared';
-import {
-  LeServiceComponent,
-  LeServiceDetailComponent,
-  LeServiceUpdateComponent,
-  LeServiceDeletePopupComponent,
-  LeServiceDeleteDialogComponent,
-  leServiceRoute,
-  leServicePopupRoute
-} from './';
-
-const ENTITY_STATES = [...leServiceRoute, ...leServicePopupRoute];
+import { OrmvahSharedModule } from 'app/shared/shared.module';
+import { LeServiceComponent } from './le-service.component';
+import { LeServiceDetailComponent } from './le-service-detail.component';
+import { LeServiceUpdateComponent } from './le-service-update.component';
+import { LeServiceDeleteDialogComponent } from './le-service-delete-dialog.component';
+import { leServiceRoute } from './le-service.route';
 
 @NgModule({
-  imports: [OrmvahSharedModule, RouterModule.forChild(ENTITY_STATES)],
-  declarations: [
-    LeServiceComponent,
-    LeServiceDetailComponent,
-    LeServiceUpdateComponent,
-    LeServiceDeleteDialogComponent,
-    LeServiceDeletePopupComponent
-  ],
-  entryComponents: [LeServiceComponent, LeServiceUpdateComponent, LeServiceDeleteDialogComponent, LeServiceDeletePopupComponent],
-  providers: [{ provide: JhiLanguageService, useClass: JhiLanguageService }],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  imports: [OrmvahSharedModule, RouterModule.forChild(leServiceRoute)],
+  declarations: [LeServiceComponent, LeServiceDetailComponent, LeServiceUpdateComponent, LeServiceDeleteDialogComponent],
+  entryComponents: [LeServiceDeleteDialogComponent],
 })
-export class OrmvahLeServiceModule {
-  constructor(private languageService: JhiLanguageService, private languageHelper: JhiLanguageHelper) {
-    this.languageHelper.language.subscribe((languageKey: string) => {
-      if (languageKey !== undefined) {
-        this.languageService.changeLanguage(languageKey);
-      }
-    });
-  }
-}
+export class OrmvahLeServiceModule {}

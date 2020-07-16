@@ -15,27 +15,24 @@ import com.ormvah.domain.Subdivision;
 import com.ormvah.domain.Bordereau;
 import com.ormvah.repository.CourrierRepository;
 import com.ormvah.service.CourrierService;
-import com.ormvah.web.rest.errors.ExceptionTranslator;
 import com.ormvah.service.dto.CourrierCriteria;
 import com.ormvah.service.CourrierQueryService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Base64Utils;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.Instant;
@@ -44,9 +41,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.ormvah.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -54,9 +51,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.ormvah.domain.enumeration.TypeCourrier;
 import com.ormvah.domain.enumeration.Status;
 /**
- * Integration tests for the {@Link CourrierResource} REST controller.
+ * Integration tests for the {@link CourrierResource} REST controller.
  */
 @SpringBootTest(classes = OrmvahApp.class)
+@ExtendWith(MockitoExtension.class)
+@AutoConfigureMockMvc
+@WithMockUser
 public class CourrierResourceIT {
 
     private static final String DEFAULT_ID_COURRIER = "AAAAAAAAAA";
@@ -85,9 +85,11 @@ public class CourrierResourceIT {
 
     private static final Double DEFAULT_DELAI = 1D;
     private static final Double UPDATED_DELAI = 2D;
+    private static final Double SMALLER_DELAI = 1D - 1D;
 
     private static final Double DEFAULT_RELANCE = 1D;
     private static final Double UPDATED_RELANCE = 2D;
+    private static final Double SMALLER_RELANCE = 1D - 1D;
 
     private static final Boolean DEFAULT_ACCUSE = false;
     private static final Boolean UPDATED_ACCUSE = true;
@@ -97,9 +99,11 @@ public class CourrierResourceIT {
 
     private static final LocalDate DEFAULT_DATE_ACCUSE = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_DATE_ACCUSE = LocalDate.now(ZoneId.systemDefault());
+    private static final LocalDate SMALLER_DATE_ACCUSE = LocalDate.ofEpochDay(-1L);
 
     private static final LocalDate DEFAULT_DATE_REPONSE = LocalDate.ofEpochDay(0L);
     private static final LocalDate UPDATED_DATE_REPONSE = LocalDate.now(ZoneId.systemDefault());
+    private static final LocalDate SMALLER_DATE_REPONSE = LocalDate.ofEpochDay(-1L);
 
     private static final Status DEFAULT_STATUS = Status.Ouvert;
     private static final Status UPDATED_STATUS = Status.Encours;
@@ -143,35 +147,12 @@ public class CourrierResourceIT {
     private CourrierQueryService courrierQueryService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restCourrierMockMvc;
 
     private Courrier courrier;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final CourrierResource courrierResource = new CourrierResource(courrierService, courrierQueryService);
-        this.restCourrierMockMvc = MockMvcBuilders.standaloneSetup(courrierResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -249,10 +230,9 @@ public class CourrierResourceIT {
     @Transactional
     public void createCourrier() throws Exception {
         int databaseSizeBeforeCreate = courrierRepository.findAll().size();
-
         // Create the Courrier
-        restCourrierMockMvc.perform(post("/api/courriers")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restCourrierMockMvc.perform(post("/api/courriers").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(courrier)))
             .andExpect(status().isCreated());
 
@@ -294,8 +274,8 @@ public class CourrierResourceIT {
         courrier.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restCourrierMockMvc.perform(post("/api/courriers")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restCourrierMockMvc.perform(post("/api/courriers").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(courrier)))
             .andExpect(status().isBadRequest());
 
@@ -314,16 +294,16 @@ public class CourrierResourceIT {
         // Get all the courrierList
         restCourrierMockMvc.perform(get("/api/courriers?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(courrier.getId().intValue())))
-            .andExpect(jsonPath("$.[*].idCourrier").value(hasItem(DEFAULT_ID_COURRIER.toString())))
-            .andExpect(jsonPath("$.[*].subject").value(hasItem(DEFAULT_SUBJECT.toString())))
-            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())))
+            .andExpect(jsonPath("$.[*].idCourrier").value(hasItem(DEFAULT_ID_COURRIER)))
+            .andExpect(jsonPath("$.[*].subject").value(hasItem(DEFAULT_SUBJECT)))
+            .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
             .andExpect(jsonPath("$.[*].typeCourrier").value(hasItem(DEFAULT_TYPE_COURRIER.toString())))
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
             .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())))
-            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(DEFAULT_CREATED_BY.toString())))
-            .andExpect(jsonPath("$.[*].updatedBy").value(hasItem(DEFAULT_UPDATED_BY.toString())))
+            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(DEFAULT_CREATED_BY)))
+            .andExpect(jsonPath("$.[*].updatedBy").value(hasItem(DEFAULT_UPDATED_BY)))
             .andExpect(jsonPath("$.[*].delai").value(hasItem(DEFAULT_DELAI.doubleValue())))
             .andExpect(jsonPath("$.[*].relance").value(hasItem(DEFAULT_RELANCE.doubleValue())))
             .andExpect(jsonPath("$.[*].accuse").value(hasItem(DEFAULT_ACCUSE.booleanValue())))
@@ -334,44 +314,31 @@ public class CourrierResourceIT {
             .andExpect(jsonPath("$.[*].dataContentType").value(hasItem(DEFAULT_DATA_CONTENT_TYPE)))
             .andExpect(jsonPath("$.[*].data").value(hasItem(Base64Utils.encodeToString(DEFAULT_DATA))))
             .andExpect(jsonPath("$.[*].receivedAt").value(hasItem(DEFAULT_RECEIVED_AT.toString())))
-            .andExpect(jsonPath("$.[*].instruction").value(hasItem(DEFAULT_INSTRUCTION.toString())))
-            .andExpect(jsonPath("$.[*].expediteurDesc").value(hasItem(DEFAULT_EXPEDITEUR_DESC.toString())))
+            .andExpect(jsonPath("$.[*].instruction").value(hasItem(DEFAULT_INSTRUCTION)))
+            .andExpect(jsonPath("$.[*].expediteurDesc").value(hasItem(DEFAULT_EXPEDITEUR_DESC)))
             .andExpect(jsonPath("$.[*].sentAt").value(hasItem(DEFAULT_SENT_AT.toString())))
-            .andExpect(jsonPath("$.[*].destinataireDesc").value(hasItem(DEFAULT_DESTINATAIRE_DESC.toString())))
-            .andExpect(jsonPath("$.[*].destinataireVille").value(hasItem(DEFAULT_DESTINATAIRE_VILLE.toString())));
+            .andExpect(jsonPath("$.[*].destinataireDesc").value(hasItem(DEFAULT_DESTINATAIRE_DESC)))
+            .andExpect(jsonPath("$.[*].destinataireVille").value(hasItem(DEFAULT_DESTINATAIRE_VILLE)));
     }
     
     @SuppressWarnings({"unchecked"})
     public void getAllCourriersWithEagerRelationshipsIsEnabled() throws Exception {
-        CourrierResource courrierResource = new CourrierResource(courrierServiceMock, courrierQueryService);
         when(courrierServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
 
-        MockMvc restCourrierMockMvc = MockMvcBuilders.standaloneSetup(courrierResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter).build();
-
         restCourrierMockMvc.perform(get("/api/courriers?eagerload=true"))
-        .andExpect(status().isOk());
+            .andExpect(status().isOk());
 
         verify(courrierServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @SuppressWarnings({"unchecked"})
     public void getAllCourriersWithEagerRelationshipsIsNotEnabled() throws Exception {
-        CourrierResource courrierResource = new CourrierResource(courrierServiceMock, courrierQueryService);
-            when(courrierServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
-            MockMvc restCourrierMockMvc = MockMvcBuilders.standaloneSetup(courrierResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter).build();
+        when(courrierServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
 
         restCourrierMockMvc.perform(get("/api/courriers?eagerload=true"))
-        .andExpect(status().isOk());
+            .andExpect(status().isOk());
 
-            verify(courrierServiceMock, times(1)).findAllWithEagerRelationships(any());
+        verify(courrierServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @Test
@@ -383,16 +350,16 @@ public class CourrierResourceIT {
         // Get the courrier
         restCourrierMockMvc.perform(get("/api/courriers/{id}", courrier.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(courrier.getId().intValue()))
-            .andExpect(jsonPath("$.idCourrier").value(DEFAULT_ID_COURRIER.toString()))
-            .andExpect(jsonPath("$.subject").value(DEFAULT_SUBJECT.toString()))
-            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()))
+            .andExpect(jsonPath("$.idCourrier").value(DEFAULT_ID_COURRIER))
+            .andExpect(jsonPath("$.subject").value(DEFAULT_SUBJECT))
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
             .andExpect(jsonPath("$.typeCourrier").value(DEFAULT_TYPE_COURRIER.toString()))
             .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
             .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()))
-            .andExpect(jsonPath("$.createdBy").value(DEFAULT_CREATED_BY.toString()))
-            .andExpect(jsonPath("$.updatedBy").value(DEFAULT_UPDATED_BY.toString()))
+            .andExpect(jsonPath("$.createdBy").value(DEFAULT_CREATED_BY))
+            .andExpect(jsonPath("$.updatedBy").value(DEFAULT_UPDATED_BY))
             .andExpect(jsonPath("$.delai").value(DEFAULT_DELAI.doubleValue()))
             .andExpect(jsonPath("$.relance").value(DEFAULT_RELANCE.doubleValue()))
             .andExpect(jsonPath("$.accuse").value(DEFAULT_ACCUSE.booleanValue()))
@@ -403,12 +370,32 @@ public class CourrierResourceIT {
             .andExpect(jsonPath("$.dataContentType").value(DEFAULT_DATA_CONTENT_TYPE))
             .andExpect(jsonPath("$.data").value(Base64Utils.encodeToString(DEFAULT_DATA)))
             .andExpect(jsonPath("$.receivedAt").value(DEFAULT_RECEIVED_AT.toString()))
-            .andExpect(jsonPath("$.instruction").value(DEFAULT_INSTRUCTION.toString()))
-            .andExpect(jsonPath("$.expediteurDesc").value(DEFAULT_EXPEDITEUR_DESC.toString()))
+            .andExpect(jsonPath("$.instruction").value(DEFAULT_INSTRUCTION))
+            .andExpect(jsonPath("$.expediteurDesc").value(DEFAULT_EXPEDITEUR_DESC))
             .andExpect(jsonPath("$.sentAt").value(DEFAULT_SENT_AT.toString()))
-            .andExpect(jsonPath("$.destinataireDesc").value(DEFAULT_DESTINATAIRE_DESC.toString()))
-            .andExpect(jsonPath("$.destinataireVille").value(DEFAULT_DESTINATAIRE_VILLE.toString()));
+            .andExpect(jsonPath("$.destinataireDesc").value(DEFAULT_DESTINATAIRE_DESC))
+            .andExpect(jsonPath("$.destinataireVille").value(DEFAULT_DESTINATAIRE_VILLE));
     }
+
+
+    @Test
+    @Transactional
+    public void getCourriersByIdFiltering() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        Long id = courrier.getId();
+
+        defaultCourrierShouldBeFound("id.equals=" + id);
+        defaultCourrierShouldNotBeFound("id.notEquals=" + id);
+
+        defaultCourrierShouldBeFound("id.greaterThanOrEqual=" + id);
+        defaultCourrierShouldNotBeFound("id.greaterThan=" + id);
+
+        defaultCourrierShouldBeFound("id.lessThanOrEqual=" + id);
+        defaultCourrierShouldNotBeFound("id.lessThan=" + id);
+    }
+
 
     @Test
     @Transactional
@@ -421,6 +408,19 @@ public class CourrierResourceIT {
 
         // Get all the courrierList where idCourrier equals to UPDATED_ID_COURRIER
         defaultCourrierShouldNotBeFound("idCourrier.equals=" + UPDATED_ID_COURRIER);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByIdCourrierIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where idCourrier not equals to DEFAULT_ID_COURRIER
+        defaultCourrierShouldNotBeFound("idCourrier.notEquals=" + DEFAULT_ID_COURRIER);
+
+        // Get all the courrierList where idCourrier not equals to UPDATED_ID_COURRIER
+        defaultCourrierShouldBeFound("idCourrier.notEquals=" + UPDATED_ID_COURRIER);
     }
 
     @Test
@@ -448,6 +448,32 @@ public class CourrierResourceIT {
         // Get all the courrierList where idCourrier is null
         defaultCourrierShouldNotBeFound("idCourrier.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllCourriersByIdCourrierContainsSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where idCourrier contains DEFAULT_ID_COURRIER
+        defaultCourrierShouldBeFound("idCourrier.contains=" + DEFAULT_ID_COURRIER);
+
+        // Get all the courrierList where idCourrier contains UPDATED_ID_COURRIER
+        defaultCourrierShouldNotBeFound("idCourrier.contains=" + UPDATED_ID_COURRIER);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByIdCourrierNotContainsSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where idCourrier does not contain DEFAULT_ID_COURRIER
+        defaultCourrierShouldNotBeFound("idCourrier.doesNotContain=" + DEFAULT_ID_COURRIER);
+
+        // Get all the courrierList where idCourrier does not contain UPDATED_ID_COURRIER
+        defaultCourrierShouldBeFound("idCourrier.doesNotContain=" + UPDATED_ID_COURRIER);
+    }
+
 
     @Test
     @Transactional
@@ -460,6 +486,19 @@ public class CourrierResourceIT {
 
         // Get all the courrierList where subject equals to UPDATED_SUBJECT
         defaultCourrierShouldNotBeFound("subject.equals=" + UPDATED_SUBJECT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersBySubjectIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where subject not equals to DEFAULT_SUBJECT
+        defaultCourrierShouldNotBeFound("subject.notEquals=" + DEFAULT_SUBJECT);
+
+        // Get all the courrierList where subject not equals to UPDATED_SUBJECT
+        defaultCourrierShouldBeFound("subject.notEquals=" + UPDATED_SUBJECT);
     }
 
     @Test
@@ -487,6 +526,32 @@ public class CourrierResourceIT {
         // Get all the courrierList where subject is null
         defaultCourrierShouldNotBeFound("subject.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllCourriersBySubjectContainsSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where subject contains DEFAULT_SUBJECT
+        defaultCourrierShouldBeFound("subject.contains=" + DEFAULT_SUBJECT);
+
+        // Get all the courrierList where subject contains UPDATED_SUBJECT
+        defaultCourrierShouldNotBeFound("subject.contains=" + UPDATED_SUBJECT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersBySubjectNotContainsSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where subject does not contain DEFAULT_SUBJECT
+        defaultCourrierShouldNotBeFound("subject.doesNotContain=" + DEFAULT_SUBJECT);
+
+        // Get all the courrierList where subject does not contain UPDATED_SUBJECT
+        defaultCourrierShouldBeFound("subject.doesNotContain=" + UPDATED_SUBJECT);
+    }
+
 
     @Test
     @Transactional
@@ -499,6 +564,19 @@ public class CourrierResourceIT {
 
         // Get all the courrierList where description equals to UPDATED_DESCRIPTION
         defaultCourrierShouldNotBeFound("description.equals=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByDescriptionIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where description not equals to DEFAULT_DESCRIPTION
+        defaultCourrierShouldNotBeFound("description.notEquals=" + DEFAULT_DESCRIPTION);
+
+        // Get all the courrierList where description not equals to UPDATED_DESCRIPTION
+        defaultCourrierShouldBeFound("description.notEquals=" + UPDATED_DESCRIPTION);
     }
 
     @Test
@@ -526,6 +604,32 @@ public class CourrierResourceIT {
         // Get all the courrierList where description is null
         defaultCourrierShouldNotBeFound("description.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllCourriersByDescriptionContainsSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where description contains DEFAULT_DESCRIPTION
+        defaultCourrierShouldBeFound("description.contains=" + DEFAULT_DESCRIPTION);
+
+        // Get all the courrierList where description contains UPDATED_DESCRIPTION
+        defaultCourrierShouldNotBeFound("description.contains=" + UPDATED_DESCRIPTION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByDescriptionNotContainsSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where description does not contain DEFAULT_DESCRIPTION
+        defaultCourrierShouldNotBeFound("description.doesNotContain=" + DEFAULT_DESCRIPTION);
+
+        // Get all the courrierList where description does not contain UPDATED_DESCRIPTION
+        defaultCourrierShouldBeFound("description.doesNotContain=" + UPDATED_DESCRIPTION);
+    }
+
 
     @Test
     @Transactional
@@ -538,6 +642,19 @@ public class CourrierResourceIT {
 
         // Get all the courrierList where typeCourrier equals to UPDATED_TYPE_COURRIER
         defaultCourrierShouldNotBeFound("typeCourrier.equals=" + UPDATED_TYPE_COURRIER);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByTypeCourrierIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where typeCourrier not equals to DEFAULT_TYPE_COURRIER
+        defaultCourrierShouldNotBeFound("typeCourrier.notEquals=" + DEFAULT_TYPE_COURRIER);
+
+        // Get all the courrierList where typeCourrier not equals to UPDATED_TYPE_COURRIER
+        defaultCourrierShouldBeFound("typeCourrier.notEquals=" + UPDATED_TYPE_COURRIER);
     }
 
     @Test
@@ -581,6 +698,19 @@ public class CourrierResourceIT {
 
     @Test
     @Transactional
+    public void getAllCourriersByCreatedAtIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where createdAt not equals to DEFAULT_CREATED_AT
+        defaultCourrierShouldNotBeFound("createdAt.notEquals=" + DEFAULT_CREATED_AT);
+
+        // Get all the courrierList where createdAt not equals to UPDATED_CREATED_AT
+        defaultCourrierShouldBeFound("createdAt.notEquals=" + UPDATED_CREATED_AT);
+    }
+
+    @Test
+    @Transactional
     public void getAllCourriersByCreatedAtIsInShouldWork() throws Exception {
         // Initialize the database
         courrierRepository.saveAndFlush(courrier);
@@ -616,6 +746,19 @@ public class CourrierResourceIT {
 
         // Get all the courrierList where updatedAt equals to UPDATED_UPDATED_AT
         defaultCourrierShouldNotBeFound("updatedAt.equals=" + UPDATED_UPDATED_AT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByUpdatedAtIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where updatedAt not equals to DEFAULT_UPDATED_AT
+        defaultCourrierShouldNotBeFound("updatedAt.notEquals=" + DEFAULT_UPDATED_AT);
+
+        // Get all the courrierList where updatedAt not equals to UPDATED_UPDATED_AT
+        defaultCourrierShouldBeFound("updatedAt.notEquals=" + UPDATED_UPDATED_AT);
     }
 
     @Test
@@ -659,6 +802,19 @@ public class CourrierResourceIT {
 
     @Test
     @Transactional
+    public void getAllCourriersByCreatedByIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where createdBy not equals to DEFAULT_CREATED_BY
+        defaultCourrierShouldNotBeFound("createdBy.notEquals=" + DEFAULT_CREATED_BY);
+
+        // Get all the courrierList where createdBy not equals to UPDATED_CREATED_BY
+        defaultCourrierShouldBeFound("createdBy.notEquals=" + UPDATED_CREATED_BY);
+    }
+
+    @Test
+    @Transactional
     public void getAllCourriersByCreatedByIsInShouldWork() throws Exception {
         // Initialize the database
         courrierRepository.saveAndFlush(courrier);
@@ -682,6 +838,32 @@ public class CourrierResourceIT {
         // Get all the courrierList where createdBy is null
         defaultCourrierShouldNotBeFound("createdBy.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllCourriersByCreatedByContainsSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where createdBy contains DEFAULT_CREATED_BY
+        defaultCourrierShouldBeFound("createdBy.contains=" + DEFAULT_CREATED_BY);
+
+        // Get all the courrierList where createdBy contains UPDATED_CREATED_BY
+        defaultCourrierShouldNotBeFound("createdBy.contains=" + UPDATED_CREATED_BY);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByCreatedByNotContainsSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where createdBy does not contain DEFAULT_CREATED_BY
+        defaultCourrierShouldNotBeFound("createdBy.doesNotContain=" + DEFAULT_CREATED_BY);
+
+        // Get all the courrierList where createdBy does not contain UPDATED_CREATED_BY
+        defaultCourrierShouldBeFound("createdBy.doesNotContain=" + UPDATED_CREATED_BY);
+    }
+
 
     @Test
     @Transactional
@@ -694,6 +876,19 @@ public class CourrierResourceIT {
 
         // Get all the courrierList where updatedBy equals to UPDATED_UPDATED_BY
         defaultCourrierShouldNotBeFound("updatedBy.equals=" + UPDATED_UPDATED_BY);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByUpdatedByIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where updatedBy not equals to DEFAULT_UPDATED_BY
+        defaultCourrierShouldNotBeFound("updatedBy.notEquals=" + DEFAULT_UPDATED_BY);
+
+        // Get all the courrierList where updatedBy not equals to UPDATED_UPDATED_BY
+        defaultCourrierShouldBeFound("updatedBy.notEquals=" + UPDATED_UPDATED_BY);
     }
 
     @Test
@@ -721,6 +916,32 @@ public class CourrierResourceIT {
         // Get all the courrierList where updatedBy is null
         defaultCourrierShouldNotBeFound("updatedBy.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllCourriersByUpdatedByContainsSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where updatedBy contains DEFAULT_UPDATED_BY
+        defaultCourrierShouldBeFound("updatedBy.contains=" + DEFAULT_UPDATED_BY);
+
+        // Get all the courrierList where updatedBy contains UPDATED_UPDATED_BY
+        defaultCourrierShouldNotBeFound("updatedBy.contains=" + UPDATED_UPDATED_BY);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByUpdatedByNotContainsSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where updatedBy does not contain DEFAULT_UPDATED_BY
+        defaultCourrierShouldNotBeFound("updatedBy.doesNotContain=" + DEFAULT_UPDATED_BY);
+
+        // Get all the courrierList where updatedBy does not contain UPDATED_UPDATED_BY
+        defaultCourrierShouldBeFound("updatedBy.doesNotContain=" + UPDATED_UPDATED_BY);
+    }
+
 
     @Test
     @Transactional
@@ -733,6 +954,19 @@ public class CourrierResourceIT {
 
         // Get all the courrierList where delai equals to UPDATED_DELAI
         defaultCourrierShouldNotBeFound("delai.equals=" + UPDATED_DELAI);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByDelaiIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where delai not equals to DEFAULT_DELAI
+        defaultCourrierShouldNotBeFound("delai.notEquals=" + DEFAULT_DELAI);
+
+        // Get all the courrierList where delai not equals to UPDATED_DELAI
+        defaultCourrierShouldBeFound("delai.notEquals=" + UPDATED_DELAI);
     }
 
     @Test
@@ -763,6 +997,59 @@ public class CourrierResourceIT {
 
     @Test
     @Transactional
+    public void getAllCourriersByDelaiIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where delai is greater than or equal to DEFAULT_DELAI
+        defaultCourrierShouldBeFound("delai.greaterThanOrEqual=" + DEFAULT_DELAI);
+
+        // Get all the courrierList where delai is greater than or equal to UPDATED_DELAI
+        defaultCourrierShouldNotBeFound("delai.greaterThanOrEqual=" + UPDATED_DELAI);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByDelaiIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where delai is less than or equal to DEFAULT_DELAI
+        defaultCourrierShouldBeFound("delai.lessThanOrEqual=" + DEFAULT_DELAI);
+
+        // Get all the courrierList where delai is less than or equal to SMALLER_DELAI
+        defaultCourrierShouldNotBeFound("delai.lessThanOrEqual=" + SMALLER_DELAI);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByDelaiIsLessThanSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where delai is less than DEFAULT_DELAI
+        defaultCourrierShouldNotBeFound("delai.lessThan=" + DEFAULT_DELAI);
+
+        // Get all the courrierList where delai is less than UPDATED_DELAI
+        defaultCourrierShouldBeFound("delai.lessThan=" + UPDATED_DELAI);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByDelaiIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where delai is greater than DEFAULT_DELAI
+        defaultCourrierShouldNotBeFound("delai.greaterThan=" + DEFAULT_DELAI);
+
+        // Get all the courrierList where delai is greater than SMALLER_DELAI
+        defaultCourrierShouldBeFound("delai.greaterThan=" + SMALLER_DELAI);
+    }
+
+
+    @Test
+    @Transactional
     public void getAllCourriersByRelanceIsEqualToSomething() throws Exception {
         // Initialize the database
         courrierRepository.saveAndFlush(courrier);
@@ -772,6 +1059,19 @@ public class CourrierResourceIT {
 
         // Get all the courrierList where relance equals to UPDATED_RELANCE
         defaultCourrierShouldNotBeFound("relance.equals=" + UPDATED_RELANCE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByRelanceIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where relance not equals to DEFAULT_RELANCE
+        defaultCourrierShouldNotBeFound("relance.notEquals=" + DEFAULT_RELANCE);
+
+        // Get all the courrierList where relance not equals to UPDATED_RELANCE
+        defaultCourrierShouldBeFound("relance.notEquals=" + UPDATED_RELANCE);
     }
 
     @Test
@@ -802,6 +1102,59 @@ public class CourrierResourceIT {
 
     @Test
     @Transactional
+    public void getAllCourriersByRelanceIsGreaterThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where relance is greater than or equal to DEFAULT_RELANCE
+        defaultCourrierShouldBeFound("relance.greaterThanOrEqual=" + DEFAULT_RELANCE);
+
+        // Get all the courrierList where relance is greater than or equal to UPDATED_RELANCE
+        defaultCourrierShouldNotBeFound("relance.greaterThanOrEqual=" + UPDATED_RELANCE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByRelanceIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where relance is less than or equal to DEFAULT_RELANCE
+        defaultCourrierShouldBeFound("relance.lessThanOrEqual=" + DEFAULT_RELANCE);
+
+        // Get all the courrierList where relance is less than or equal to SMALLER_RELANCE
+        defaultCourrierShouldNotBeFound("relance.lessThanOrEqual=" + SMALLER_RELANCE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByRelanceIsLessThanSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where relance is less than DEFAULT_RELANCE
+        defaultCourrierShouldNotBeFound("relance.lessThan=" + DEFAULT_RELANCE);
+
+        // Get all the courrierList where relance is less than UPDATED_RELANCE
+        defaultCourrierShouldBeFound("relance.lessThan=" + UPDATED_RELANCE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByRelanceIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where relance is greater than DEFAULT_RELANCE
+        defaultCourrierShouldNotBeFound("relance.greaterThan=" + DEFAULT_RELANCE);
+
+        // Get all the courrierList where relance is greater than SMALLER_RELANCE
+        defaultCourrierShouldBeFound("relance.greaterThan=" + SMALLER_RELANCE);
+    }
+
+
+    @Test
+    @Transactional
     public void getAllCourriersByAccuseIsEqualToSomething() throws Exception {
         // Initialize the database
         courrierRepository.saveAndFlush(courrier);
@@ -811,6 +1164,19 @@ public class CourrierResourceIT {
 
         // Get all the courrierList where accuse equals to UPDATED_ACCUSE
         defaultCourrierShouldNotBeFound("accuse.equals=" + UPDATED_ACCUSE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByAccuseIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where accuse not equals to DEFAULT_ACCUSE
+        defaultCourrierShouldNotBeFound("accuse.notEquals=" + DEFAULT_ACCUSE);
+
+        // Get all the courrierList where accuse not equals to UPDATED_ACCUSE
+        defaultCourrierShouldBeFound("accuse.notEquals=" + UPDATED_ACCUSE);
     }
 
     @Test
@@ -854,6 +1220,19 @@ public class CourrierResourceIT {
 
     @Test
     @Transactional
+    public void getAllCourriersByReponseIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where reponse not equals to DEFAULT_REPONSE
+        defaultCourrierShouldNotBeFound("reponse.notEquals=" + DEFAULT_REPONSE);
+
+        // Get all the courrierList where reponse not equals to UPDATED_REPONSE
+        defaultCourrierShouldBeFound("reponse.notEquals=" + UPDATED_REPONSE);
+    }
+
+    @Test
+    @Transactional
     public void getAllCourriersByReponseIsInShouldWork() throws Exception {
         // Initialize the database
         courrierRepository.saveAndFlush(courrier);
@@ -893,6 +1272,19 @@ public class CourrierResourceIT {
 
     @Test
     @Transactional
+    public void getAllCourriersByDateAccuseIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where dateAccuse not equals to DEFAULT_DATE_ACCUSE
+        defaultCourrierShouldNotBeFound("dateAccuse.notEquals=" + DEFAULT_DATE_ACCUSE);
+
+        // Get all the courrierList where dateAccuse not equals to UPDATED_DATE_ACCUSE
+        defaultCourrierShouldBeFound("dateAccuse.notEquals=" + UPDATED_DATE_ACCUSE);
+    }
+
+    @Test
+    @Transactional
     public void getAllCourriersByDateAccuseIsInShouldWork() throws Exception {
         // Initialize the database
         courrierRepository.saveAndFlush(courrier);
@@ -923,11 +1315,24 @@ public class CourrierResourceIT {
         // Initialize the database
         courrierRepository.saveAndFlush(courrier);
 
-        // Get all the courrierList where dateAccuse greater than or equals to DEFAULT_DATE_ACCUSE
-        defaultCourrierShouldBeFound("dateAccuse.greaterOrEqualThan=" + DEFAULT_DATE_ACCUSE);
+        // Get all the courrierList where dateAccuse is greater than or equal to DEFAULT_DATE_ACCUSE
+        defaultCourrierShouldBeFound("dateAccuse.greaterThanOrEqual=" + DEFAULT_DATE_ACCUSE);
 
-        // Get all the courrierList where dateAccuse greater than or equals to UPDATED_DATE_ACCUSE
-        defaultCourrierShouldNotBeFound("dateAccuse.greaterOrEqualThan=" + UPDATED_DATE_ACCUSE);
+        // Get all the courrierList where dateAccuse is greater than or equal to UPDATED_DATE_ACCUSE
+        defaultCourrierShouldNotBeFound("dateAccuse.greaterThanOrEqual=" + UPDATED_DATE_ACCUSE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByDateAccuseIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where dateAccuse is less than or equal to DEFAULT_DATE_ACCUSE
+        defaultCourrierShouldBeFound("dateAccuse.lessThanOrEqual=" + DEFAULT_DATE_ACCUSE);
+
+        // Get all the courrierList where dateAccuse is less than or equal to SMALLER_DATE_ACCUSE
+        defaultCourrierShouldNotBeFound("dateAccuse.lessThanOrEqual=" + SMALLER_DATE_ACCUSE);
     }
 
     @Test
@@ -936,11 +1341,24 @@ public class CourrierResourceIT {
         // Initialize the database
         courrierRepository.saveAndFlush(courrier);
 
-        // Get all the courrierList where dateAccuse less than or equals to DEFAULT_DATE_ACCUSE
+        // Get all the courrierList where dateAccuse is less than DEFAULT_DATE_ACCUSE
         defaultCourrierShouldNotBeFound("dateAccuse.lessThan=" + DEFAULT_DATE_ACCUSE);
 
-        // Get all the courrierList where dateAccuse less than or equals to UPDATED_DATE_ACCUSE
+        // Get all the courrierList where dateAccuse is less than UPDATED_DATE_ACCUSE
         defaultCourrierShouldBeFound("dateAccuse.lessThan=" + UPDATED_DATE_ACCUSE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByDateAccuseIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where dateAccuse is greater than DEFAULT_DATE_ACCUSE
+        defaultCourrierShouldNotBeFound("dateAccuse.greaterThan=" + DEFAULT_DATE_ACCUSE);
+
+        // Get all the courrierList where dateAccuse is greater than SMALLER_DATE_ACCUSE
+        defaultCourrierShouldBeFound("dateAccuse.greaterThan=" + SMALLER_DATE_ACCUSE);
     }
 
 
@@ -955,6 +1373,19 @@ public class CourrierResourceIT {
 
         // Get all the courrierList where dateReponse equals to UPDATED_DATE_REPONSE
         defaultCourrierShouldNotBeFound("dateReponse.equals=" + UPDATED_DATE_REPONSE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByDateReponseIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where dateReponse not equals to DEFAULT_DATE_REPONSE
+        defaultCourrierShouldNotBeFound("dateReponse.notEquals=" + DEFAULT_DATE_REPONSE);
+
+        // Get all the courrierList where dateReponse not equals to UPDATED_DATE_REPONSE
+        defaultCourrierShouldBeFound("dateReponse.notEquals=" + UPDATED_DATE_REPONSE);
     }
 
     @Test
@@ -989,11 +1420,24 @@ public class CourrierResourceIT {
         // Initialize the database
         courrierRepository.saveAndFlush(courrier);
 
-        // Get all the courrierList where dateReponse greater than or equals to DEFAULT_DATE_REPONSE
-        defaultCourrierShouldBeFound("dateReponse.greaterOrEqualThan=" + DEFAULT_DATE_REPONSE);
+        // Get all the courrierList where dateReponse is greater than or equal to DEFAULT_DATE_REPONSE
+        defaultCourrierShouldBeFound("dateReponse.greaterThanOrEqual=" + DEFAULT_DATE_REPONSE);
 
-        // Get all the courrierList where dateReponse greater than or equals to UPDATED_DATE_REPONSE
-        defaultCourrierShouldNotBeFound("dateReponse.greaterOrEqualThan=" + UPDATED_DATE_REPONSE);
+        // Get all the courrierList where dateReponse is greater than or equal to UPDATED_DATE_REPONSE
+        defaultCourrierShouldNotBeFound("dateReponse.greaterThanOrEqual=" + UPDATED_DATE_REPONSE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByDateReponseIsLessThanOrEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where dateReponse is less than or equal to DEFAULT_DATE_REPONSE
+        defaultCourrierShouldBeFound("dateReponse.lessThanOrEqual=" + DEFAULT_DATE_REPONSE);
+
+        // Get all the courrierList where dateReponse is less than or equal to SMALLER_DATE_REPONSE
+        defaultCourrierShouldNotBeFound("dateReponse.lessThanOrEqual=" + SMALLER_DATE_REPONSE);
     }
 
     @Test
@@ -1002,11 +1446,24 @@ public class CourrierResourceIT {
         // Initialize the database
         courrierRepository.saveAndFlush(courrier);
 
-        // Get all the courrierList where dateReponse less than or equals to DEFAULT_DATE_REPONSE
+        // Get all the courrierList where dateReponse is less than DEFAULT_DATE_REPONSE
         defaultCourrierShouldNotBeFound("dateReponse.lessThan=" + DEFAULT_DATE_REPONSE);
 
-        // Get all the courrierList where dateReponse less than or equals to UPDATED_DATE_REPONSE
+        // Get all the courrierList where dateReponse is less than UPDATED_DATE_REPONSE
         defaultCourrierShouldBeFound("dateReponse.lessThan=" + UPDATED_DATE_REPONSE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByDateReponseIsGreaterThanSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where dateReponse is greater than DEFAULT_DATE_REPONSE
+        defaultCourrierShouldNotBeFound("dateReponse.greaterThan=" + DEFAULT_DATE_REPONSE);
+
+        // Get all the courrierList where dateReponse is greater than SMALLER_DATE_REPONSE
+        defaultCourrierShouldBeFound("dateReponse.greaterThan=" + SMALLER_DATE_REPONSE);
     }
 
 
@@ -1021,6 +1478,19 @@ public class CourrierResourceIT {
 
         // Get all the courrierList where status equals to UPDATED_STATUS
         defaultCourrierShouldNotBeFound("status.equals=" + UPDATED_STATUS);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByStatusIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where status not equals to DEFAULT_STATUS
+        defaultCourrierShouldNotBeFound("status.notEquals=" + DEFAULT_STATUS);
+
+        // Get all the courrierList where status not equals to UPDATED_STATUS
+        defaultCourrierShouldBeFound("status.notEquals=" + UPDATED_STATUS);
     }
 
     @Test
@@ -1064,6 +1534,19 @@ public class CourrierResourceIT {
 
     @Test
     @Transactional
+    public void getAllCourriersByReceivedAtIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where receivedAt not equals to DEFAULT_RECEIVED_AT
+        defaultCourrierShouldNotBeFound("receivedAt.notEquals=" + DEFAULT_RECEIVED_AT);
+
+        // Get all the courrierList where receivedAt not equals to UPDATED_RECEIVED_AT
+        defaultCourrierShouldBeFound("receivedAt.notEquals=" + UPDATED_RECEIVED_AT);
+    }
+
+    @Test
+    @Transactional
     public void getAllCourriersByReceivedAtIsInShouldWork() throws Exception {
         // Initialize the database
         courrierRepository.saveAndFlush(courrier);
@@ -1103,6 +1586,19 @@ public class CourrierResourceIT {
 
     @Test
     @Transactional
+    public void getAllCourriersByInstructionIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where instruction not equals to DEFAULT_INSTRUCTION
+        defaultCourrierShouldNotBeFound("instruction.notEquals=" + DEFAULT_INSTRUCTION);
+
+        // Get all the courrierList where instruction not equals to UPDATED_INSTRUCTION
+        defaultCourrierShouldBeFound("instruction.notEquals=" + UPDATED_INSTRUCTION);
+    }
+
+    @Test
+    @Transactional
     public void getAllCourriersByInstructionIsInShouldWork() throws Exception {
         // Initialize the database
         courrierRepository.saveAndFlush(courrier);
@@ -1126,6 +1622,32 @@ public class CourrierResourceIT {
         // Get all the courrierList where instruction is null
         defaultCourrierShouldNotBeFound("instruction.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllCourriersByInstructionContainsSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where instruction contains DEFAULT_INSTRUCTION
+        defaultCourrierShouldBeFound("instruction.contains=" + DEFAULT_INSTRUCTION);
+
+        // Get all the courrierList where instruction contains UPDATED_INSTRUCTION
+        defaultCourrierShouldNotBeFound("instruction.contains=" + UPDATED_INSTRUCTION);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByInstructionNotContainsSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where instruction does not contain DEFAULT_INSTRUCTION
+        defaultCourrierShouldNotBeFound("instruction.doesNotContain=" + DEFAULT_INSTRUCTION);
+
+        // Get all the courrierList where instruction does not contain UPDATED_INSTRUCTION
+        defaultCourrierShouldBeFound("instruction.doesNotContain=" + UPDATED_INSTRUCTION);
+    }
+
 
     @Test
     @Transactional
@@ -1138,6 +1660,19 @@ public class CourrierResourceIT {
 
         // Get all the courrierList where expediteurDesc equals to UPDATED_EXPEDITEUR_DESC
         defaultCourrierShouldNotBeFound("expediteurDesc.equals=" + UPDATED_EXPEDITEUR_DESC);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByExpediteurDescIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where expediteurDesc not equals to DEFAULT_EXPEDITEUR_DESC
+        defaultCourrierShouldNotBeFound("expediteurDesc.notEquals=" + DEFAULT_EXPEDITEUR_DESC);
+
+        // Get all the courrierList where expediteurDesc not equals to UPDATED_EXPEDITEUR_DESC
+        defaultCourrierShouldBeFound("expediteurDesc.notEquals=" + UPDATED_EXPEDITEUR_DESC);
     }
 
     @Test
@@ -1165,6 +1700,32 @@ public class CourrierResourceIT {
         // Get all the courrierList where expediteurDesc is null
         defaultCourrierShouldNotBeFound("expediteurDesc.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllCourriersByExpediteurDescContainsSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where expediteurDesc contains DEFAULT_EXPEDITEUR_DESC
+        defaultCourrierShouldBeFound("expediteurDesc.contains=" + DEFAULT_EXPEDITEUR_DESC);
+
+        // Get all the courrierList where expediteurDesc contains UPDATED_EXPEDITEUR_DESC
+        defaultCourrierShouldNotBeFound("expediteurDesc.contains=" + UPDATED_EXPEDITEUR_DESC);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByExpediteurDescNotContainsSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where expediteurDesc does not contain DEFAULT_EXPEDITEUR_DESC
+        defaultCourrierShouldNotBeFound("expediteurDesc.doesNotContain=" + DEFAULT_EXPEDITEUR_DESC);
+
+        // Get all the courrierList where expediteurDesc does not contain UPDATED_EXPEDITEUR_DESC
+        defaultCourrierShouldBeFound("expediteurDesc.doesNotContain=" + UPDATED_EXPEDITEUR_DESC);
+    }
+
 
     @Test
     @Transactional
@@ -1177,6 +1738,19 @@ public class CourrierResourceIT {
 
         // Get all the courrierList where sentAt equals to UPDATED_SENT_AT
         defaultCourrierShouldNotBeFound("sentAt.equals=" + UPDATED_SENT_AT);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersBySentAtIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where sentAt not equals to DEFAULT_SENT_AT
+        defaultCourrierShouldNotBeFound("sentAt.notEquals=" + DEFAULT_SENT_AT);
+
+        // Get all the courrierList where sentAt not equals to UPDATED_SENT_AT
+        defaultCourrierShouldBeFound("sentAt.notEquals=" + UPDATED_SENT_AT);
     }
 
     @Test
@@ -1220,6 +1794,19 @@ public class CourrierResourceIT {
 
     @Test
     @Transactional
+    public void getAllCourriersByDestinataireDescIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where destinataireDesc not equals to DEFAULT_DESTINATAIRE_DESC
+        defaultCourrierShouldNotBeFound("destinataireDesc.notEquals=" + DEFAULT_DESTINATAIRE_DESC);
+
+        // Get all the courrierList where destinataireDesc not equals to UPDATED_DESTINATAIRE_DESC
+        defaultCourrierShouldBeFound("destinataireDesc.notEquals=" + UPDATED_DESTINATAIRE_DESC);
+    }
+
+    @Test
+    @Transactional
     public void getAllCourriersByDestinataireDescIsInShouldWork() throws Exception {
         // Initialize the database
         courrierRepository.saveAndFlush(courrier);
@@ -1243,6 +1830,32 @@ public class CourrierResourceIT {
         // Get all the courrierList where destinataireDesc is null
         defaultCourrierShouldNotBeFound("destinataireDesc.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllCourriersByDestinataireDescContainsSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where destinataireDesc contains DEFAULT_DESTINATAIRE_DESC
+        defaultCourrierShouldBeFound("destinataireDesc.contains=" + DEFAULT_DESTINATAIRE_DESC);
+
+        // Get all the courrierList where destinataireDesc contains UPDATED_DESTINATAIRE_DESC
+        defaultCourrierShouldNotBeFound("destinataireDesc.contains=" + UPDATED_DESTINATAIRE_DESC);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByDestinataireDescNotContainsSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where destinataireDesc does not contain DEFAULT_DESTINATAIRE_DESC
+        defaultCourrierShouldNotBeFound("destinataireDesc.doesNotContain=" + DEFAULT_DESTINATAIRE_DESC);
+
+        // Get all the courrierList where destinataireDesc does not contain UPDATED_DESTINATAIRE_DESC
+        defaultCourrierShouldBeFound("destinataireDesc.doesNotContain=" + UPDATED_DESTINATAIRE_DESC);
+    }
+
 
     @Test
     @Transactional
@@ -1255,6 +1868,19 @@ public class CourrierResourceIT {
 
         // Get all the courrierList where destinataireVille equals to UPDATED_DESTINATAIRE_VILLE
         defaultCourrierShouldNotBeFound("destinataireVille.equals=" + UPDATED_DESTINATAIRE_VILLE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByDestinataireVilleIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where destinataireVille not equals to DEFAULT_DESTINATAIRE_VILLE
+        defaultCourrierShouldNotBeFound("destinataireVille.notEquals=" + DEFAULT_DESTINATAIRE_VILLE);
+
+        // Get all the courrierList where destinataireVille not equals to UPDATED_DESTINATAIRE_VILLE
+        defaultCourrierShouldBeFound("destinataireVille.notEquals=" + UPDATED_DESTINATAIRE_VILLE);
     }
 
     @Test
@@ -1282,11 +1908,38 @@ public class CourrierResourceIT {
         // Get all the courrierList where destinataireVille is null
         defaultCourrierShouldNotBeFound("destinataireVille.specified=false");
     }
+                @Test
+    @Transactional
+    public void getAllCourriersByDestinataireVilleContainsSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where destinataireVille contains DEFAULT_DESTINATAIRE_VILLE
+        defaultCourrierShouldBeFound("destinataireVille.contains=" + DEFAULT_DESTINATAIRE_VILLE);
+
+        // Get all the courrierList where destinataireVille contains UPDATED_DESTINATAIRE_VILLE
+        defaultCourrierShouldNotBeFound("destinataireVille.contains=" + UPDATED_DESTINATAIRE_VILLE);
+    }
+
+    @Test
+    @Transactional
+    public void getAllCourriersByDestinataireVilleNotContainsSomething() throws Exception {
+        // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
+
+        // Get all the courrierList where destinataireVille does not contain DEFAULT_DESTINATAIRE_VILLE
+        defaultCourrierShouldNotBeFound("destinataireVille.doesNotContain=" + DEFAULT_DESTINATAIRE_VILLE);
+
+        // Get all the courrierList where destinataireVille does not contain UPDATED_DESTINATAIRE_VILLE
+        defaultCourrierShouldBeFound("destinataireVille.doesNotContain=" + UPDATED_DESTINATAIRE_VILLE);
+    }
+
 
     @Test
     @Transactional
     public void getAllCourriersByVoieIsEqualToSomething() throws Exception {
         // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
         Voie voie = VoieResourceIT.createEntity(em);
         em.persist(voie);
         em.flush();
@@ -1306,6 +1959,7 @@ public class CourrierResourceIT {
     @Transactional
     public void getAllCourriersByNatureCourrierIsEqualToSomething() throws Exception {
         // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
         NatureCourrier natureCourrier = NatureCourrierResourceIT.createEntity(em);
         em.persist(natureCourrier);
         em.flush();
@@ -1325,6 +1979,7 @@ public class CourrierResourceIT {
     @Transactional
     public void getAllCourriersByLinkedToIsEqualToSomething() throws Exception {
         // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
         Courrier linkedTo = CourrierResourceIT.createEntity(em);
         em.persist(linkedTo);
         em.flush();
@@ -1344,6 +1999,7 @@ public class CourrierResourceIT {
     @Transactional
     public void getAllCourriersByTaskIsEqualToSomething() throws Exception {
         // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
         Task task = TaskResourceIT.createEntity(em);
         em.persist(task);
         em.flush();
@@ -1363,6 +2019,7 @@ public class CourrierResourceIT {
     @Transactional
     public void getAllCourriersByExpeditorIsEqualToSomething() throws Exception {
         // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
         Expeditor expeditor = ExpeditorResourceIT.createEntity(em);
         em.persist(expeditor);
         em.flush();
@@ -1382,6 +2039,7 @@ public class CourrierResourceIT {
     @Transactional
     public void getAllCourriersByDestinatorIsEqualToSomething() throws Exception {
         // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
         Expeditor destinator = ExpeditorResourceIT.createEntity(em);
         em.persist(destinator);
         em.flush();
@@ -1401,6 +2059,7 @@ public class CourrierResourceIT {
     @Transactional
     public void getAllCourriersByCoordinatorIsEqualToSomething() throws Exception {
         // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
         LeService coordinator = LeServiceResourceIT.createEntity(em);
         em.persist(coordinator);
         em.flush();
@@ -1420,6 +2079,7 @@ public class CourrierResourceIT {
     @Transactional
     public void getAllCourriersByEmetteurIsEqualToSomething() throws Exception {
         // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
         LeService emetteur = LeServiceResourceIT.createEntity(em);
         em.persist(emetteur);
         em.flush();
@@ -1439,6 +2099,7 @@ public class CourrierResourceIT {
     @Transactional
     public void getAllCourriersByEvaluationIsEqualToSomething() throws Exception {
         // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
         Evaluation evaluation = EvaluationResourceIT.createEntity(em);
         em.persist(evaluation);
         em.flush();
@@ -1458,6 +2119,7 @@ public class CourrierResourceIT {
     @Transactional
     public void getAllCourriersByCourrierObjectIsEqualToSomething() throws Exception {
         // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
         CourrierObject courrierObject = CourrierObjectResourceIT.createEntity(em);
         em.persist(courrierObject);
         em.flush();
@@ -1477,6 +2139,7 @@ public class CourrierResourceIT {
     @Transactional
     public void getAllCourriersByExpeditorTypeIsEqualToSomething() throws Exception {
         // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
         ExpeditorType expeditorType = ExpeditorTypeResourceIT.createEntity(em);
         em.persist(expeditorType);
         em.flush();
@@ -1496,6 +2159,7 @@ public class CourrierResourceIT {
     @Transactional
     public void getAllCourriersBySubdivisionIsEqualToSomething() throws Exception {
         // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
         Subdivision subdivision = SubdivisionResourceIT.createEntity(em);
         em.persist(subdivision);
         em.flush();
@@ -1515,6 +2179,7 @@ public class CourrierResourceIT {
     @Transactional
     public void getAllCourriersByServicesIsEqualToSomething() throws Exception {
         // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
         LeService services = LeServiceResourceIT.createEntity(em);
         em.persist(services);
         em.flush();
@@ -1534,6 +2199,7 @@ public class CourrierResourceIT {
     @Transactional
     public void getAllCourriersByBordereauIsEqualToSomething() throws Exception {
         // Initialize the database
+        courrierRepository.saveAndFlush(courrier);
         Bordereau bordereau = BordereauResourceIT.createEntity(em);
         em.persist(bordereau);
         em.flush();
@@ -1554,7 +2220,7 @@ public class CourrierResourceIT {
     private void defaultCourrierShouldBeFound(String filter) throws Exception {
         restCourrierMockMvc.perform(get("/api/courriers?sort=id,desc&" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(courrier.getId().intValue())))
             .andExpect(jsonPath("$.[*].idCourrier").value(hasItem(DEFAULT_ID_COURRIER)))
             .andExpect(jsonPath("$.[*].subject").value(hasItem(DEFAULT_SUBJECT)))
@@ -1583,7 +2249,7 @@ public class CourrierResourceIT {
         // Check, that the count call also returns 1
         restCourrierMockMvc.perform(get("/api/courriers/count?sort=id,desc&" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(content().string("1"));
     }
 
@@ -1593,17 +2259,16 @@ public class CourrierResourceIT {
     private void defaultCourrierShouldNotBeFound(String filter) throws Exception {
         restCourrierMockMvc.perform(get("/api/courriers?sort=id,desc&" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$").isEmpty());
 
         // Check, that the count call also returns 0
         restCourrierMockMvc.perform(get("/api/courriers/count?sort=id,desc&" + filter))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(content().string("0"));
     }
-
 
     @Test
     @Transactional
@@ -1650,8 +2315,8 @@ public class CourrierResourceIT {
             .destinataireDesc(UPDATED_DESTINATAIRE_DESC)
             .destinataireVille(UPDATED_DESTINATAIRE_VILLE);
 
-        restCourrierMockMvc.perform(put("/api/courriers")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restCourrierMockMvc.perform(put("/api/courriers").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedCourrier)))
             .andExpect(status().isOk());
 
@@ -1689,11 +2354,9 @@ public class CourrierResourceIT {
     public void updateNonExistingCourrier() throws Exception {
         int databaseSizeBeforeUpdate = courrierRepository.findAll().size();
 
-        // Create the Courrier
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restCourrierMockMvc.perform(put("/api/courriers")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restCourrierMockMvc.perform(put("/api/courriers").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(courrier)))
             .andExpect(status().isBadRequest());
 
@@ -1711,27 +2374,12 @@ public class CourrierResourceIT {
         int databaseSizeBeforeDelete = courrierRepository.findAll().size();
 
         // Delete the courrier
-        restCourrierMockMvc.perform(delete("/api/courriers/{id}", courrier.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+        restCourrierMockMvc.perform(delete("/api/courriers/{id}", courrier.getId()).with(csrf())
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
         List<Courrier> courrierList = courrierRepository.findAll();
         assertThat(courrierList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(Courrier.class);
-        Courrier courrier1 = new Courrier();
-        courrier1.setId(1L);
-        Courrier courrier2 = new Courrier();
-        courrier2.setId(courrier1.getId());
-        assertThat(courrier1).isEqualTo(courrier2);
-        courrier2.setId(2L);
-        assertThat(courrier1).isNotEqualTo(courrier2);
-        courrier1.setId(null);
-        assertThat(courrier1).isNotEqualTo(courrier2);
     }
 }

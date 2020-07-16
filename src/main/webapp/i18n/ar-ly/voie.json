@@ -5,7 +5,7 @@
         "title": "Voies",
         "createLabel": "Create a new Voie",
         "createOrEditLabel": "Create or edit a Voie",
-        "notFound": "No Voie found"
+        "notFound": "No Voies found"
       },
       "created": "A new Voie is created with identifier {{ param }}",
       "updated": "A Voie is updated with identifier {{ param }}",

@@ -1,12 +1,7 @@
 import { Moment } from 'moment';
 import { IUser } from 'app/core/user/user.model';
 import { ICourrier } from 'app/shared/model/courrier.model';
-
-export const enum Status {
-  Ouvert = 'Ouvert',
-  Encours = 'Encours',
-  Traite = 'Traite'
-}
+import { Status } from 'app/shared/model/enumerations/status.model';
 
 export interface ITask {
   id?: number;

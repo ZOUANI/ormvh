@@ -1,13 +1,11 @@
-/* tslint:disable max-line-length */
 import { TestBed, getTestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { of } from 'rxjs';
-import { take, map } from 'rxjs/operators';
 import * as moment from 'moment';
 import { DATE_FORMAT, DATE_TIME_FORMAT } from 'app/shared/constants/input.constants';
 import { CourrierService } from 'app/entities/courrier/courrier.service';
-import { ICourrier, Courrier, TypeCourrier, Status } from 'app/shared/model/courrier.model';
+import { ICourrier, Courrier } from 'app/shared/model/courrier.model';
+import { TypeCourrier } from 'app/shared/model/enumerations/type-courrier.model';
+import { Status } from 'app/shared/model/enumerations/status.model';
 
 describe('Service Tests', () => {
   describe('Courrier Service', () => {
@@ -15,13 +13,14 @@ describe('Service Tests', () => {
     let service: CourrierService;
     let httpMock: HttpTestingController;
     let elemDefault: ICourrier;
-    let expectedResult;
+    let expectedResult: ICourrier | ICourrier[] | boolean | null;
     let currentDate: moment.Moment;
+
     beforeEach(() => {
       TestBed.configureTestingModule({
-        imports: [HttpClientTestingModule]
+        imports: [HttpClientTestingModule],
       });
-      expectedResult = {};
+      expectedResult = null;
       injector = getTestBed();
       service = injector.get(CourrierService);
       httpMock = injector.get(HttpTestingController);
@@ -56,7 +55,7 @@ describe('Service Tests', () => {
     });
 
     describe('Service methods', () => {
-      it('should find an element', async () => {
+      it('should find an element', () => {
         const returnedFromService = Object.assign(
           {
             createdAt: currentDate.format(DATE_TIME_FORMAT),
@@ -64,21 +63,19 @@ describe('Service Tests', () => {
             dateAccuse: currentDate.format(DATE_FORMAT),
             dateReponse: currentDate.format(DATE_FORMAT),
             receivedAt: currentDate.format(DATE_TIME_FORMAT),
-            sentAt: currentDate.format(DATE_TIME_FORMAT)
+            sentAt: currentDate.format(DATE_TIME_FORMAT),
           },
           elemDefault
         );
-        service
-          .find(123)
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
+
+        service.find(123).subscribe(resp => (expectedResult = resp.body));
 
         const req = httpMock.expectOne({ method: 'GET' });
         req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: elemDefault });
+        expect(expectedResult).toMatchObject(elemDefault);
       });
 
-      it('should create a Courrier', async () => {
+      it('should create a Courrier', () => {
         const returnedFromService = Object.assign(
           {
             id: 0,
@@ -87,10 +84,11 @@ describe('Service Tests', () => {
             dateAccuse: currentDate.format(DATE_FORMAT),
             dateReponse: currentDate.format(DATE_FORMAT),
             receivedAt: currentDate.format(DATE_TIME_FORMAT),
-            sentAt: currentDate.format(DATE_TIME_FORMAT)
+            sentAt: currentDate.format(DATE_TIME_FORMAT),
           },
           elemDefault
         );
+
         const expected = Object.assign(
           {
             createdAt: currentDate,
@@ -98,20 +96,19 @@ describe('Service Tests', () => {
             dateAccuse: currentDate,
             dateReponse: currentDate,
             receivedAt: currentDate,
-            sentAt: currentDate
+            sentAt: currentDate,
           },
           returnedFromService
         );
-        service
-          .create(new Courrier(null))
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
+
+        service.create(new Courrier()).subscribe(resp => (expectedResult = resp.body));
+
         const req = httpMock.expectOne({ method: 'POST' });
         req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: expected });
+        expect(expectedResult).toMatchObject(expected);
       });
 
-      it('should update a Courrier', async () => {
+      it('should update a Courrier', () => {
         const returnedFromService = Object.assign(
           {
             idCourrier: 'BBBBBB',
@@ -135,7 +132,7 @@ describe('Service Tests', () => {
             expediteurDesc: 'BBBBBB',
             sentAt: currentDate.format(DATE_TIME_FORMAT),
             destinataireDesc: 'BBBBBB',
-            destinataireVille: 'BBBBBB'
+            destinataireVille: 'BBBBBB',
           },
           elemDefault
         );
@@ -147,20 +144,19 @@ describe('Service Tests', () => {
             dateAccuse: currentDate,
             dateReponse: currentDate,
             receivedAt: currentDate,
-            sentAt: currentDate
+            sentAt: currentDate,
           },
           returnedFromService
         );
-        service
-          .update(expected)
-          .pipe(take(1))
-          .subscribe(resp => (expectedResult = resp));
+
+        service.update(expected).subscribe(resp => (expectedResult = resp.body));
+
         const req = httpMock.expectOne({ method: 'PUT' });
         req.flush(returnedFromService);
-        expect(expectedResult).toMatchObject({ body: expected });
+        expect(expectedResult).toMatchObject(expected);
       });
 
-      it('should return a list of Courrier', async () => {
+      it('should return a list of Courrier', () => {
         const returnedFromService = Object.assign(
           {
             idCourrier: 'BBBBBB',
@@ -184,10 +180,11 @@ describe('Service Tests', () => {
             expediteurDesc: 'BBBBBB',
             sentAt: currentDate.format(DATE_TIME_FORMAT),
             destinataireDesc: 'BBBBBB',
-            destinataireVille: 'BBBBBB'
+            destinataireVille: 'BBBBBB',
           },
           elemDefault
         );
+
         const expected = Object.assign(
           {
             createdAt: currentDate,
@@ -195,25 +192,21 @@ describe('Service Tests', () => {
             dateAccuse: currentDate,
             dateReponse: currentDate,
             receivedAt: currentDate,
-            sentAt: currentDate
+            sentAt: currentDate,
           },
           returnedFromService
         );
-        service
-          .query(expected)
-          .pipe(
-            take(1),
-            map(resp => resp.body)
-          )
-          .subscribe(body => (expectedResult = body));
+
+        service.query().subscribe(resp => (expectedResult = resp.body));
+
         const req = httpMock.expectOne({ method: 'GET' });
         req.flush([returnedFromService]);
         httpMock.verify();
         expect(expectedResult).toContainEqual(expected);
       });
 
-      it('should delete a Courrier', async () => {
-        const rxPromise = service.delete(123).subscribe(resp => (expectedResult = resp.ok));
+      it('should delete a Courrier', () => {
+        service.delete(123).subscribe(resp => (expectedResult = resp.ok));
 
         const req = httpMock.expectOne({ method: 'DELETE' });
         req.flush({ status: 200 });

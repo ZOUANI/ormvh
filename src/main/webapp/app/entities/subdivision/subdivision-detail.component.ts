@@ -5,20 +5,18 @@ import { ISubdivision } from 'app/shared/model/subdivision.model';
 
 @Component({
   selector: 'jhi-subdivision-detail',
-  templateUrl: './subdivision-detail.component.html'
+  templateUrl: './subdivision-detail.component.html',
 })
 export class SubdivisionDetailComponent implements OnInit {
-  subdivision: ISubdivision;
+  subdivision: ISubdivision | null = null;
 
   constructor(protected activatedRoute: ActivatedRoute) {}
 
-  ngOnInit() {
-    this.activatedRoute.data.subscribe(({ subdivision }) => {
-      this.subdivision = subdivision;
-    });
+  ngOnInit(): void {
+    this.activatedRoute.data.subscribe(({ subdivision }) => (this.subdivision = subdivision));
   }
 
-  previousState() {
+  previousState(): void {
     window.history.back();
   }
 }

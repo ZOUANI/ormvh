@@ -28,24 +28,12 @@ public class ExpeditorServiceImpl implements ExpeditorService {
         this.expeditorRepository = expeditorRepository;
     }
 
-    /**
-     * Save a expeditor.
-     *
-     * @param expeditor the entity to save.
-     * @return the persisted entity.
-     */
     @Override
     public Expeditor save(Expeditor expeditor) {
         log.debug("Request to save Expeditor : {}", expeditor);
         return expeditorRepository.save(expeditor);
     }
 
-    /**
-     * Get all the expeditors.
-     *
-     * @param pageable the pagination information.
-     * @return the list of entities.
-     */
     @Override
     @Transactional(readOnly = true)
     public Page<Expeditor> findAll(Pageable pageable) {
@@ -54,12 +42,6 @@ public class ExpeditorServiceImpl implements ExpeditorService {
     }
 
 
-    /**
-     * Get one expeditor by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<Expeditor> findOne(Long id) {
@@ -67,11 +49,6 @@ public class ExpeditorServiceImpl implements ExpeditorService {
         return expeditorRepository.findById(id);
     }
 
-    /**
-     * Delete the expeditor by id.
-     *
-     * @param id the id of the entity.
-     */
     @Override
     public void delete(Long id) {
         log.debug("Request to delete Expeditor : {}", id);

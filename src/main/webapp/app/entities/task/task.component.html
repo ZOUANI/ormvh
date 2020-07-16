@@ -1,105 +1,111 @@
 <div>
     <h2 id="page-heading">
         <span jhiTranslate="ormvahApp.task.home.title">Tasks</span>
+
         <button id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-task" [routerLink]="['/task/new']">
-            <fa-icon [icon]="'plus'"></fa-icon>
+            <fa-icon icon="plus"></fa-icon>
             <span  jhiTranslate="ormvahApp.task.home.createLabel">
-            Create new Task
+            Create a new Task
             </span>
         </button>
     </h2>
+
+    <jhi-alert-error></jhi-alert-error>
+
     <jhi-alert></jhi-alert>
-    <br/>
-    <div class="alert alert-warning" *ngIf="tasks?.length === 0">
+
+    <div class="alert alert-warning" id="no-result" *ngIf="tasks?.length === 0">
         <span jhiTranslate="ormvahApp.task.home.notFound">No tasks found</span>
     </div>
-    <div class="table-responsive" *ngIf="tasks?.length > 0">
-        <table class="table table-striped">
+
+    <div class="table-responsive" id="entities" *ngIf="tasks && tasks.length > 0">
+        <table class="table table-striped" aria-describedby="page-heading">
             <thead>
-            <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
-            <th jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="title"><span jhiTranslate="ormvahApp.task.title">Title</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="description"><span jhiTranslate="ormvahApp.task.description">Description</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="createdAt"><span jhiTranslate="ormvahApp.task.createdAt">Created At</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="updatedAt"><span jhiTranslate="ormvahApp.task.updatedAt">Updated At</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="assignedAt"><span jhiTranslate="ormvahApp.task.assignedAt">Assigned At</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="processedAt"><span jhiTranslate="ormvahApp.task.processedAt">Processed At</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="observation"><span jhiTranslate="ormvahApp.task.observation">Observation</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="status"><span jhiTranslate="ormvahApp.task.status">Status</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="createdBy"><span jhiTranslate="ormvahApp.task.createdBy">Created By</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="updatedBy"><span jhiTranslate="ormvahApp.task.updatedBy">Updated By</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="delai"><span jhiTranslate="ormvahApp.task.delai">Delai</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="relance"><span jhiTranslate="ormvahApp.task.relance">Relance</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="accuse"><span jhiTranslate="ormvahApp.task.accuse">Accuse</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="reponse"><span jhiTranslate="ormvahApp.task.reponse">Reponse</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="dateAccuse"><span jhiTranslate="ormvahApp.task.dateAccuse">Date Accuse</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="dateReponse"><span jhiTranslate="ormvahApp.task.dateReponse">Date Reponse</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="assigne.id"><span jhiTranslate="ormvahApp.task.assigne">Assigne</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th jhiSortBy="courrier.id"><span jhiTranslate="ormvahApp.task.courrier">Courrier</span> <fa-icon [icon]="'sort'"></fa-icon></th>
-            <th></th>
-            </tr>
+                <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="loadPage.bind(this)">
+                    <th scope="col"  jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="title"><span jhiTranslate="ormvahApp.task.title">Title</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="description"><span jhiTranslate="ormvahApp.task.description">Description</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="createdAt"><span jhiTranslate="ormvahApp.task.createdAt">Created At</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="updatedAt"><span jhiTranslate="ormvahApp.task.updatedAt">Updated At</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="assignedAt"><span jhiTranslate="ormvahApp.task.assignedAt">Assigned At</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="processedAt"><span jhiTranslate="ormvahApp.task.processedAt">Processed At</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="observation"><span jhiTranslate="ormvahApp.task.observation">Observation</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="status"><span jhiTranslate="ormvahApp.task.status">Status</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="createdBy"><span jhiTranslate="ormvahApp.task.createdBy">Created By</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="updatedBy"><span jhiTranslate="ormvahApp.task.updatedBy">Updated By</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="delai"><span jhiTranslate="ormvahApp.task.delai">Delai</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="relance"><span jhiTranslate="ormvahApp.task.relance">Relance</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="accuse"><span jhiTranslate="ormvahApp.task.accuse">Accuse</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="reponse"><span jhiTranslate="ormvahApp.task.reponse">Reponse</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="dateAccuse"><span jhiTranslate="ormvahApp.task.dateAccuse">Date Accuse</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="dateReponse"><span jhiTranslate="ormvahApp.task.dateReponse">Date Reponse</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="assigne.id"><span jhiTranslate="ormvahApp.task.assigne">Assigne</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"  jhiSortBy="courrier.id"><span jhiTranslate="ormvahApp.task.courrier">Courrier</span> <fa-icon icon="sort"></fa-icon></th>
+                    <th scope="col"></th>
+                </tr>
             </thead>
             <tbody>
-            <tr *ngFor="let task of tasks ;trackBy: trackId">
-                <td><a [routerLink]="['/task', task.id, 'view' ]">{{task.id}}</a></td>
-                <td>{{task.title}}</td>
-                <td>{{task.description}}</td>
-                <td>{{task.createdAt | date:'medium'}}</td>
-                <td>{{task.updatedAt | date:'medium'}}</td>
-                <td>{{task.assignedAt | date:'medium'}}</td>
-                <td>{{task.processedAt | date:'medium'}}</td>
-                <td>{{task.observation}}</td>
-                <td jhiTranslate="{{'ormvahApp.Status.' + task.status}}">{{task.status}}</td>
-                <td>{{task.createdBy}}</td>
-                <td>{{task.updatedBy}}</td>
-                <td>{{task.delai}}</td>
-                <td>{{task.relance}}</td>
-                <td>{{task.accuse}}</td>
-                <td>{{task.reponse}}</td>
-                <td>{{task.dateAccuse | date:'mediumDate'}}</td>
-                <td>{{task.dateReponse | date:'mediumDate'}}</td>
-                <td>
-                    {{task.assigne?.id}}
-                </td>
-                <td>
-                    <div *ngIf="task.courrier">
-                        <a [routerLink]="['../courrier', task.courrier?.id, 'view' ]" >{{task.courrier?.id}}</a>
-                    </div>
-                </td>
-                <td class="text-right">
-                    <div class="btn-group">
-                        <button type="submit"
-                                [routerLink]="['/task', task.id, 'view' ]"
-                                class="btn btn-info btn-sm">
-                            <fa-icon [icon]="'eye'"></fa-icon>
-                            <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
-                        </button>
-                        <button type="submit"
-                                [routerLink]="['/task', task.id, 'edit']"
-                                class="btn btn-primary btn-sm">
-                            <fa-icon [icon]="'pencil-alt'"></fa-icon>
-                            <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
-                        </button>
-                        <button type="submit"
-                                [routerLink]="['/', 'task', { outlets: { popup: task.id + '/delete'} }]"
-                                replaceUrl="true"
-                                queryParamsHandling="merge"
-                                class="btn btn-danger btn-sm">
-                            <fa-icon [icon]="'times'"></fa-icon>
-                            <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
-                        </button>
-                    </div>
-                </td>
-            </tr>
+                <tr *ngFor="let task of tasks ;trackBy: trackId">
+                    <td><a [routerLink]="['/task', task.id, 'view']">{{ task.id }}</a></td>
+                    <td>{{ task.title }}</td>
+                    <td>{{ task.description }}</td>
+                    <td>{{ task.createdAt | date:'medium' }}</td>
+                    <td>{{ task.updatedAt | date:'medium' }}</td>
+                    <td>{{ task.assignedAt | date:'medium' }}</td>
+                    <td>{{ task.processedAt | date:'medium' }}</td>
+                    <td>{{ task.observation }}</td>
+                    <td jhiTranslate="{{ 'ormvahApp.Status.' + task.status }}">{{ task.status }}</td>
+                    <td>{{ task.createdBy }}</td>
+                    <td>{{ task.updatedBy }}</td>
+                    <td>{{ task.delai }}</td>
+                    <td>{{ task.relance }}</td>
+                    <td>{{ task.accuse }}</td>
+                    <td>{{ task.reponse }}</td>
+                    <td>{{ task.dateAccuse | date:'mediumDate' }}</td>
+                    <td>{{ task.dateReponse | date:'mediumDate' }}</td>
+                    <td>
+                        {{ task.assigne?.id }}
+                    </td>
+                    <td>
+                        <div *ngIf="task.courrier">
+                            <a [routerLink]="['/courrier', task.courrier?.id, 'view']" >{{ task.courrier?.id }}</a>
+                        </div>
+                    </td>
+                    <td class="text-right">
+                        <div class="btn-group">
+                            <button type="submit"
+                                    [routerLink]="['/task', task.id, 'view']"
+                                    class="btn btn-info btn-sm">
+                                <fa-icon icon="eye"></fa-icon>
+                                <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
+                            </button>
+
+                            <button type="submit"
+                                    [routerLink]="['/task', task.id, 'edit']"
+                                    class="btn btn-primary btn-sm">
+                                <fa-icon icon="pencil-alt"></fa-icon>
+                                <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+                            </button>
+
+                            <button type="submit" (click)="delete(task)"
+                                    class="btn btn-danger btn-sm">
+                                <fa-icon icon="times"></fa-icon>
+                                <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
             </tbody>
         </table>
     </div>
-    <div [hidden]="tasks?.length === 0">
+
+    <div *ngIf="tasks && tasks.length > 0">
         <div class="row justify-content-center">
-            <jhi-item-count [page]="page" [total]="totalItems" [maxSize]="5" [itemsPerPage]="itemsPerPage"></jhi-item-count>
+            <jhi-item-count [page]="page" [total]="totalItems" [itemsPerPage]="itemsPerPage"></jhi-item-count>
         </div>
+
         <div class="row justify-content-center">
-            <ngb-pagination [collectionSize]="totalItems" [(page)]="page" [pageSize]="itemsPerPage" [maxSize]="5" [rotate]="true" [boundaryLinks]="true" (pageChange)="loadPage(page)"></ngb-pagination>
+            <ngb-pagination [collectionSize]="totalItems" [(page)]="ngbPaginationPage" [pageSize]="itemsPerPage" [maxSize]="5" [rotate]="true" [boundaryLinks]="true" (pageChange)="loadPage($event)"></ngb-pagination>
         </div>
     </div>
 </div>

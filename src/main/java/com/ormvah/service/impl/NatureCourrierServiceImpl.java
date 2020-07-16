@@ -27,23 +27,12 @@ public class NatureCourrierServiceImpl implements NatureCourrierService {
         this.natureCourrierRepository = natureCourrierRepository;
     }
 
-    /**
-     * Save a natureCourrier.
-     *
-     * @param natureCourrier the entity to save.
-     * @return the persisted entity.
-     */
     @Override
     public NatureCourrier save(NatureCourrier natureCourrier) {
         log.debug("Request to save NatureCourrier : {}", natureCourrier);
         return natureCourrierRepository.save(natureCourrier);
     }
 
-    /**
-     * Get all the natureCourriers.
-     *
-     * @return the list of entities.
-     */
     @Override
     @Transactional(readOnly = true)
     public List<NatureCourrier> findAll() {
@@ -52,12 +41,6 @@ public class NatureCourrierServiceImpl implements NatureCourrierService {
     }
 
 
-    /**
-     * Get one natureCourrier by id.
-     *
-     * @param id the id of the entity.
-     * @return the entity.
-     */
     @Override
     @Transactional(readOnly = true)
     public Optional<NatureCourrier> findOne(Long id) {
@@ -65,11 +48,6 @@ public class NatureCourrierServiceImpl implements NatureCourrierService {
         return natureCourrierRepository.findById(id);
     }
 
-    /**
-     * Delete the natureCourrier by id.
-     *
-     * @param id the id of the entity.
-     */
     @Override
     public void delete(Long id) {
         log.debug("Request to delete NatureCourrier : {}", id);

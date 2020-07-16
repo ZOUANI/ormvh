@@ -29,7 +29,7 @@ spring:
   devtools:
     restart:
       enabled: true
-      additional-exclude: .h2.server.properties
+      additional-exclude: static/**,.h2.server.properties
     livereload:
       enabled: false # we use Webpack dev server + BrowserSync for livereload
   jackson:
@@ -48,14 +48,7 @@ spring:
       enabled: false
   jpa:
     database-platform: io.github.jhipster.domain.util.FixedH2Dialect
-    database: H2
     show-sql: true
-    properties:
-      hibernate.id.new_generator_mappings: true
-      hibernate.connection.provider_disables_autocommit: true
-      hibernate.cache.use_second_level_cache: true
-      hibernate.cache.use_query_cache: false
-      hibernate.generate_statistics: false
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: dev, faker
@@ -96,7 +89,6 @@ jhipster:
       # security key (this key should be unique for your application, and kept secret)
       key: b0846bbc57693e482cc2a98e51ac283a9cea42ee2366206c9c693dd356f11270e12d8333ae660cbf9fba584b9dd516b27cfb
   mail: # specific JHipster mail property, for standard properties see MailProperties
-    from: Ormvah@localhost
     base-url: http://127.0.0.1:8100
   metrics:
     logs: # Reports metrics in the logs
@@ -109,6 +101,9 @@ jhipster:
       host: localhost
       port: 5000
       queue-size: 512
+  audit-events:
+    retention-period: 30 # Number of days before audit events are deleted.
+
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, inject, tick, fakeAsync } from '@angular/core/testing';
-import { Observable, of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 import { OrmvahTestModule } from '../../../test.module';
 import { Session } from 'app/account/sessions/session.model';
@@ -13,13 +13,13 @@ describe('Component Tests', () => {
   let fixture: ComponentFixture<SessionsComponent>;
   let comp: SessionsComponent;
 
-  describe('SessionsComponent', function() {
+  describe('SessionsComponent', () => {
     beforeEach(() => {
       sessions = [new Session('xxxxxx==', new Date(2015, 10, 15), '0:0:0:0:0:0:0:1', 'Mozilla/5.0')];
 
       fixture = TestBed.configureTestingModule({
         imports: [OrmvahTestModule],
-        declarations: [SessionsComponent]
+        declarations: [SessionsComponent],
       })
         .overrideTemplate(SessionsComponent, '')
         .createComponent(SessionsComponent);
@@ -30,8 +30,8 @@ describe('Component Tests', () => {
       [AccountService, SessionsService],
       fakeAsync((mockAccountService: MockAccountService, service: SessionsService) => {
         mockAccountService.spy('identity').and.returnValue(
-          Promise.resolve({
-            id: 'fuzzer'
+          of({
+            id: 'fuzzer',
           })
         );
         spyOn(service, 'findAll').and.returnValue(of(sessions));
@@ -41,10 +41,10 @@ describe('Component Tests', () => {
 
         expect(mockAccountService.identitySpy).toHaveBeenCalled();
         expect(service.findAll).toHaveBeenCalled();
-        expect(comp.success).toBeUndefined();
-        expect(comp.error).toBeUndefined();
+        expect(comp.success).toBe(false);
+        expect(comp.error).toBe(false);
         expect(comp.account).toEqual({
-          id: 'fuzzer'
+          id: 'fuzzer',
         });
         expect(comp.sessions).toEqual(sessions);
       })
@@ -54,8 +54,8 @@ describe('Component Tests', () => {
       [AccountService, SessionsService],
       fakeAsync((mockAccountService: MockAccountService, service: SessionsService) => {
         mockAccountService.spy('identity').and.returnValue(
-          Promise.resolve({
-            id: 'fuzzer'
+          of({
+            id: 'fuzzer',
           })
         );
         spyOn(service, 'findAll').and.returnValue(of(sessions));
@@ -73,23 +73,19 @@ describe('Component Tests', () => {
       [AccountService, SessionsService],
       fakeAsync((mockAccountService: MockAccountService, service: SessionsService) => {
         mockAccountService.spy('identity').and.returnValue(
-          Promise.resolve({
-            id: 'fuzzer'
+          of({
+            id: 'fuzzer',
           })
         );
         spyOn(service, 'findAll').and.returnValue(of(sessions));
-        spyOn(service, 'delete').and.returnValue(
-          of({
-            status: 400
-          })
-        );
+        spyOn(service, 'delete').and.returnValue(throwError({}));
 
         comp.ngOnInit();
         comp.invalidate('xyz');
         tick();
 
-        expect(comp.success).toBeNull();
-        expect(comp.error).toBe('ERROR');
+        expect(comp.success).toBe(false);
+        expect(comp.error).toBe(true);
       })
     ));
 
@@ -97,23 +93,19 @@ describe('Component Tests', () => {
       [AccountService, SessionsService],
       fakeAsync((mockAccountService: MockAccountService, service: SessionsService) => {
         mockAccountService.spy('identity').and.returnValue(
-          Promise.resolve({
-            id: 'fuzzer'
+          of({
+            id: 'fuzzer',
           })
         );
         spyOn(service, 'findAll').and.returnValue(of(sessions));
-        spyOn(service, 'delete').and.returnValue(
-          of({
-            status: 200
-          })
-        );
+        spyOn(service, 'delete').and.returnValue(of({}));
 
         comp.ngOnInit();
         comp.invalidate('xyz');
         tick();
 
-        expect(comp.error).toBeNull();
-        expect(comp.success).toBe('OK');
+        expect(comp.error).toBe(false);
+        expect(comp.success).toBe(true);
       })
     ));
   });

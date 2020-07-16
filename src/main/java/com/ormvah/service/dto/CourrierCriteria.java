@@ -136,10 +136,10 @@ public class CourrierCriteria implements Serializable, Criteria {
 
     private LongFilter bordereauId;
 
-    public CourrierCriteria(){
+    public CourrierCriteria() {
     }
 
-    public CourrierCriteria(CourrierCriteria other){
+    public CourrierCriteria(CourrierCriteria other) {
         this.id = other.id == null ? null : other.id.copy();
         this.idCourrier = other.idCourrier == null ? null : other.idCourrier.copy();
         this.subject = other.subject == null ? null : other.subject.copy();
@@ -562,6 +562,7 @@ public class CourrierCriteria implements Serializable, Criteria {
         );
     }
 
+    // prettier-ignore
     @Override
     public String toString() {
         return "CourrierCriteria{" +

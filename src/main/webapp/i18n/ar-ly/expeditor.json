@@ -5,7 +5,7 @@
         "title": "Expeditors",
         "createLabel": "Create a new Expeditor",
         "createOrEditLabel": "Create or edit a Expeditor",
-        "notFound": "No Expeditor found"
+        "notFound": "No Expeditors found"
       },
       "created": "A new Expeditor is created with identifier {{ param }}",
       "updated": "A Expeditor is updated with identifier {{ param }}",

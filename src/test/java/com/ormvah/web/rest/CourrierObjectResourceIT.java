@@ -4,36 +4,33 @@ import com.ormvah.OrmvahApp;
 import com.ormvah.domain.CourrierObject;
 import com.ormvah.repository.CourrierObjectRepository;
 import com.ormvah.service.CourrierObjectService;
-import com.ormvah.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.Validator;
-
 import javax.persistence.EntityManager;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static com.ormvah.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
- * Integration tests for the {@Link CourrierObjectResource} REST controller.
+ * Integration tests for the {@link CourrierObjectResource} REST controller.
  */
 @SpringBootTest(classes = OrmvahApp.class)
+@AutoConfigureMockMvc
+@WithMockUser
 public class CourrierObjectResourceIT {
 
     private static final String DEFAULT_TITLE = "AAAAAAAAAA";
@@ -61,35 +58,12 @@ public class CourrierObjectResourceIT {
     private CourrierObjectService courrierObjectService;
 
     @Autowired
-    private MappingJackson2HttpMessageConverter jacksonMessageConverter;
-
-    @Autowired
-    private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
-
-    @Autowired
-    private ExceptionTranslator exceptionTranslator;
-
-    @Autowired
     private EntityManager em;
 
     @Autowired
-    private Validator validator;
-
     private MockMvc restCourrierObjectMockMvc;
 
     private CourrierObject courrierObject;
-
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final CourrierObjectResource courrierObjectResource = new CourrierObjectResource(courrierObjectService);
-        this.restCourrierObjectMockMvc = MockMvcBuilders.standaloneSetup(courrierObjectResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setControllerAdvice(exceptionTranslator)
-            .setConversionService(createFormattingConversionService())
-            .setMessageConverters(jacksonMessageConverter)
-            .setValidator(validator).build();
-    }
 
     /**
      * Create an entity for this test.
@@ -133,10 +107,9 @@ public class CourrierObjectResourceIT {
     @Transactional
     public void createCourrierObject() throws Exception {
         int databaseSizeBeforeCreate = courrierObjectRepository.findAll().size();
-
         // Create the CourrierObject
-        restCourrierObjectMockMvc.perform(post("/api/courrier-objects")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restCourrierObjectMockMvc.perform(post("/api/courrier-objects").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(courrierObject)))
             .andExpect(status().isCreated());
 
@@ -161,8 +134,8 @@ public class CourrierObjectResourceIT {
         courrierObject.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
-        restCourrierObjectMockMvc.perform(post("/api/courrier-objects")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restCourrierObjectMockMvc.perform(post("/api/courrier-objects").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(courrierObject)))
             .andExpect(status().isBadRequest());
 
@@ -181,14 +154,14 @@ public class CourrierObjectResourceIT {
         // Get all the courrierObjectList
         restCourrierObjectMockMvc.perform(get("/api/courrier-objects?sort=id,desc"))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(courrierObject.getId().intValue())))
-            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
-            .andExpect(jsonPath("$.[*].category").value(hasItem(DEFAULT_CATEGORY.toString())))
+            .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE)))
+            .andExpect(jsonPath("$.[*].category").value(hasItem(DEFAULT_CATEGORY)))
             .andExpect(jsonPath("$.[*].createdAt").value(hasItem(DEFAULT_CREATED_AT.toString())))
             .andExpect(jsonPath("$.[*].updatedAt").value(hasItem(DEFAULT_UPDATED_AT.toString())))
-            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(DEFAULT_CREATED_BY.toString())))
-            .andExpect(jsonPath("$.[*].updatedBy").value(hasItem(DEFAULT_UPDATED_BY.toString())));
+            .andExpect(jsonPath("$.[*].createdBy").value(hasItem(DEFAULT_CREATED_BY)))
+            .andExpect(jsonPath("$.[*].updatedBy").value(hasItem(DEFAULT_UPDATED_BY)));
     }
     
     @Test
@@ -200,16 +173,15 @@ public class CourrierObjectResourceIT {
         // Get the courrierObject
         restCourrierObjectMockMvc.perform(get("/api/courrier-objects/{id}", courrierObject.getId()))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.id").value(courrierObject.getId().intValue()))
-            .andExpect(jsonPath("$.title").value(DEFAULT_TITLE.toString()))
-            .andExpect(jsonPath("$.category").value(DEFAULT_CATEGORY.toString()))
+            .andExpect(jsonPath("$.title").value(DEFAULT_TITLE))
+            .andExpect(jsonPath("$.category").value(DEFAULT_CATEGORY))
             .andExpect(jsonPath("$.createdAt").value(DEFAULT_CREATED_AT.toString()))
             .andExpect(jsonPath("$.updatedAt").value(DEFAULT_UPDATED_AT.toString()))
-            .andExpect(jsonPath("$.createdBy").value(DEFAULT_CREATED_BY.toString()))
-            .andExpect(jsonPath("$.updatedBy").value(DEFAULT_UPDATED_BY.toString()));
+            .andExpect(jsonPath("$.createdBy").value(DEFAULT_CREATED_BY))
+            .andExpect(jsonPath("$.updatedBy").value(DEFAULT_UPDATED_BY));
     }
-
     @Test
     @Transactional
     public void getNonExistingCourrierObject() throws Exception {
@@ -238,8 +210,8 @@ public class CourrierObjectResourceIT {
             .createdBy(UPDATED_CREATED_BY)
             .updatedBy(UPDATED_UPDATED_BY);
 
-        restCourrierObjectMockMvc.perform(put("/api/courrier-objects")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restCourrierObjectMockMvc.perform(put("/api/courrier-objects").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(updatedCourrierObject)))
             .andExpect(status().isOk());
 
@@ -260,11 +232,9 @@ public class CourrierObjectResourceIT {
     public void updateNonExistingCourrierObject() throws Exception {
         int databaseSizeBeforeUpdate = courrierObjectRepository.findAll().size();
 
-        // Create the CourrierObject
-
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
-        restCourrierObjectMockMvc.perform(put("/api/courrier-objects")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+        restCourrierObjectMockMvc.perform(put("/api/courrier-objects").with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
             .content(TestUtil.convertObjectToJsonBytes(courrierObject)))
             .andExpect(status().isBadRequest());
 
@@ -282,27 +252,12 @@ public class CourrierObjectResourceIT {
         int databaseSizeBeforeDelete = courrierObjectRepository.findAll().size();
 
         // Delete the courrierObject
-        restCourrierObjectMockMvc.perform(delete("/api/courrier-objects/{id}", courrierObject.getId())
-            .accept(TestUtil.APPLICATION_JSON_UTF8))
+        restCourrierObjectMockMvc.perform(delete("/api/courrier-objects/{id}", courrierObject.getId()).with(csrf())
+            .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
 
         // Validate the database contains one less item
         List<CourrierObject> courrierObjectList = courrierObjectRepository.findAll();
         assertThat(courrierObjectList).hasSize(databaseSizeBeforeDelete - 1);
-    }
-
-    @Test
-    @Transactional
-    public void equalsVerifier() throws Exception {
-        TestUtil.equalsVerifier(CourrierObject.class);
-        CourrierObject courrierObject1 = new CourrierObject();
-        courrierObject1.setId(1L);
-        CourrierObject courrierObject2 = new CourrierObject();
-        courrierObject2.setId(courrierObject1.getId());
-        assertThat(courrierObject1).isEqualTo(courrierObject2);
-        courrierObject2.setId(2L);
-        assertThat(courrierObject1).isNotEqualTo(courrierObject2);
-        courrierObject1.setId(null);
-        assertThat(courrierObject1).isNotEqualTo(courrierObject2);
     }
 }
